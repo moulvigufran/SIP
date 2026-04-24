@@ -1,0 +1,731 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Velvet Sip | Ultra Premium Reserve</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Upgraded Ultra-Premium Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --primary: #0A0A0A; /* Jet Black */
+            --gold: #C5A059;    /* Brushed Gold */
+            --crema: #F8F6F0;   /* Alabaster */
+            --text-dark: #111111;
+        }
+
+        body {
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            background-color: var(--crema);
+            color: var(--text-dark);
+            overflow-x: hidden;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        h1, h2, h3, .font-display { font-family: 'Cinzel', serif; letter-spacing: 0.02em; }
+
+        .noise-bg::before {
+            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.04;
+            background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
+        }
+
+        /* Smooth 3D Tilt Setup */
+        .tilt-wrapper { perspective: 1200px; }
+        .tilt-card {
+            transform-style: preserve-3d;
+            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative;
+            will-change: transform;
+        }
+        .glare-container { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
+        .glare {
+            position: absolute; width: 200%; height: 200%; left: -50%; top: -50%;
+            background: radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 60%);
+            transform: translate(var(--glare-x, 0), var(--glare-y, 0));
+            opacity: var(--glare-opacity, 0); transition: opacity 0.3s; mix-blend-mode: overlay;
+        }
+
+        .glass-panel {
+            background: rgba(248, 246, 240, 0.85);
+            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(10, 10, 10, 0.05);
+        }
+
+        /* Cart Sidebar Animations */
+        #cart-sidebar { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        .cart-open { transform: translateX(0) !important; }
+
+        ::-webkit-scrollbar { width: 4px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--primary); }
+        
+        /* Toast Notification */
+        .toast {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: var(--primary); color: var(--gold); padding: 14px 28px; border-radius: 50px;
+            font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
+            opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100000;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid rgba(197, 160, 89, 0.3);
+        }
+        .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
+
+        /* Receipt Print Animation */
+        @keyframes print {
+            0% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        .receipt-anim { animation: print 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+    </style>
+</head>
+<body class="noise-bg">
+
+    <!-- Preloader Animation -->
+    <div id="preloader" class="fixed inset-0 bg-[#0A0A0A] z-[99999] flex items-center justify-center">
+        <div class="overflow-hidden">
+            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#C5A059] translate-y-full opacity-0">
+                VELVET SIP
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div id="toast" class="toast">Item added to cart</div>
+
+    <!-- MAIN CUSTOMER VIEW -->
+    <div id="customer-view" class="block">
+        
+        <!-- Navigation -->
+        <nav class="fixed w-full z-50 top-6 px-6">
+            <div class="max-w-7xl mx-auto glass-panel rounded-full px-6 py-3 flex justify-between items-center shadow-sm">
+                <div class="font-display text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <!-- Green Star Logo -->
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00704A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#00704A" stroke="none"/></svg>
+                    VELVET SIP
+                </div>
+                
+                <div class="flex items-center gap-3 md:gap-5">
+                    <!-- Discreet Chef Portal -->
+                    <button onclick="attemptChefLogin()" class="w-10 h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-neutral-950" title="Staff Portal">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    </button>
+                    <!-- Cart -->
+                    <button onclick="toggleCart()" class="relative px-5 py-2.5 md:px-7 md:py-3 bg-neutral-950 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] transition-colors shadow-lg flex items-center gap-2">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                        <span class="hidden md:inline">Cart</span>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
+                    </button>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Hero Section with Cinematic Video -->
+        <section class="relative pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen">
+            <div class="w-full md:w-1/2 hero-content">
+                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-neutral-900/5 text-neutral-900 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 border border-neutral-900/5">
+                    <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
+                </div>
+                <h1 class="text-6xl md:text-[5.5rem] font-display font-medium text-neutral-950 leading-[0.95] mb-8 tracking-tight">
+                    Sip the <br>
+                    <span class="text-[#C5A059] italic">Extraordinary.</span>
+                </h1>
+                <p class="text-lg text-neutral-500 font-medium mb-10 max-w-md leading-relaxed">
+                    From Mohabbat Ka Sharbath to artisan espresso. Select your cravings, pay digitally, and collect at the counter.
+                </p>
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-neutral-950 text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-[#C5A059] transition-all shadow-xl hover:-translate-y-1">
+                    Start Ordering
+                </button>
+            </div>
+            
+            <div class="w-full md:w-1/2 flex justify-center tilt-wrapper">
+                <!-- Custom Animated Starbucks-Style Cup -->
+                <div class="tilt-card w-full max-w-[350px]" id="hero-tilt" data-tilt-intensity="15">
+                    <div class="glare-container z-20"><div class="glare"></div></div>
+                    
+                    <svg viewBox="0 0 400 500" class="w-full h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.15)] overflow-visible">
+                        <defs>
+                            <clipPath id="cup-mask">
+                                <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" />
+                            </clipPath>
+                            <linearGradient id="coffee-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="#2D1A11" />
+                                <stop offset="50%" stop-color="#4E342E" />
+                                <stop offset="100%" stop-color="#2D1A11" />
+                            </linearGradient>
+                            <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="0%">
+                                <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
+                                <stop offset="20%" stop-color="rgba(255,255,255,0.05)" />
+                                <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
+                                <stop offset="100%" stop-color="rgba(255,255,255,0.3)" />
+                            </linearGradient>
+                        </defs>
+
+                        <!-- Straw (Back part inside cup) -->
+                        <rect x="186" y="20" width="14" height="400" fill="#00704A" transform="rotate(8 200 120)" opacity="0.8"/>
+
+                        <!-- Cup Back Rim -->
+                        <ellipse cx="200" cy="120" rx="100" ry="12" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
+
+                        <!-- Masked Interior (Liquid and Ice) -->
+                        <g clip-path="url(#cup-mask)">
+                            <!-- Glass Background -->
+                            <rect x="0" y="0" width="400" height="500" fill="url(#glass-grad)" />
+                            
+                            <!-- Ice Cubes (Start at bottom) -->
+                            <g class="ice-cubes">
+                                <g class="ice-cube-wrap"><rect x="140" y="380" width="45" height="45" rx="6" fill="rgba(255,255,255,0.8)" stroke="rgba(255,255,255,0.4)" stroke-width="2" transform="rotate(15 160 400)" /></g>
+                                <g class="ice-cube-wrap"><rect x="210" y="350" width="40" height="40" rx="6" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.3)" stroke-width="2" transform="rotate(-12 232 382)" /></g>
+                                <g class="ice-cube-wrap"><rect x="170" y="290" width="50" height="50" rx="6" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.5)" stroke-width="2" transform="rotate(35 189 319)" /></g>
+                                <g class="ice-cube-wrap"><rect x="220" y="260" width="38" height="38" rx="6" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.6)" stroke-width="2" transform="rotate(-25 241 291)" /></g>
+                            </g>
+
+                            <!-- Coffee Liquid (Animated via GSAP attr: y) -->
+                            <rect id="coffee-liquid" x="0" y="470" width="400" height="400" fill="url(#coffee-grad)" />
+                        </g>
+
+                        <!-- Pouring Stream -->
+                        <rect id="pour-stream" x="195" y="-80" width="12" height="480" fill="#3E2723" opacity="0" />
+
+                        <!-- Cup Front Rim & Body Outline -->
+                        <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
+                        <path d="M100 120 Q200 138 300 120" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
+
+                        <!-- Dome Lid -->
+                        <path d="M95 120 C 95 30, 305 30, 305 120" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
+                        <ellipse cx="200" cy="45" rx="25" ry="6" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
+
+                        <!-- Straw (Front Part, sticking out hole) -->
+                        <g transform="rotate(8 200 120)">
+                            <rect x="186" y="-50" width="14" height="100" fill="#00704A" />
+                            <path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#004d33" />
+                        </g>
+
+                        <!-- Green Star Emblem -->
+                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#00704A" stroke-width="3"/>
+                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#00704A" />
+                        <circle cx="200" cy="270" r="38" fill="none" stroke="#00704A" stroke-width="1.5" />
+
+                        <!-- Reflection/Glare on Cup Front -->
+                        <path d="M120 150 Q135 300 140 440" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+                    </svg>
+                </div>
+            </div>
+        </section>
+
+        <!-- Menu Section -->
+        <section id="menu-section" class="py-24 px-6 max-w-7xl mx-auto border-t border-neutral-200/50">
+            <div class="flex flex-col items-center justify-center text-center mb-16 gap-8">
+                <div>
+                    <h2 class="text-4xl md:text-5xl font-display font-semibold text-neutral-950 mb-3">The Menu</h2>
+                    <p class="text-neutral-500 font-medium">Select items to add to your order.</p>
+                </div>
+                <!-- Category Filters -->
+                <div class="flex flex-wrap justify-center gap-3" id="category-filters">
+                    <button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 bg-neutral-950 text-white rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors" data-cat="all">All</button>
+                    <button onclick="filterMenu('hot')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="hot">Hot Brews</button>
+                    <button onclick="filterMenu('mojito')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="mojito">Mojitos</button>
+                    <button onclick="filterMenu('traditional')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="traditional">Traditional</button>
+                    <button onclick="filterMenu('soda')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="soda">Sodas</button>
+                </div>
+            </div>
+
+            <!-- Centered Grid: Strictly 3 in a row on medium and large screens -->
+            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+                <!-- Items injected via JS -->
+            </div>
+        </section>
+
+    </div>
+
+    <!-- CART SIDEBAR -->
+    <div id="cart-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-[#F8F6F0] z-[70] translate-x-full shadow-2xl flex flex-col">
+        <div class="p-8 border-b border-neutral-200/50 flex justify-between items-center">
+            <h2 class="font-display text-3xl font-semibold text-neutral-950">Your Order</h2>
+            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors text-neutral-500">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+        
+        <div class="flex-grow overflow-y-auto p-8 relative">
+            <div class="text-center text-neutral-400 mt-12 font-medium hidden" id="empty-cart-msg">Your cart is empty.</div>
+            <div id="cart-items" class="space-y-4">
+                <!-- Cart items injected here -->
+            </div>
+        </div>
+
+        <div class="p-8 border-t border-neutral-200/50 bg-white">
+            <div class="flex justify-between text-neutral-500 mb-3 font-medium text-sm"><span>Subtotal</span> <span id="cart-subtotal">₹0.00</span></div>
+            <div class="flex justify-between text-neutral-500 mb-5 font-medium text-sm"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
+            <div class="flex justify-between text-neutral-950 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
+            
+            <button onclick="processCheckout()" id="checkout-btn" class="w-full py-4 bg-neutral-950 text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#C5A059] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
+                Pay & Print Bill
+            </button>
+        </div>
+    </div>
+
+    <!-- BILL / RECEIPT MODAL -->
+    <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
+            <div class="p-10 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
+                <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1">VELVET SIP</div>
+                <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-5">Reserve Boutique</div>
+                <div class="text-xs text-neutral-400 font-mono mb-6" id="bill-date">Date: ...</div>
+                
+                <div class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-widest border-b border-neutral-200 pb-3">Order <span id="bill-order-num" class="text-[#C5A059]">#1024</span></div>
+                
+                <div id="bill-items" class="text-left space-y-3 mb-8 mt-5 font-mono text-xs text-neutral-600">
+                    <!-- Bill items injected here -->
+                </div>
+                
+                <div class="border-t border-neutral-300 pt-5 text-left font-mono text-sm">
+                    <div class="flex justify-between font-bold text-neutral-950 text-xl"><span>TOTAL:</span> <span id="bill-total-amt">₹0.00</span></div>
+                    <div class="text-center text-[10px] text-neutral-400 mt-8 font-sans tracking-wide uppercase">Paid via Digital Wallet. <br>Your order is sent to the kitchen!</div>
+                </div>
+            </div>
+            <!-- Jagged edge -->
+            <div class="h-4 w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMCI+PHBvbHlnb24gcG9pbnRzPSIwLDAgNiwxMCAxMiwwIiBmaWxsPSIjRkRGQkY3Ii8+PC9zdmc+')] bg-repeat-x"></div>
+            
+            <button onclick="closeBill()" class="absolute top-5 right-5 text-neutral-400 hover:text-black transition-colors">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- CHEF PASSWORD MODAL -->
+    <div id="password-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+        <div class="w-full max-w-sm bg-white rounded-2xl p-8 relative shadow-2xl">
+            <h3 class="font-display text-2xl font-bold text-neutral-950 mb-2">Staff Access</h3>
+            <p class="text-sm text-neutral-500 mb-6">Enter authorization code to view KDS.</p>
+            <input type="password" id="chef-password-input" class="w-full p-4 border border-neutral-300 rounded-xl mb-2 outline-none focus:border-neutral-950 font-mono text-center tracking-widest text-lg" placeholder="•••">
+            <p id="password-error" class="text-red-500 text-xs hidden mb-4 font-bold text-center">Incorrect code. Access denied.</p>
+            <div class="flex justify-between gap-4 mt-6">
+                <button onclick="closePasswordModal()" class="w-1/2 py-3 text-neutral-500 hover:text-neutral-800 text-xs font-bold uppercase tracking-wider">Cancel</button>
+                <button onclick="verifyChefPassword()" class="w-1/2 py-3 bg-neutral-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#C5A059] transition-colors">Login</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- CHEF / KITCHEN DISPLAY SYSTEM (KDS) VIEW -->
+    <div id="chef-view" class="hidden min-h-screen bg-[#0A0A0A] text-white">
+        
+        <header class="bg-[#111] border-b border-neutral-800 p-6 flex justify-between items-center sticky top-0 z-10">
+            <div>
+                <div class="font-display text-2xl font-bold tracking-widest text-[#C5A059]">KITCHEN DISPLAY</div>
+                <div class="text-xs text-neutral-400 font-mono mt-1">Real-time Order Sync Active</div>
+            </div>
+            <button onclick="exitChefView()" class="px-6 py-2.5 border border-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors">
+                Exit to Customer View
+            </button>
+        </header>
+
+        <div class="p-6 max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-100px)] overflow-hidden">
+            
+            <!-- Column 1: New Orders -->
+            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
+                <div class="p-5 border-b border-neutral-800 bg-red-950/20 text-red-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center">
+                    NEW ORDERS <span class="bg-red-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-new">0</span>
+                </div>
+                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-new"></div>
+            </div>
+
+            <!-- Column 2: Preparing -->
+            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
+                <div class="p-5 border-b border-neutral-800 bg-[#C5A059]/10 text-[#C5A059] font-bold text-xs uppercase tracking-widest flex justify-between items-center">
+                    PREPARING <span class="bg-[#C5A059]/20 px-2.5 py-1 rounded-full text-[10px]" id="count-prep">0</span>
+                </div>
+                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-prep"></div>
+            </div>
+
+            <!-- Column 3: Ready -->
+            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
+                <div class="p-5 border-b border-neutral-800 bg-emerald-950/20 text-emerald-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center">
+                    READY TO SERVE <span class="bg-emerald-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-ready">0</span>
+                </div>
+                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-ready"></div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Application Logic -->
+    <script>
+        // 1. Database
+        const menuItems = [
+            { id: 1, name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
+            { id: 2, name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
+            { id: 3, name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." },
+            { id: 4, name: "Watermelon Mojito", category: "mojito", price: 49, desc: "Fresh watermelon chunks muddled with mint." },
+            { id: 5, name: "Blue Lagoon Mojito", category: "mojito", price: 49, desc: "Citrusy blue curaçao, lime, and sparkling soda." },
+            { id: 6, name: "Mohabbat Ka Sharbath", category: "traditional", price: 49, desc: "Iconic Delhi drink: milk, rooh afza, watermelon." },
+            { id: 7, name: "Sweet Lassi", category: "traditional", price: 49, desc: "Thick, creamy yogurt blended with sugar." },
+            { id: 8, name: "Spiced Buttermilk", category: "traditional", price: 49, desc: "Cooling Chaas with roasted cumin & coriander." },
+            { id: 9, name: "Rose Sharbath", category: "traditional", price: 49, desc: "Sweet, fragrant rose syrup chilled with water." },
+            { id: 10, name: "Coca Cola", category: "soda", price: 49, desc: "Classic chilled cola." },
+            { id: 11, name: "Sprite", category: "soda", price: 49, desc: "Crisp lemon-lime refreshment." }
+        ];
+
+        let cart = [];
+        let orders = [];
+        let orderCounter = 1000;
+
+        // 2. Render Menu (Centered layout, strictly 3 items per row)
+        function renderMenu(category = 'all') {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+            
+            const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
+            
+            filteredItems.forEach(item => {
+                const cardHtml = `
+                    <div class="tilt-wrapper group menu-item-anim w-full">
+                        <div class="tilt-card bg-white p-8 rounded-[1rem] shadow-[0_8px_24px_rgba(0,0,0,0.03)] border border-neutral-100 flex flex-col h-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-[#C5A059]/40 transition-all duration-300" data-tilt-intensity="3">
+                            <div class="glare-container"><div class="glare"></div></div>
+                            <div class="flex justify-between items-start mb-4 text-left">
+                                <h3 class="font-display font-semibold text-xl text-neutral-950 leading-tight">${item.name}</h3>
+                            </div>
+                            <p class="text-xs text-neutral-500 font-medium mb-8 flex-grow leading-relaxed tracking-wide text-left">${item.desc}</p>
+                            <div class="mt-auto flex justify-between items-center pt-5 border-t border-neutral-100">
+                                <span class="font-bold text-lg text-[#C5A059]">₹${item.price.toFixed(2)}</span>
+                                <button onclick="addToCart(${item.id})" class="w-10 h-10 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-[#C5A059] transition-colors shadow-md">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                `;
+                grid.innerHTML += cardHtml;
+            });
+
+            initTilt();
+
+            gsap.fromTo('.menu-item-anim', 
+                { opacity: 0, y: 30 },
+                { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", clearProps: "all" }
+            );
+        }
+
+        // 3. Cart Logic
+        function addToCart(itemId) {
+            const item = menuItems.find(i => i.id === itemId);
+            const existing = cart.find(i => i.id === itemId);
+            if (existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...item, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`Added ${item.name}`);
+        }
+
+        function updateCartQty(itemId, change) {
+            const item = cart.find(i => i.id === itemId);
+            if(item) {
+                item.qty += change;
+                if(item.qty <= 0) cart = cart.filter(i => i.id !== itemId);
+            }
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items');
+            const emptyMsg = document.getElementById('empty-cart-msg');
+            const checkoutBtn = document.getElementById('checkout-btn');
+            const badge = document.getElementById('cart-count');
+            
+            container.innerHTML = '';
+            
+            let subtotal = 0;
+            let totalItems = 0;
+
+            if (cart.length === 0) {
+                emptyMsg.classList.remove('hidden');
+                checkoutBtn.disabled = true;
+                badge.style.opacity = '0';
+            } else {
+                emptyMsg.classList.add('hidden');
+                checkoutBtn.disabled = false;
+                badge.style.opacity = '1';
+                
+                cart.forEach(item => {
+                    subtotal += item.price * item.qty;
+                    totalItems += item.qty;
+                    container.innerHTML += `
+                        <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
+                            <div class="flex-grow">
+                                <div class="font-bold text-sm text-neutral-950">${item.name}</div>
+                                <div class="text-xs text-neutral-500 mt-1">₹${item.price.toFixed(2)} each</div>
+                            </div>
+                            <div class="flex items-center gap-4 bg-neutral-50 rounded-full px-2 py-1 border border-neutral-100">
+                                <button onclick="updateCartQty(${item.id}, -1)" class="w-7 h-7 flex items-center justify-center font-bold text-neutral-400 hover:text-black transition-colors">-</button>
+                                <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
+                                <button onclick="updateCartQty(${item.id}, 1)" class="w-7 h-7 flex items-center justify-center font-bold text-neutral-400 hover:text-black transition-colors">+</button>
+                            </div>
+                        </div>
+                    `;
+                });
+            }
+
+            badge.innerText = totalItems;
+            
+            const tax = subtotal * 0.08;
+            const total = subtotal + tax;
+
+            document.getElementById('cart-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
+            document.getElementById('cart-tax').innerText = `₹${tax.toFixed(2)}`;
+            document.getElementById('cart-total').innerText = `₹${total.toFixed(2)}`;
+        }
+
+        // 4. Checkout & Bill Generation
+        function processCheckout() {
+            if(cart.length === 0) return;
+
+            orderCounter++;
+            const orderNum = `#${orderCounter}`;
+            
+            let subtotal = 0;
+            const orderItems = cart.map(item => {
+                subtotal += item.price * item.qty;
+                return { name: item.name, qty: item.qty, price: item.price };
+            });
+            const total = subtotal + (subtotal * 0.08);
+
+            const newOrder = {
+                id: orderNum,
+                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                items: orderItems,
+                status: 'new'
+            };
+            orders.push(newOrder);
+
+            document.getElementById('bill-order-num').innerText = orderNum;
+            document.getElementById('bill-date').innerText = new Date().toLocaleString();
+            document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
+            
+            const billItemsContainer = document.getElementById('bill-items');
+            billItemsContainer.innerHTML = '';
+            orderItems.forEach(i => {
+                billItemsContainer.innerHTML += `
+                    <div class="flex justify-between">
+                        <span>${i.qty}x ${i.name.substring(0, 15)}</span>
+                        <span>₹${(i.price * i.qty).toFixed(2)}</span>
+                    </div>
+                `;
+            });
+
+            cart = [];
+            updateCartUI();
+            toggleCart();
+            
+            document.getElementById('bill-modal').classList.remove('hidden');
+            renderChefDashboard();
+        }
+
+        function closeBill() {
+            document.getElementById('bill-modal').classList.add('hidden');
+        }
+
+        // 5. Kitchen Display System Logic
+        function renderChefDashboard() {
+            const containerNew = document.getElementById('kds-new');
+            const containerPrep = document.getElementById('kds-prep');
+            const containerReady = document.getElementById('kds-ready');
+            
+            containerNew.innerHTML = ''; containerPrep.innerHTML = ''; containerReady.innerHTML = '';
+            let cNew = 0, cPrep = 0, cReady = 0;
+
+            orders.forEach(order => {
+                let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
+                
+                let actionBtn = '';
+                if(order.status === 'new') {
+                    cNew++;
+                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'prep')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
+                } else if(order.status === 'prep') {
+                    cPrep++;
+                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
+                } else if(order.status === 'ready') {
+                    cReady++;
+                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear Order</button>`;
+                }
+
+                if(order.status !== 'done') {
+                    const card = `
+                        <div class="bg-[#1A1A1A] border border-neutral-800 rounded-xl p-5 shadow-lg animate-[fadeIn_0.3s_ease]">
+                            <div class="flex justify-between items-center mb-4 pb-3 border-b border-neutral-800">
+                                <span class="font-display font-bold text-2xl text-white">${order.id}</span>
+                                <span class="text-xs text-neutral-500 font-mono">${order.time}</span>
+                            </div>
+                            <div class="text-sm mb-2">
+                                ${itemsHtml}
+                            </div>
+                            ${actionBtn}
+                        </div>
+                    `;
+                    if(order.status === 'new') containerNew.innerHTML += card;
+                    if(order.status === 'prep') containerPrep.innerHTML += card;
+                    if(order.status === 'ready') containerReady.innerHTML += card;
+                }
+            });
+
+            document.getElementById('count-new').innerText = cNew;
+            document.getElementById('count-prep').innerText = cPrep;
+            document.getElementById('count-ready').innerText = cReady;
+        }
+
+        function updateOrderStatus(orderId, newStatus) {
+            const order = orders.find(o => o.id === orderId);
+            if(order) {
+                order.status = newStatus;
+                renderChefDashboard();
+            }
+        }
+
+        // 6. UI Toggles & Utilities
+        function toggleCart() {
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            if(sidebar.classList.contains('cart-open')) {
+                sidebar.classList.remove('cart-open');
+                overlay.classList.add('hidden');
+            } else {
+                sidebar.classList.add('cart-open');
+                overlay.classList.remove('hidden');
+            }
+        }
+
+        function attemptChefLogin() {
+            document.getElementById('password-modal').classList.remove('hidden');
+            document.getElementById('chef-password-input').value = '';
+            document.getElementById('password-error').classList.add('hidden');
+            setTimeout(() => document.getElementById('chef-password-input').focus(), 100);
+        }
+
+        function closePasswordModal() {
+            document.getElementById('password-modal').classList.add('hidden');
+        }
+
+        function verifyChefPassword() {
+            const input = document.getElementById('chef-password-input').value;
+            if(input === 'MGX') {
+                closePasswordModal();
+                switchToChefView();
+            } else {
+                document.getElementById('password-error').classList.remove('hidden');
+            }
+        }
+
+        function switchToChefView() {
+            document.getElementById('customer-view').classList.add('hidden');
+            document.getElementById('chef-view').classList.remove('hidden');
+            document.body.style.backgroundColor = "#0A0A0A"; 
+            renderChefDashboard();
+        }
+
+        function exitChefView() {
+            document.getElementById('chef-view').classList.add('hidden');
+            document.getElementById('customer-view').classList.remove('hidden');
+            document.body.style.backgroundColor = "var(--crema)";
+        }
+
+        function filterMenu(category) {
+            document.querySelectorAll('.cat-btn').forEach(btn => {
+                if(btn.dataset.cat === category) {
+                    btn.classList.add('bg-neutral-950', 'text-white');
+                    btn.classList.remove('bg-white', 'text-neutral-600');
+                } else {
+                    btn.classList.remove('bg-neutral-950', 'text-white');
+                    btn.classList.add('bg-white', 'text-neutral-600');
+                }
+            });
+            renderMenu(category);
+        }
+
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            toast.innerText = msg;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 2000);
+        }
+
+        // 7. 3D Tilt Initialization
+        function initTilt() {
+            const tiltWrappers = document.querySelectorAll('.tilt-wrapper:not(.tilt-init)');
+            tiltWrappers.forEach(wrapper => {
+                wrapper.classList.add('tilt-init');
+                
+                const card = wrapper.querySelector('.tilt-card');
+                const glare = wrapper.querySelector('.glare');
+                const intensity = parseFloat(card.getAttribute('data-tilt-intensity')) || 10;
+
+                wrapper.addEventListener('mousemove', (e) => {
+                    const rect = card.getBoundingClientRect();
+                    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
+                    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -intensity; 
+                    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * intensity;
+                    
+                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+                    
+                    if (glare) {
+                        glare.style.setProperty('--glare-x', `${(x / rect.width) * 100}%`);
+                        glare.style.setProperty('--glare-y', `${(y / rect.height) * 100}%`);
+                        glare.style.setProperty('--glare-opacity', '1');
+                    }
+                });
+
+                wrapper.addEventListener('mouseleave', () => {
+                    card.style.transform = `rotateX(0deg) rotateY(0deg)`;
+                    if (glare) glare.style.setProperty('--glare-opacity', '0');
+                });
+            });
+        }
+
+        window.onload = () => {
+            renderMenu('all');
+            updateCartUI();
+
+            // 8. Master Animation Timeline
+            const tl = gsap.timeline();
+
+            // Preloader Logo Reveal
+            tl.to('#preloader-text', { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
+              .to('#preloader-text', { opacity: 0, duration: 0.5, delay: 0.6 })
+              .to('#preloader', { yPercent: -100, duration: 1, ease: 'power3.inOut' })
+              .set('#preloader', { display: 'none' });
+
+            // Hero Text & Cup container fade in.
+            tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
+              .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
+
+            // Pouring Sequence
+            // 1. Ice drops into cup (fromTo ensures safe mobile execution)
+            tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
+            
+            // 2. Liquid stream appears
+            tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
+            
+            // 3. Liquid translates UP (fills cup), and Ice Cubes float UP with the liquid. 
+            // Using attr: y instead of CSS transforms for flawless mobile SVG rendering.
+            tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
+              .to('.ice-cube-wrap', { y: -160, duration: 2.8, ease: 'power1.inOut' }, "<");
+            
+            // 4. Liquid stream cuts off
+            tl.to('#pour-stream', { opacity: 0, duration: 0.2 });
+
+            // 5. Subtle floating effect for ice cubes after filling
+            gsap.to('.ice-cube-wrap', {
+                y: "-=8",
+                duration: 2.5,
+                repeat: -1,
+                yoyo: true,
+                stagger: 0.3,
+                ease: "sine.inOut"
+            });
+        };
+    </script>
+</body>
+</html>
