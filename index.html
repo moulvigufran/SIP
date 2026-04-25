@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>Velvet Sip | Ultra Premium Reserve</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
@@ -16,6 +16,11 @@
             --gold: #C5A059;    /* Brushed Gold */
             --crema: #F8F6F0;   /* Alabaster */
             --text-dark: #111111;
+        }
+
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
         }
 
         body {
@@ -81,7 +86,7 @@
         .receipt-anim { animation: print 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
     </style>
 </head>
-<body class="noise-bg">
+<body class="noise-bg overflow-hidden">
 
     <!-- Preloader Animation -->
     <div id="preloader" class="fixed inset-0 bg-[#0A0A0A] z-[99999] flex items-center justify-center">
@@ -99,40 +104,41 @@
     <div id="customer-view" class="block">
         
         <!-- Navigation -->
-        <nav class="fixed w-full z-50 top-6 px-6">
-            <div class="max-w-7xl mx-auto glass-panel rounded-full px-6 py-3 flex justify-between items-center shadow-sm">
-                <div class="font-display text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+        <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
+            <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm">
+                <div class="font-display text-xl md:text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
                     <!-- Green Star Logo -->
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#00704A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#00704A" stroke="none"/></svg>
-                    VELVET SIP
+                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#00704A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#00704A" stroke="none"/></svg>
+                    <span class="hidden sm:inline">VELVET SIP</span>
+                    <span class="sm:hidden">V.S</span>
                 </div>
                 
-                <div class="flex items-center gap-3 md:gap-5">
+                <div class="flex items-center gap-2 md:gap-5">
                     <!-- Discreet Chef Portal -->
-                    <button onclick="attemptChefLogin()" class="w-10 h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-neutral-950" title="Staff Portal">
-                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-neutral-950" title="Staff Portal">
+                        <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
                     <!-- Cart -->
-                    <button onclick="toggleCart()" class="relative px-5 py-2.5 md:px-7 md:py-3 bg-neutral-950 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] transition-colors shadow-lg flex items-center gap-2">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-neutral-950 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] transition-colors shadow-lg flex items-center gap-1 md:gap-2">
+                        <svg width="12" height="12" class="md:w-3.5 md:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span class="hidden md:inline">Cart</span>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full text-[9px] md:text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
                     </button>
                 </div>
             </div>
         </nav>
 
         <!-- Hero Section with Cinematic Video -->
-        <section class="relative pt-40 pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen">
-            <div class="w-full md:w-1/2 hero-content">
-                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-neutral-900/5 text-neutral-900 text-[10px] font-bold tracking-[0.2em] uppercase mb-8 border border-neutral-900/5">
+        <section class="relative pt-32 md:pt-40 pb-16 md:pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen md:min-h-[90vh]">
+            <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start">
+                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-neutral-900/5 text-neutral-900 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-neutral-900/5">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
                 </div>
-                <h1 class="text-6xl md:text-[5.5rem] font-display font-medium text-neutral-950 leading-[0.95] mb-8 tracking-tight">
-                    Sip the <br>
+                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-950 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight">
+                    Sip the <br class="hidden md:block">
                     <span class="text-[#C5A059] italic">Extraordinary.</span>
                 </h1>
-                <p class="text-lg text-neutral-500 font-medium mb-10 max-w-md leading-relaxed">
+                <p class="text-base md:text-lg text-neutral-500 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
                     From Mohabbat Ka Sharbath to artisan espresso. Select your cravings, pay digitally, and collect at the counter.
                 </p>
                 <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-neutral-950 text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-[#C5A059] transition-all shadow-xl hover:-translate-y-1">
@@ -140,9 +146,9 @@
                 </button>
             </div>
             
-            <div class="w-full md:w-1/2 flex justify-center tilt-wrapper">
+            <div class="w-full md:w-1/2 flex justify-center tilt-wrapper mt-8 md:mt-0">
                 <!-- Custom Animated Starbucks-Style Cup -->
-                <div class="tilt-card w-full max-w-[350px]" id="hero-tilt" data-tilt-intensity="15">
+                <div class="tilt-card w-full max-w-[260px] md:max-w-[350px]" id="hero-tilt" data-tilt-intensity="15">
                     <div class="glare-container z-20"><div class="glare"></div></div>
                     
                     <svg viewBox="0 0 400 500" class="w-full h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.15)] overflow-visible">
@@ -233,7 +239,7 @@
             </div>
 
             <!-- Centered Grid: Strictly 3 in a row on medium and large screens -->
-            <div id="menu-grid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8 w-full">
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
                 <!-- Items injected via JS -->
             </div>
         </section>
@@ -353,7 +359,43 @@
     </div>
 
     <!-- Application Logic -->
-    <script>
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        // 1. Firebase Setup & Authentication
+        let firebaseConfig = {};
+        try {
+            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+        } catch (e) {
+            console.warn("No Firebase config found, using local only mode.");
+        }
+        
+        const app = initializeApp(firebaseConfig);
+        const auth = getAuth(app);
+        const db = getFirestore(app);
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+        let user = null;
+
+        const initAuth = async () => {
+            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                await signInWithCustomToken(auth, __initial_auth_token);
+            } else {
+                await signInAnonymously(auth);
+            }
+        };
+
+        initAuth();
+
+        onAuthStateChanged(auth, (u) => {
+            user = u;
+            if (user) {
+                setupOrdersListener();
+            }
+        });
+
         // 1. Database
         const menuItems = [
             { id: 1, name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
@@ -373,6 +415,30 @@
         let orders = [];
         let orderCounter = 1000;
 
+        function setupOrdersListener() {
+            const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+            onSnapshot(ordersRef, (snapshot) => {
+                orders = [];
+                let maxOrderNum = 1000;
+                snapshot.forEach((doc) => {
+                    const data = doc.data();
+                    orders.push({ ...data, docId: doc.id });
+                    
+                    const num = parseInt(data.id.replace('#', ''));
+                    if (!isNaN(num) && num > maxOrderNum) {
+                        maxOrderNum = num;
+                    }
+                });
+                orderCounter = maxOrderNum;
+                
+                // Sort by creation time to ensure the kitchen line stays organized
+                orders.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                renderChefDashboard();
+            }, (error) => {
+                console.error("Cloud sync error:", error);
+            });
+        }
+
         // 2. Render Menu (Centered layout, strictly 3 items per row)
         function renderMenu(category = 'all') {
             const grid = document.getElementById('menu-grid');
@@ -383,16 +449,16 @@
             filteredItems.forEach(item => {
                 const cardHtml = `
                     <div class="tilt-wrapper group menu-item-anim w-full">
-                        <div class="tilt-card bg-white p-8 rounded-[1rem] shadow-[0_8px_24px_rgba(0,0,0,0.03)] border border-neutral-100 flex flex-col h-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.06)] hover:border-[#C5A059]/40 transition-all duration-300" data-tilt-intensity="3">
+                        <div class="tilt-card bg-[#111111] p-6 md:p-8 rounded-[1rem] shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-neutral-800 flex flex-col h-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:border-[#C5A059]/50 transition-all duration-300" data-tilt-intensity="3">
                             <div class="glare-container"><div class="glare"></div></div>
                             <div class="flex justify-between items-start mb-4 text-left">
-                                <h3 class="font-display font-semibold text-xl text-neutral-950 leading-tight">${item.name}</h3>
+                                <h3 class="font-display font-semibold text-xl text-white leading-tight">${item.name}</h3>
                             </div>
-                            <p class="text-xs text-neutral-500 font-medium mb-8 flex-grow leading-relaxed tracking-wide text-left">${item.desc}</p>
-                            <div class="mt-auto flex justify-between items-center pt-5 border-t border-neutral-100">
-                                <span class="font-bold text-lg text-[#C5A059]">₹${item.price.toFixed(2)}</span>
-                                <button onclick="addToCart(${item.id})" class="w-10 h-10 rounded-full bg-neutral-950 text-white flex items-center justify-center hover:bg-[#C5A059] transition-colors shadow-md">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 5v14M5 12h14"/></svg>
+                            <p class="text-xs text-neutral-400 font-medium mb-8 flex-grow leading-relaxed tracking-wide text-left">${item.desc}</p>
+                            <div class="mt-auto flex justify-between items-center pt-5 border-t border-neutral-800">
+                                <span class="font-bold text-xl text-[#C5A059]">₹${item.price.toFixed(2)}</span>
+                                <button onclick="addToCart(${item.id})" class="w-12 h-12 rounded-full bg-[#C5A059] text-[#111] flex items-center justify-center hover:bg-white transition-colors shadow-[0_4px_12px_rgba(197,160,89,0.3)]">
+                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -498,9 +564,16 @@
                 id: orderNum,
                 time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 items: orderItems,
-                status: 'new'
+                status: 'new',
+                timestamp: Date.now()
             };
-            orders.push(newOrder);
+            
+            // Instantly push the order to the Cloud Database
+            if (user) {
+                addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), newOrder).catch(e => console.error(e));
+            } else {
+                orders.push(newOrder); // Fallback for local testing without internet
+            }
 
             document.getElementById('bill-order-num').innerText = orderNum;
             document.getElementById('bill-date').innerText = new Date().toLocaleString();
@@ -542,15 +615,17 @@
                 let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
                 
                 let actionBtn = '';
+                const updateId = order.docId || order.id;
+                
                 if(order.status === 'new') {
                     cNew++;
-                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'prep')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
+                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'prep')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
                 } else if(order.status === 'prep') {
                     cPrep++;
-                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
+                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
                 } else if(order.status === 'ready') {
                     cReady++;
-                    actionBtn = `<button onclick="updateOrderStatus('${order.id}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear Order</button>`;
+                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear Order</button>`;
                 }
 
                 if(order.status !== 'done') {
@@ -577,11 +652,20 @@
             document.getElementById('count-ready').innerText = cReady;
         }
 
-        function updateOrderStatus(orderId, newStatus) {
-            const order = orders.find(o => o.id === orderId);
-            if(order) {
-                order.status = newStatus;
-                renderChefDashboard();
+        async function updateOrderStatus(orderId, newStatus) {
+            if (user && orderId.length > 10) { // Firestore unique IDs are long strings
+                try {
+                    const orderDoc = doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId);
+                    await updateDoc(orderDoc, { status: newStatus });
+                } catch (e) {
+                    console.error("Error syncing status to cloud: ", e);
+                }
+            } else {
+                const order = orders.find(o => (o.docId || o.id) === orderId);
+                if(order) {
+                    order.status = newStatus;
+                    renderChefDashboard();
+                }
             }
         }
 
@@ -684,12 +768,32 @@
             });
         }
 
+        // Expose functions to global scope since we are using a JS Module 
+        // This ensures all the HTML 'onclick' attributes continue working flawlessly
+        window.renderMenu = renderMenu;
+        window.addToCart = addToCart;
+        window.updateCartQty = updateCartQty;
+        window.processCheckout = processCheckout;
+        window.closeBill = closeBill;
+        window.updateOrderStatus = updateOrderStatus;
+        window.toggleCart = toggleCart;
+        window.attemptChefLogin = attemptChefLogin;
+        window.closePasswordModal = closePasswordModal;
+        window.verifyChefPassword = verifyChefPassword;
+        window.switchToChefView = switchToChefView;
+        window.exitChefView = exitChefView;
+        window.filterMenu = filterMenu;
+
         window.onload = () => {
             renderMenu('all');
             updateCartUI();
 
-            // 8. Master Animation Timeline
-            const tl = gsap.timeline();
+            const tl = gsap.timeline({
+                onComplete: () => {
+                    // Unlock scrolling after intro finishes
+                    document.body.classList.remove('overflow-hidden');
+                }
+            });
 
             // Preloader Logo Reveal
             tl.to('#preloader-text', { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
@@ -702,7 +806,7 @@
               .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
 
             // Pouring Sequence
-            // 1. Ice drops into cup (fromTo ensures safe mobile execution)
+            // 1. Ice drops into cup
             tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
             
             // 2. Liquid stream appears
