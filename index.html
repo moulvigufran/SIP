@@ -364,37 +364,47 @@
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 1. Firebase Setup & Authentication
-        let firebaseConfig = {};
+        // 1. Firebase Setup & Authentication (Fixed for external hosting)
+        let firebaseConfig = null;
         try {
-            firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                firebaseConfig = JSON.parse(__firebase_config);
+            }
         } catch (e) {
-            console.warn("No Firebase config found, using local only mode.");
+            console.warn("No Firebase config found.");
         }
         
-        const app = initializeApp(firebaseConfig);
-        const auth = getAuth(app);
-        const db = getFirestore(app);
         const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        let app = null, auth = null, db = null, user = null;
 
-        let user = null;
+        if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
+            try {
+                app = initializeApp(firebaseConfig);
+                auth = getAuth(app);
+                db = getFirestore(app);
 
-        const initAuth = async () => {
-            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                await signInWithCustomToken(auth, __initial_auth_token);
-            } else {
-                await signInAnonymously(auth);
+                const initAuth = async () => {
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+                };
+
+                initAuth();
+
+                onAuthStateChanged(auth, (u) => {
+                    user = u;
+                    if (user) {
+                        setupOrdersListener();
+                    }
+                });
+            } catch (err) {
+                console.error("Firebase init error:", err);
             }
-        };
-
-        initAuth();
-
-        onAuthStateChanged(auth, (u) => {
-            user = u;
-            if (user) {
-                setupOrdersListener();
-            }
-        });
+        } else {
+            console.warn("Running in LOCAL OFFLINE MODE. Cloud features disabled.");
+        }
 
         // 1. Database
         const menuItems = [
@@ -416,6 +426,7 @@
         let orderCounter = 1000;
 
         function setupOrdersListener() {
+            if (!db) return; // Safety check
             const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
             onSnapshot(ordersRef, (snapshot) => {
                 orders = [];
@@ -569,7 +580,7 @@
             };
             
             // Instantly push the order to the Cloud Database
-            if (user) {
+            if (user && db) {
                 addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), newOrder).catch(e => console.error(e));
             } else {
                 orders.push(newOrder); // Fallback for local testing without internet
@@ -653,7 +664,7 @@
         }
 
         async function updateOrderStatus(orderId, newStatus) {
-            if (user && orderId.length > 10) { // Firestore unique IDs are long strings
+            if (user && db && orderId.length > 10) { // Firestore unique IDs are long strings
                 try {
                     const orderDoc = doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId);
                     await updateDoc(orderDoc, { status: newStatus });
