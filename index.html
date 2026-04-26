@@ -3,48 +3,47 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velvet Sip | Ultra Premium Reserve</title>
+    <title>Premium Reserve POS</title>
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/ScrollTrigger.min.js"></script>
+    <!-- Chart.js for Analytics -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- Upgraded Ultra-Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #0A0A0A; /* Jet Black */
+            --primary: #1B4332; /* Deep Forest Green */
+            --primary-dark: #143325;
             --gold: #C5A059;    /* Brushed Gold */
-            --crema: #F8F6F0;   /* Alabaster */
-            --text-dark: #111111;
+            --crema: #FAF9F6;   /* Warm Cream / Off-White */
+            --surface: #FFFFFF; /* Pure White */
+            --text-dark: #1C1917; /* Warm Dark Stone */
         }
 
-        html, body {
-            max-width: 100vw;
-            overflow-x: hidden;
-        }
+        html, body { max-width: 100vw; overflow-x: hidden; }
 
         body {
             font-family: 'Plus Jakarta Sans', sans-serif;
             background-color: var(--crema);
             color: var(--text-dark);
-            overflow-x: hidden;
             -webkit-font-smoothing: antialiased;
         }
 
         h1, h2, h3, .font-display { font-family: 'Cinzel', serif; letter-spacing: 0.02em; }
 
         .noise-bg::before {
-            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.04;
+            content: ""; position: fixed; inset: 0; z-index: 9999; pointer-events: none; opacity: 0.03;
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
         /* Smooth 3D Tilt Setup */
         .tilt-wrapper { perspective: 1200px; }
         .tilt-card {
-            transform-style: preserve-3d;
-            transition: transform 0.2s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative;
-            will-change: transform;
+            transform-style: preserve-3d; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            position: relative; will-change: transform;
         }
         .glare-container { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
         .glare {
@@ -55,10 +54,16 @@
         }
 
         .glass-panel {
-            background: rgba(248, 246, 240, 0.85);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(10, 10, 10, 0.05);
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+            border: 1px solid rgba(255, 255, 255, 0.5);
+            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
+
+        /* Ambient Background Orbs */
+        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+        .orb-1 { width: 500px; height: 500px; background: #C5A059; top: -150px; left: -150px; }
+        .orb-2 { width: 400px; height: 400px; background: #1B4332; bottom: 5%; right: -100px; animation-delay: -6s; }
+        @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 80px); } }
 
         /* Cart Sidebar Animations */
         #cart-sidebar { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
@@ -79,47 +84,54 @@
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         /* Receipt Print Animation */
-        @keyframes print {
-            0% { transform: translateY(-100%); opacity: 0; }
-            100% { transform: translateY(0); opacity: 1; }
-        }
+        @keyframes print { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         .receipt-anim { animation: print 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+        
+        /* Admin Scrollbar */
+        .admin-scroll::-webkit-scrollbar-thumb { background: #333; }
+        .admin-nav-btn.active { color: #C5A059; border-bottom-color: #C5A059; }
     </style>
 </head>
-<body class="noise-bg overflow-hidden">
+<body class="noise-bg overflow-hidden relative">
+
+    <!-- Floating Orbs for Premium Background Depth -->
+    <div class="bg-orb orb-1"></div>
+    <div class="bg-orb orb-2"></div>
 
     <!-- Preloader Animation -->
-    <div id="preloader" class="fixed inset-0 bg-[#0A0A0A] z-[99999] flex items-center justify-center">
-        <div class="overflow-hidden">
-            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#C5A059] translate-y-full opacity-0">
+    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center">
+        <div class="overflow-hidden text-center">
+            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
+            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#1B4332] translate-y-full opacity-0 dynamic-brand-name">
                 VELVET SIP
             </div>
         </div>
     </div>
 
     <!-- Toast Notification -->
-    <div id="toast" class="toast">Item added to cart</div>
+    <div id="toast" class="toast">Action Successful</div>
 
-    <!-- MAIN CUSTOMER VIEW -->
+    <!-- ========================================== -->
+    <!-- MAIN CUSTOMER VIEW                         -->
+    <!-- ========================================== -->
     <div id="customer-view" class="block">
         
         <!-- Navigation -->
         <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
             <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm">
                 <div class="font-display text-xl md:text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <!-- Green Star Logo -->
                     <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#00704A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#00704A" stroke="none"/></svg>
-                    <span class="hidden sm:inline">VELVET SIP</span>
-                    <span class="sm:hidden">V.S</span>
+                    <span class="hidden sm:inline dynamic-brand-name uppercase">VELVET SIP</span>
+                    <span class="sm:hidden dynamic-brand-initials">V.S</span>
                 </div>
                 
                 <div class="flex items-center gap-2 md:gap-5">
                     <!-- Discreet Chef Portal -->
-                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-neutral-950" title="Staff Portal">
+                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#1B4332]" title="Admin Portal">
                         <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
                     <!-- Cart -->
-                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-neutral-950 text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#C5A059] transition-colors shadow-lg flex items-center gap-1 md:gap-2">
+                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#1B4332] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors shadow-[0_8px_20px_rgba(27,67,50,0.25)] flex items-center gap-1 md:gap-2">
                         <svg width="12" height="12" class="md:w-3.5 md:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span class="hidden md:inline">Cart</span>
                         <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full text-[9px] md:text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
@@ -128,34 +140,31 @@
             </div>
         </nav>
 
-        <!-- Hero Section with Cinematic Video -->
+        <!-- Hero Section -->
         <section class="relative pt-32 md:pt-40 pb-16 md:pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen md:min-h-[90vh]">
-            <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start">
-                <div class="inline-flex items-center gap-3 px-4 py-1.5 rounded-full bg-neutral-900/5 text-neutral-900 text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-neutral-900/5">
+            <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start z-10">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#1B4332] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
                 </div>
-                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-950 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight">
+                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-900 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight drop-shadow-sm">
                     Sip the <br class="hidden md:block">
-                    <span class="text-[#C5A059] italic">Extraordinary.</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1B4332] to-[#C5A059] italic drop-shadow-sm">Extraordinary.</span>
                 </h1>
-                <p class="text-base md:text-lg text-neutral-500 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
-                    From Mohabbat Ka Sharbath to artisan espresso. Select your cravings, pay digitally, and collect at the counter.
+                <p class="text-base md:text-lg text-neutral-600 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
+                    Crafted to perfection. Select your cravings, pay digitally, and collect at the counter seamlessly.
                 </p>
-                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-neutral-950 text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-[#C5A059] transition-all shadow-xl hover:-translate-y-1">
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] hover:-translate-y-1 transition-all duration-300 border border-[#1B4332]/50">
                     Start Ordering
                 </button>
             </div>
             
-            <div class="w-full md:w-1/2 flex justify-center tilt-wrapper mt-8 md:mt-0">
-                <!-- Custom Animated Starbucks-Style Cup -->
+            <div class="w-full md:w-1/2 flex justify-center tilt-wrapper mt-8 md:mt-0 z-10">
                 <div class="tilt-card w-full max-w-[260px] md:max-w-[350px]" id="hero-tilt" data-tilt-intensity="15">
                     <div class="glare-container z-20"><div class="glare"></div></div>
                     
                     <svg viewBox="0 0 400 500" class="w-full h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.15)] overflow-visible">
                         <defs>
-                            <clipPath id="cup-mask">
-                                <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" />
-                            </clipPath>
+                            <clipPath id="cup-mask"><path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" /></clipPath>
                             <linearGradient id="coffee-grad" x1="0%" y1="0%" x2="100%" y2="0%">
                                 <stop offset="0%" stop-color="#2D1A11" />
                                 <stop offset="50%" stop-color="#4E342E" />
@@ -168,53 +177,45 @@
                                 <stop offset="100%" stop-color="rgba(255,255,255,0.3)" />
                             </linearGradient>
                         </defs>
-
-                        <!-- Straw (Back part inside cup) -->
+                        <!-- Straw (Back) -->
                         <rect x="186" y="20" width="14" height="400" fill="#00704A" transform="rotate(8 200 120)" opacity="0.8"/>
-
                         <!-- Cup Back Rim -->
                         <ellipse cx="200" cy="120" rx="100" ry="12" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
-
-                        <!-- Masked Interior (Liquid and Ice) -->
+                        
+                        <!-- Masked Interior -->
                         <g clip-path="url(#cup-mask)">
-                            <!-- Glass Background -->
                             <rect x="0" y="0" width="400" height="500" fill="url(#glass-grad)" />
-                            
-                            <!-- Ice Cubes (Start at bottom) -->
                             <g class="ice-cubes">
                                 <g class="ice-cube-wrap"><rect x="140" y="380" width="45" height="45" rx="6" fill="rgba(255,255,255,0.8)" stroke="rgba(255,255,255,0.4)" stroke-width="2" transform="rotate(15 160 400)" /></g>
                                 <g class="ice-cube-wrap"><rect x="210" y="350" width="40" height="40" rx="6" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.3)" stroke-width="2" transform="rotate(-12 232 382)" /></g>
                                 <g class="ice-cube-wrap"><rect x="170" y="290" width="50" height="50" rx="6" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.5)" stroke-width="2" transform="rotate(35 189 319)" /></g>
                                 <g class="ice-cube-wrap"><rect x="220" y="260" width="38" height="38" rx="6" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.6)" stroke-width="2" transform="rotate(-25 241 291)" /></g>
                             </g>
-
-                            <!-- Coffee Liquid (Animated via GSAP attr: y) -->
+                            <!-- Coffee Liquid -->
                             <rect id="coffee-liquid" x="0" y="470" width="400" height="400" fill="url(#coffee-grad)" />
                         </g>
-
                         <!-- Pouring Stream -->
                         <rect id="pour-stream" x="195" y="-80" width="12" height="480" fill="#3E2723" opacity="0" />
-
-                        <!-- Cup Front Rim & Body Outline -->
+                        
+                        <!-- Cup Front & Dome -->
                         <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
                         <path d="M100 120 Q200 138 300 120" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
-
-                        <!-- Dome Lid -->
                         <path d="M95 120 C 95 30, 305 30, 305 120" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
                         <ellipse cx="200" cy="45" rx="25" ry="6" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
-
-                        <!-- Straw (Front Part, sticking out hole) -->
+                        
+                        <!-- Straw Front -->
                         <g transform="rotate(8 200 120)">
                             <rect x="186" y="-50" width="14" height="100" fill="#00704A" />
                             <path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#004d33" />
                         </g>
 
-                        <!-- Green Star Emblem -->
+                        <!-- Dynamic Emblem -->
                         <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#00704A" stroke-width="3"/>
                         <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#00704A" />
                         <circle cx="200" cy="270" r="38" fill="none" stroke="#00704A" stroke-width="1.5" />
+                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#00704A" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
 
-                        <!-- Reflection/Glare on Cup Front -->
+                        <!-- Reflection -->
                         <path d="M120 150 Q135 300 140 440" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
                     </svg>
                 </div>
@@ -228,18 +229,20 @@
                     <h2 class="text-4xl md:text-5xl font-display font-semibold text-neutral-950 mb-3">The Menu</h2>
                     <p class="text-neutral-500 font-medium">Select items to add to your order.</p>
                 </div>
-                <!-- Category Filters -->
+                <!-- Category Filters (Dynamic) -->
                 <div class="flex flex-wrap justify-center gap-3" id="category-filters">
                     <button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 bg-neutral-950 text-white rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors" data-cat="all">All</button>
-                    <button onclick="filterMenu('hot')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="hot">Hot Brews</button>
-                    <button onclick="filterMenu('mojito')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="mojito">Mojitos</button>
-                    <button onclick="filterMenu('traditional')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="traditional">Traditional</button>
-                    <button onclick="filterMenu('soda')" class="cat-btn px-6 py-2.5 bg-white border border-neutral-200 text-neutral-600 rounded-full text-[10px] font-bold uppercase tracking-widest hover:border-neutral-900 transition-colors" data-cat="soda">Sodas</button>
+                    <!-- Dynamic categories injected here -->
                 </div>
             </div>
 
-            <!-- Centered Grid: Strictly 3 in a row on medium and large screens -->
-            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full">
+            <!-- Loading Spinner for Menu -->
+            <div id="menu-loader" class="flex justify-center py-12">
+                <svg width="40" height="40" class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+            </div>
+
+            <!-- Centered Grid -->
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full hidden">
                 <!-- Items injected via JS -->
             </div>
         </section>
@@ -247,30 +250,78 @@
     </div>
 
     <!-- CART SIDEBAR -->
-    <div id="cart-overlay" class="fixed inset-0 bg-black/40 backdrop-blur-sm z-[60] hidden" onclick="toggleCart()"></div>
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-[#F8F6F0] z-[70] translate-x-full shadow-2xl flex flex-col">
-        <div class="p-8 border-b border-neutral-200/50 flex justify-between items-center">
-            <h2 class="font-display text-3xl font-semibold text-neutral-950">Your Order</h2>
-            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-colors text-neutral-500">
+    <div id="cart-overlay" class="fixed inset-0 bg-neutral-900/30 backdrop-blur-sm z-[60] hidden transition-opacity" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-[#FAF9F6]/95 backdrop-blur-2xl z-[70] translate-x-full shadow-2xl flex flex-col border-l border-white/50">
+        <div class="p-8 border-b border-neutral-200/50 flex justify-between items-center bg-white/50">
+            <h2 class="font-display text-3xl font-semibold text-neutral-900">Your Order</h2>
+            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 hover:rotate-90 transition-all duration-300 text-neutral-500 shadow-sm">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
         
         <div class="flex-grow overflow-y-auto p-8 relative">
             <div class="text-center text-neutral-400 mt-12 font-medium hidden" id="empty-cart-msg">Your cart is empty.</div>
-            <div id="cart-items" class="space-y-4">
-                <!-- Cart items injected here -->
-            </div>
+            <div id="cart-items" class="space-y-4"></div>
         </div>
 
-        <div class="p-8 border-t border-neutral-200/50 bg-white">
+        <div class="p-8 border-t border-neutral-200/50 bg-white/80 backdrop-blur-lg">
             <div class="flex justify-between text-neutral-500 mb-3 font-medium text-sm"><span>Subtotal</span> <span id="cart-subtotal">₹0.00</span></div>
             <div class="flex justify-between text-neutral-500 mb-5 font-medium text-sm"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
-            <div class="flex justify-between text-neutral-950 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
+            <div class="flex justify-between text-neutral-900 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
             
-            <button onclick="processCheckout()" id="checkout-btn" class="w-full py-4 bg-neutral-950 text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:bg-[#C5A059] transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg">
-                Pay & Print Bill
+            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(27,67,50,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-[#1B4332]/50">
+                Checkout Securely
             </button>
+        </div>
+    </div>
+
+    <!-- PAYMENT MODAL -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[90] hidden flex items-center justify-center p-4 md:p-6">
+        <div class="w-full max-w-md bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl" id="payment-modal-content">
+            <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-neutral-500 hover:text-white">
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            </button>
+            <h3 class="font-display text-2xl font-bold text-white mb-2">Checkout</h3>
+            <p class="text-sm text-neutral-400 mb-6">Select a payment method for your order of <span id="payment-total-display" class="text-[#C5A059] font-bold">₹0.00</span></p>
+
+            <div class="space-y-3" id="payment-options">
+                <button onclick="simulatePayment('UPI / Digital Wallet')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                        </div>
+                        <span class="font-bold text-white text-sm">UPI / Digital Wallet</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+                
+                <button onclick="simulatePayment('Credit / Debit Card')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
+                        </div>
+                        <span class="font-bold text-white text-sm">Credit / Debit Card</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+
+                <button onclick="simulatePayment('Pay at Counter')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                        <span class="font-bold text-white text-sm">Pay at Counter</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+
+            <!-- Processing State -->
+            <div id="payment-processing" class="hidden py-8 flex-col items-center justify-center text-center">
+                <svg width="40" height="40" class="animate-spin text-[#C5A059] mb-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+                <div class="text-white font-bold tracking-widest uppercase text-sm">Processing Payment...</div>
+                <div class="text-neutral-500 text-xs mt-2">Please do not close this window</div>
+            </div>
         </div>
     </div>
 
@@ -278,19 +329,17 @@
     <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
         <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
             <div class="p-10 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
-                <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1">VELVET SIP</div>
+                <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1 dynamic-brand-name uppercase">VELVET SIP</div>
                 <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-5">Reserve Boutique</div>
                 <div class="text-xs text-neutral-400 font-mono mb-6" id="bill-date">Date: ...</div>
                 
                 <div class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-widest border-b border-neutral-200 pb-3">Order <span id="bill-order-num" class="text-[#C5A059]">#1024</span></div>
                 
-                <div id="bill-items" class="text-left space-y-3 mb-8 mt-5 font-mono text-xs text-neutral-600">
-                    <!-- Bill items injected here -->
-                </div>
+                <div id="bill-items" class="text-left space-y-3 mb-8 mt-5 font-mono text-xs text-neutral-600"></div>
                 
                 <div class="border-t border-neutral-300 pt-5 text-left font-mono text-sm">
                     <div class="flex justify-between font-bold text-neutral-950 text-xl"><span>TOTAL:</span> <span id="bill-total-amt">₹0.00</span></div>
-                    <div class="text-center text-[10px] text-neutral-400 mt-8 font-sans tracking-wide uppercase">Paid via Digital Wallet. <br>Your order is sent to the kitchen!</div>
+                    <div class="text-center text-[10px] text-neutral-400 mt-8 font-sans tracking-wide uppercase">Paid via <span id="bill-payment-method" class="font-bold text-neutral-800">Digital Wallet</span>. <br>Your order is sent to the kitchen!</div>
                 </div>
             </div>
             <!-- Jagged edge -->
@@ -302,11 +351,11 @@
         </div>
     </div>
 
-    <!-- CHEF PASSWORD MODAL -->
+    <!-- ADMIN PASSWORD MODAL -->
     <div id="password-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
         <div class="w-full max-w-sm bg-white rounded-2xl p-8 relative shadow-2xl">
-            <h3 class="font-display text-2xl font-bold text-neutral-950 mb-2">Staff Access</h3>
-            <p class="text-sm text-neutral-500 mb-6">Enter authorization code to view KDS.</p>
+            <h3 class="font-display text-2xl font-bold text-neutral-950 mb-2">Admin Access</h3>
+            <p class="text-sm text-neutral-500 mb-6">Enter authorization code to continue.</p>
             <input type="password" id="chef-password-input" class="w-full p-4 border border-neutral-300 rounded-xl mb-2 outline-none focus:border-neutral-950 font-mono text-center tracking-widest text-lg" placeholder="•••">
             <p id="password-error" class="text-red-500 text-xs hidden mb-4 font-bold text-center">Incorrect code. Access denied.</p>
             <div class="flex justify-between gap-4 mt-6">
@@ -316,65 +365,219 @@
         </div>
     </div>
 
-    <!-- CHEF / KITCHEN DISPLAY SYSTEM (KDS) VIEW -->
+    <!-- ========================================== -->
+    <!-- CHEF / ADMIN MANAGEMENT SYSTEM             -->
+    <!-- ========================================== -->
     <div id="chef-view" class="hidden min-h-screen bg-[#0A0A0A] text-white">
         
-        <header class="bg-[#111] border-b border-neutral-800 p-6 flex justify-between items-center sticky top-0 z-10">
-            <div>
-                <div class="font-display text-2xl font-bold tracking-widest text-[#C5A059]">KITCHEN DISPLAY</div>
-                <div class="text-xs text-neutral-400 font-mono mt-1">Real-time Order Sync Active</div>
+        <header class="bg-[#111] border-b border-neutral-800 p-4 md:p-6 sticky top-0 z-20 shadow-lg">
+            <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
+                <div class="flex items-center gap-3">
+                    <div class="font-display text-xl font-bold tracking-widest text-[#C5A059] dynamic-brand-name uppercase">VELVET SIP</div>
+                    <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest">ADMIN OS</span>
+                </div>
+                
+                <!-- Admin Navigation -->
+                <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar admin-scroll">
+                    <button onclick="switchAdminTab('kds')" id="tab-btn-kds" class="admin-nav-btn active whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Kitchen Display</button>
+                    <button onclick="switchAdminTab('menu')" id="tab-btn-menu" class="admin-nav-btn whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Menu Manager</button>
+                    <button onclick="switchAdminTab('analytics')" id="tab-btn-analytics" class="admin-nav-btn whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Analytics</button>
+                    <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="admin-nav-btn whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Settings</button>
+                </div>
+
+                <button onclick="exitChefView()" class="hidden md:block px-6 py-2 border border-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors shrink-0">
+                    Exit Admin
+                </button>
+                <button onclick="exitChefView()" class="md:hidden absolute top-4 right-4 text-neutral-500 hover:text-white">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+                </button>
             </div>
-            <button onclick="exitChefView()" class="px-6 py-2.5 border border-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors">
-                Exit to Customer View
-            </button>
         </header>
 
-        <div class="p-6 max-w-[1600px] mx-auto grid grid-cols-1 md:grid-cols-3 gap-6 h-[calc(100vh-100px)] overflow-hidden">
+        <div class="p-4 md:p-6 max-w-[1600px] mx-auto h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] overflow-hidden relative">
             
-            <!-- Column 1: New Orders -->
-            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
-                <div class="p-5 border-b border-neutral-800 bg-red-950/20 text-red-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center">
-                    NEW ORDERS <span class="bg-red-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-new">0</span>
+            <!-- TAB: KITCHEN DISPLAY (KDS) -->
+            <div id="admin-tab-kds" class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
+                <!-- Column 1: New Orders -->
+                <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
+                    <div class="p-4 md:p-5 border-b border-neutral-800 bg-red-950/20 text-red-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
+                        NEW ORDERS <span class="bg-red-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-new">0</span>
+                    </div>
+                    <div class="p-4 md:p-5 overflow-y-auto flex-grow space-y-4 admin-scroll" id="kds-new"></div>
                 </div>
-                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-new"></div>
+                <!-- Column 2: Preparing -->
+                <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
+                    <div class="p-4 md:p-5 border-b border-neutral-800 bg-[#C5A059]/10 text-[#C5A059] font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
+                        PREPARING <span class="bg-[#C5A059]/20 px-2.5 py-1 rounded-full text-[10px]" id="count-prep">0</span>
+                    </div>
+                    <div class="p-4 md:p-5 overflow-y-auto flex-grow space-y-4 admin-scroll" id="kds-prep"></div>
+                </div>
+                <!-- Column 3: Ready -->
+                <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
+                    <div class="p-4 md:p-5 border-b border-neutral-800 bg-emerald-950/20 text-emerald-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
+                        READY TO SERVE <span class="bg-emerald-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-ready">0</span>
+                    </div>
+                    <div class="p-4 md:p-5 overflow-y-auto flex-grow space-y-4 admin-scroll" id="kds-ready"></div>
+                </div>
             </div>
 
-            <!-- Column 2: Preparing -->
-            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
-                <div class="p-5 border-b border-neutral-800 bg-[#C5A059]/10 text-[#C5A059] font-bold text-xs uppercase tracking-widest flex justify-between items-center">
-                    PREPARING <span class="bg-[#C5A059]/20 px-2.5 py-1 rounded-full text-[10px]" id="count-prep">0</span>
+            <!-- TAB: MENU MANAGER -->
+            <div id="admin-tab-menu" class="hidden h-full flex flex-col">
+                <div class="flex justify-between items-center mb-6 shrink-0">
+                    <h2 class="font-display text-2xl text-white">Menu Editor</h2>
+                    <button onclick="openMenuEditorModal()" class="px-5 py-2.5 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors">
+                        + Add New Item
+                    </button>
                 </div>
-                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-prep"></div>
+                <div class="bg-[#151515] border border-neutral-800 rounded-xl overflow-hidden flex-grow flex flex-col">
+                    <div class="overflow-x-auto flex-grow admin-scroll">
+                        <table class="w-full text-left text-sm text-neutral-400 whitespace-nowrap">
+                            <thead class="text-xs text-neutral-500 uppercase bg-[#111] border-b border-neutral-800 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-4">Item Name</th>
+                                    <th class="px-6 py-4">Category</th>
+                                    <th class="px-6 py-4">Price (₹)</th>
+                                    <th class="px-6 py-4">Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="admin-menu-list" class="divide-y divide-neutral-800">
+                                <!-- Menu Rows Injected Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
             </div>
 
-            <!-- Column 3: Ready -->
-            <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col">
-                <div class="p-5 border-b border-neutral-800 bg-emerald-950/20 text-emerald-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center">
-                    READY TO SERVE <span class="bg-emerald-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-ready">0</span>
+            <!-- TAB: ANALYTICS & SALES -->
+            <div id="admin-tab-analytics" class="hidden h-full overflow-y-auto admin-scroll pb-10">
+                <h2 class="font-display text-2xl text-white mb-6">Sales Analytics</h2>
+                
+                <!-- Stat Cards -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+                    <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800">
+                        <div class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Total Revenue</div>
+                        <div class="text-3xl font-display font-bold text-[#C5A059]" id="stat-revenue">₹0.00</div>
+                    </div>
+                    <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800">
+                        <div class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Completed Orders</div>
+                        <div class="text-3xl font-display font-bold text-white" id="stat-orders">0</div>
+                    </div>
+                    <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800">
+                        <div class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Top Selling Item</div>
+                        <div class="text-xl font-display font-bold text-white truncate" id="stat-top-item">N/A</div>
+                    </div>
                 </div>
-                <div class="p-5 overflow-y-auto flex-grow space-y-4" id="kds-ready"></div>
+
+                <!-- Charts Area -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+                    <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800 h-[400px] flex flex-col">
+                        <h3 class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-4 shrink-0">Revenue (Last 7 Days)</h3>
+                        <div class="flex-grow relative w-full h-full"><canvas id="revenueChart"></canvas></div>
+                    </div>
+                    <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800 h-[400px] flex flex-col">
+                        <h3 class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-4 shrink-0">Product Popularity</h3>
+                        <div class="flex-grow relative w-full h-full"><canvas id="productChart"></canvas></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- TAB: SETTINGS -->
+            <div id="admin-tab-settings" class="hidden h-full overflow-y-auto admin-scroll">
+                <h2 class="font-display text-2xl text-white mb-6">Brand Settings</h2>
+                <div class="max-w-xl bg-[#151515] border border-neutral-800 rounded-xl p-6 md:p-8">
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Brand / Company Name</label>
+                        <input type="text" id="setting-brand-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-display text-lg" placeholder="e.g. Starbucks, Velvet Sip">
+                        <p class="text-xs text-neutral-600 mt-2">This updates the logo text, KDS header, and printed receipts.</p>
+                    </div>
+                    <div class="mb-8">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Logo Initials (Mobile)</label>
+                        <input type="text" id="setting-brand-initials" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-display text-lg" placeholder="e.g. S.B, V.S" maxlength="4">
+                    </div>
+                    <button onclick="saveBrandSettings()" class="w-full py-4 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors">
+                        Save Changes
+                    </button>
+                </div>
             </div>
 
         </div>
     </div>
 
-    <!-- Application Logic -->
+    <!-- ADMIN MENU EDITOR MODAL -->
+    <div id="menu-editor-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 md:p-6">
+        <div class="w-full max-w-lg bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl">
+            <h3 id="editor-title" class="font-display text-2xl font-bold text-white mb-6">Add Menu Item</h3>
+            <input type="hidden" id="editor-id">
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Item Name</label>
+                    <input type="text" id="editor-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Category (ID)</label>
+                        <input type="text" id="editor-category" placeholder="hot, mojito, soda..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Price (₹)</label>
+                        <input type="number" id="editor-price" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Image URL (Optional)</label>
+                    <input type="text" id="editor-image" placeholder="https://..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                </div>
+                <div>
+                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Description</label>
+                    <textarea id="editor-desc" rows="3" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059] resize-none"></textarea>
+                </div>
+            </div>
+            
+            <div class="flex justify-end gap-3 mt-8">
+                <button onclick="closeMenuEditorModal()" class="px-5 py-2.5 text-neutral-500 hover:text-white text-xs font-bold uppercase tracking-wider">Cancel</button>
+                <button onclick="saveMenuItem()" class="px-6 py-2.5 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white">Save Item</button>
+            </div>
+        </div>
+    </div>
+
+
+    <!-- ========================================== -->
+    <!-- APPLICATION LOGIC                          -->
+    <!-- ========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
         import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
 
-        // 1. Firebase Setup & Authentication (Fixed for external hosting)
+        // ==========================================
+        // 1. CONFIGURATION & FIREBASE SETUP
+        // ==========================================
+        const myFirebaseConfig = {
+            apiKey: "AIzaSyCWGgVNelj-3Na42CpMqMbDYaGQNfBPv28",
+            authDomain: "sipx-c2edb.firebaseapp.com",
+            projectId: "sipx-c2edb",
+            storageBucket: "sipx-c2edb.firebasestorage.app",
+            messagingSenderId: "1055121646475",
+            appId: "1:1055121646475:web:815faea2f80a78d75a458e",
+            measurementId: "G-QLHB2CEXBG"
+        };
+
         let firebaseConfig = null;
-        try {
-            if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                firebaseConfig = JSON.parse(__firebase_config);
-            }
-        } catch (e) {
-            console.warn("No Firebase config found.");
+        let isUsingInjectedConfig = false;
+
+        if (Object.keys(myFirebaseConfig).length > 0 && myFirebaseConfig.apiKey !== "YOUR_API_KEY") {
+            firebaseConfig = myFirebaseConfig;
+        } else {
+            try {
+                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
+                    firebaseConfig = JSON.parse(__firebase_config);
+                    isUsingInjectedConfig = true;
+                }
+            } catch (e) { console.warn("No Firebase config found."); }
         }
         
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'velvet-sip-live';
         let app = null, auth = null, db = null, user = null;
 
         if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
@@ -384,10 +587,11 @@
                 db = getFirestore(app);
 
                 const initAuth = async () => {
-                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        await signInWithCustomToken(auth, __initial_auth_token);
+                    if (isUsingInjectedConfig && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        try { await signInWithCustomToken(auth, __initial_auth_token); } 
+                        catch (err) { try { await signInAnonymously(auth); } catch(e){} }
                     } else {
-                        await signInAnonymously(auth);
+                        try { await signInAnonymously(auth); } catch(e){}
                     }
                 };
 
@@ -396,37 +600,39 @@
                 onAuthStateChanged(auth, (u) => {
                     user = u;
                     if (user) {
-                        setupOrdersListener();
+                        setupDatabaseListeners();
                     }
                 });
-            } catch (err) {
-                console.error("Firebase init error:", err);
-            }
-        } else {
-            console.warn("Running in LOCAL OFFLINE MODE. Cloud features disabled.");
+            } catch (err) { console.error("Firebase init error:", err); }
         }
 
-        // 1. Database
-        const menuItems = [
-            { id: 1, name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
-            { id: 2, name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
-            { id: 3, name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." },
-            { id: 4, name: "Watermelon Mojito", category: "mojito", price: 49, desc: "Fresh watermelon chunks muddled with mint." },
-            { id: 5, name: "Blue Lagoon Mojito", category: "mojito", price: 49, desc: "Citrusy blue curaçao, lime, and sparkling soda." },
-            { id: 6, name: "Mohabbat Ka Sharbath", category: "traditional", price: 49, desc: "Iconic Delhi drink: milk, rooh afza, watermelon." },
-            { id: 7, name: "Sweet Lassi", category: "traditional", price: 49, desc: "Thick, creamy yogurt blended with sugar." },
-            { id: 8, name: "Spiced Buttermilk", category: "traditional", price: 49, desc: "Cooling Chaas with roasted cumin & coriander." },
-            { id: 9, name: "Rose Sharbath", category: "traditional", price: 49, desc: "Sweet, fragrant rose syrup chilled with water." },
-            { id: 10, name: "Coca Cola", category: "soda", price: 49, desc: "Classic chilled cola." },
-            { id: 11, name: "Sprite", category: "soda", price: 49, desc: "Crisp lemon-lime refreshment." }
+        // ==========================================
+        // 2. DATA STATE
+        // ==========================================
+        // Default Seed Menu
+        const defaultMenuItems = [
+            { id: "1", name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
+            { id: "2", name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
+            { id: "3", name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." },
+            { id: "4", name: "Watermelon Mojito", category: "mojito", price: 49, desc: "Fresh watermelon chunks muddled with mint." },
+            { id: "6", name: "Mohabbat Ka Sharbath", category: "traditional", price: 49, desc: "Iconic Delhi drink: milk, rooh afza, watermelon." },
+            { id: "10", name: "Coca Cola", category: "soda", price: 49, desc: "Classic chilled cola." }
         ];
 
+        let dynamicMenu = [];
         let cart = [];
         let orders = [];
         let orderCounter = 1000;
+        let brandSettings = { name: "VELVET SIP", initials: "V.S" };
+        let chartsInstance = { revenue: null, product: null };
 
-        function setupOrdersListener() {
-            if (!db) return; // Safety check
+        // ==========================================
+        // 3. LISTENERS & SYNC
+        // ==========================================
+        function setupDatabaseListeners() {
+            if (!db || !user) return;
+            
+            // A. Orders Listener
             const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
             onSnapshot(ordersRef, (snapshot) => {
                 orders = [];
@@ -434,42 +640,92 @@
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     orders.push({ ...data, docId: doc.id });
-                    
                     const num = parseInt(data.id.replace('#', ''));
-                    if (!isNaN(num) && num > maxOrderNum) {
-                        maxOrderNum = num;
-                    }
+                    if (!isNaN(num) && num > maxOrderNum) maxOrderNum = num;
                 });
                 orderCounter = maxOrderNum;
-                
-                // Sort by creation time to ensure the kitchen line stays organized
                 orders.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
+                
                 renderChefDashboard();
-            }, (error) => {
-                console.error("Cloud sync error:", error);
-            });
+                if(document.getElementById('admin-tab-analytics').classList.contains('hidden') === false) {
+                    processAnalytics();
+                }
+            }, (e) => console.error(e));
+
+            // B. Menu Listener
+            const menuRef = collection(db, 'artifacts', appId, 'public', 'data', 'menu');
+            onSnapshot(menuRef, async (snapshot) => {
+                if (snapshot.empty) {
+                    console.log("Menu empty, auto-seeding defaults...");
+                    for(const item of defaultMenuItems) {
+                        try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'menu'), item); } catch(e){}
+                    }
+                } else {
+                    dynamicMenu = [];
+                    snapshot.forEach(doc => dynamicMenu.push({ ...doc.data(), docId: doc.id }));
+                    dynamicMenu.sort((a, b) => a.category.localeCompare(b.category));
+                    
+                    renderMenuUI();
+                    renderAdminMenuTable();
+                }
+            }, (e) => console.error(e));
+
+            // C. Settings Listener
+            const settingsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'brand');
+            onSnapshot(settingsDoc, (docSnap) => {
+                if (docSnap.exists()) {
+                    brandSettings = docSnap.data();
+                    applyBrandSettingsToUI();
+                }
+            }, (e) => console.error(e));
         }
 
-        // 2. Render Menu (Centered layout, strictly 3 items per row)
-        function renderMenu(category = 'all') {
+        // ==========================================
+        // 4. CUSTOMER POS LOGIC
+        // ==========================================
+        function renderMenuUI(categoryFilter = 'all') {
+            document.getElementById('menu-loader').style.display = 'none';
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = '';
+            grid.classList.remove('hidden');
             
-            const filteredItems = category === 'all' ? menuItems : menuItems.filter(item => item.category === category);
+            // Build Category Filters dynamically based on available menu items
+            const categories = [...new Set(dynamicMenu.map(item => item.category))];
+            const filterContainer = document.getElementById('category-filters');
             
+            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="all">All</button>`;
+            
+            categories.forEach(cat => {
+                const isActive = categoryFilter === cat;
+                const formattedName = cat.charAt(0).toUpperCase() + cat.slice(1);
+                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="${cat}">${formattedName}</button>`;
+            });
+            filterContainer.innerHTML = filterHtml;
+
+            // Render Items
+            const filteredItems = categoryFilter === 'all' ? dynamicMenu : dynamicMenu.filter(item => item.category === categoryFilter);
+            
+            if(filteredItems.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-neutral-400">No items available.</div>`;
+                return;
+            }
+
             filteredItems.forEach(item => {
+                const imgHtml = item.image ? `<div class="w-full h-48 mb-5 rounded-[1rem] overflow-hidden shrink-0 relative"><div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10 pointer-events-none"></div><img src="${item.image}" onerror="this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" alt="${item.name}"></div>` : '';
+                
                 const cardHtml = `
-                    <div class="tilt-wrapper group menu-item-anim w-full">
-                        <div class="tilt-card bg-[#111111] p-6 md:p-8 rounded-[1rem] shadow-[0_8px_24px_rgba(0,0,0,0.15)] border border-neutral-800 flex flex-col h-full hover:shadow-[0_20px_40px_rgba(0,0,0,0.3)] hover:border-[#C5A059]/50 transition-all duration-300" data-tilt-intensity="3">
-                            <div class="glare-container"><div class="glare"></div></div>
-                            <div class="flex justify-between items-start mb-4 text-left">
-                                <h3 class="font-display font-semibold text-xl text-white leading-tight">${item.name}</h3>
+                    <div class="tilt-wrapper group menu-item-anim w-full" style="opacity: 0; transform: translateY(30px);">
+                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(27,67,50,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
+                            <div class="glare-container rounded-[2rem]"><div class="glare"></div></div>
+                            ${imgHtml}
+                            <div class="flex justify-between items-start mb-2 text-left mt-2">
+                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#1B4332] transition-colors">${item.name}</h3>
                             </div>
-                            <p class="text-xs text-neutral-400 font-medium mb-8 flex-grow leading-relaxed tracking-wide text-left">${item.desc}</p>
-                            <div class="mt-auto flex justify-between items-center pt-5 border-t border-neutral-800">
-                                <span class="font-bold text-xl text-[#C5A059]">₹${item.price.toFixed(2)}</span>
-                                <button onclick="addToCart(${item.id})" class="w-12 h-12 rounded-full bg-[#C5A059] text-[#111] flex items-center justify-center hover:bg-white transition-colors shadow-[0_4px_12px_rgba(197,160,89,0.3)]">
-                                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
+                            <p class="text-[13px] text-neutral-500 font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
+                            <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-200/60">
+                                <span class="font-bold text-xl text-[#C5A059] tracking-tight">₹${Number(item.price).toFixed(2)}</span>
+                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#1B4332] text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] hover:scale-110 transition-all duration-300 shadow-[0_4px_15px_rgba(27,67,50,0.2)]">
+                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
                         </div>
@@ -480,33 +736,35 @@
 
             initTilt();
 
-            gsap.fromTo('.menu-item-anim', 
-                { opacity: 0, y: 30 },
-                { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", clearProps: "all" }
-            );
+            if (window.gsap) {
+                window.gsap.fromTo('.menu-item-anim', 
+                    { opacity: 0, y: 30 },
+                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", clearProps: "all" }
+                );
+            }
         }
 
-        // 3. Cart Logic
-        function addToCart(itemId) {
-            const item = menuItems.find(i => i.id === itemId);
-            const existing = cart.find(i => i.id === itemId);
-            if (existing) {
-                existing.qty += 1;
-            } else {
-                cart.push({ ...item, qty: 1 });
-            }
+        window.filterMenu = (category) => renderMenuUI(category);
+
+        window.addToCart = (itemId) => {
+            const item = dynamicMenu.find(i => (i.docId || i.id) === itemId);
+            if(!item) return;
+            const existing = cart.find(i => (i.docId || i.id) === itemId);
+            if (existing) existing.qty += 1;
+            else cart.push({ ...item, qty: 1 });
+            
             updateCartUI();
             showToast(`Added ${item.name}`);
-        }
+        };
 
-        function updateCartQty(itemId, change) {
-            const item = cart.find(i => i.id === itemId);
+        window.updateCartQty = (itemId, change) => {
+            const item = cart.find(i => (i.docId || i.id) === itemId);
             if(item) {
                 item.qty += change;
-                if(item.qty <= 0) cart = cart.filter(i => i.id !== itemId);
+                if(item.qty <= 0) cart = cart.filter(i => (i.docId || i.id) !== itemId);
             }
             updateCartUI();
-        }
+        };
 
         function updateCartUI() {
             const container = document.getElementById('cart-items');
@@ -515,105 +773,138 @@
             const badge = document.getElementById('cart-count');
             
             container.innerHTML = '';
-            
-            let subtotal = 0;
-            let totalItems = 0;
+            let subtotal = 0; let totalItems = 0;
 
             if (cart.length === 0) {
                 emptyMsg.classList.remove('hidden');
-                checkoutBtn.disabled = true;
-                badge.style.opacity = '0';
+                checkoutBtn.disabled = true; badge.style.opacity = '0';
             } else {
                 emptyMsg.classList.add('hidden');
-                checkoutBtn.disabled = false;
-                badge.style.opacity = '1';
+                checkoutBtn.disabled = false; badge.style.opacity = '1';
                 
                 cart.forEach(item => {
                     subtotal += item.price * item.qty;
                     totalItems += item.qty;
+                    const cId = item.docId || item.id;
+                    const imgThumb = item.image ? `<img src="${item.image}" class="w-14 h-14 rounded-[0.85rem] object-cover mr-4 shrink-0 shadow-sm" onerror="this.style.display='none'">` : '';
+
                     container.innerHTML += `
-                        <div class="flex justify-between items-center bg-white p-4 rounded-xl border border-neutral-100 shadow-sm">
-                            <div class="flex-grow">
-                                <div class="font-bold text-sm text-neutral-950">${item.name}</div>
-                                <div class="text-xs text-neutral-500 mt-1">₹${item.price.toFixed(2)} each</div>
+                        <div class="flex justify-between items-center bg-white/80 backdrop-blur-md p-3.5 rounded-[1.25rem] border border-white shadow-[0_4px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all">
+                            <div class="flex items-center flex-grow">
+                                ${imgThumb}
+                                <div>
+                                    <div class="font-bold text-[14px] text-neutral-900 leading-tight">${item.name}</div>
+                                    <div class="text-[12px] text-[#C5A059] font-semibold mt-0.5">₹${Number(item.price).toFixed(2)}</div>
+                                </div>
                             </div>
-                            <div class="flex items-center gap-4 bg-neutral-50 rounded-full px-2 py-1 border border-neutral-100">
-                                <button onclick="updateCartQty(${item.id}, -1)" class="w-7 h-7 flex items-center justify-center font-bold text-neutral-400 hover:text-black transition-colors">-</button>
-                                <span class="text-xs font-bold w-4 text-center">${item.qty}</span>
-                                <button onclick="updateCartQty(${item.id}, 1)" class="w-7 h-7 flex items-center justify-center font-bold text-neutral-400 hover:text-black transition-colors">+</button>
+                            <div class="flex items-center gap-3 bg-[#FAF9F6] rounded-full px-2 py-1.5 border border-neutral-100 shrink-0 shadow-inner">
+                                <button onclick="updateCartQty('${cId}', -1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">-</button>
+                                <span class="text-xs font-bold w-3 text-center text-neutral-800">${item.qty}</span>
+                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#1B4332] hover:bg-[#1B4332]/10 rounded-full transition-colors">+</button>
                             </div>
                         </div>
                     `;
                 });
             }
-
             badge.innerText = totalItems;
-            
             const tax = subtotal * 0.08;
-            const total = subtotal + tax;
-
             document.getElementById('cart-subtotal').innerText = `₹${subtotal.toFixed(2)}`;
             document.getElementById('cart-tax').innerText = `₹${tax.toFixed(2)}`;
-            document.getElementById('cart-total').innerText = `₹${total.toFixed(2)}`;
+            document.getElementById('cart-total').innerText = `₹${(subtotal + tax).toFixed(2)}`;
         }
 
-        // 4. Checkout & Bill Generation
-        function processCheckout() {
+        window.openPaymentModal = () => {
+            if(cart.length === 0) return;
+            
+            // Calculate total for display
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let total = subtotal + (subtotal * 0.08);
+            document.getElementById('payment-total-display').innerText = `₹${total.toFixed(2)}`;
+            
+            // Close Cart Sidebar
+            document.getElementById('cart-sidebar').classList.remove('cart-open');
+            document.getElementById('cart-overlay').classList.add('hidden');
+            
+            // Open Payment Modal
+            const modal = document.getElementById('payment-modal');
+            modal.classList.remove('hidden');
+            document.getElementById('payment-options').classList.remove('hidden');
+            document.getElementById('payment-processing').classList.add('hidden');
+            document.getElementById('payment-processing').classList.remove('flex');
+            
+            if (window.gsap) {
+                window.gsap.fromTo('#payment-modal-content', 
+                    { y: 30, opacity: 0 }, 
+                    { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }
+                );
+            }
+        };
+
+        window.closePaymentModal = () => {
+            document.getElementById('payment-modal').classList.add('hidden');
+        };
+
+        window.simulatePayment = (method) => {
+            document.getElementById('payment-options').classList.add('hidden');
+            document.getElementById('payment-processing').classList.remove('hidden');
+            document.getElementById('payment-processing').classList.add('flex');
+            
+            setTimeout(() => {
+                closePaymentModal();
+                processCheckout(method);
+            }, 1500); // Simulate 1.5 seconds of payment processing
+        };
+
+        window.processCheckout = (paymentMethod = "Digital Wallet") => {
             if(cart.length === 0) return;
 
             orderCounter++;
             const orderNum = `#${orderCounter}`;
-            
             let subtotal = 0;
             const orderItems = cart.map(item => {
                 subtotal += item.price * item.qty;
-                return { name: item.name, qty: item.qty, price: item.price };
+                return { name: item.name, qty: item.qty, price: Number(item.price) };
             });
             const total = subtotal + (subtotal * 0.08);
 
             const newOrder = {
                 id: orderNum,
                 time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
+                date: new Date().toLocaleDateString(),
                 items: orderItems,
                 status: 'new',
+                total: total,
+                paymentMethod: paymentMethod,
                 timestamp: Date.now()
             };
             
-            // Instantly push the order to the Cloud Database
             if (user && db) {
                 addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), newOrder).catch(e => console.error(e));
-            } else {
-                orders.push(newOrder); // Fallback for local testing without internet
-            }
+            } else { orders.push(newOrder); }
 
             document.getElementById('bill-order-num').innerText = orderNum;
             document.getElementById('bill-date').innerText = new Date().toLocaleString();
             document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
+            document.getElementById('bill-payment-method').innerText = paymentMethod;
             
-            const billItemsContainer = document.getElementById('bill-items');
-            billItemsContainer.innerHTML = '';
-            orderItems.forEach(i => {
-                billItemsContainer.innerHTML += `
-                    <div class="flex justify-between">
-                        <span>${i.qty}x ${i.name.substring(0, 15)}</span>
-                        <span>₹${(i.price * i.qty).toFixed(2)}</span>
-                    </div>
-                `;
-            });
+            const bItems = document.getElementById('bill-items');
+            bItems.innerHTML = '';
+            orderItems.forEach(i => bItems.innerHTML += `<div class="flex justify-between"><span>${i.qty}x ${i.name.substring(0, 15)}</span><span>₹${(i.price * i.qty).toFixed(2)}</span></div>`);
 
-            cart = [];
-            updateCartUI();
-            toggleCart();
+            cart = []; 
+            updateCartUI(); 
+            
+            // Ensure cart is closed
+            document.getElementById('cart-sidebar').classList.remove('cart-open');
+            document.getElementById('cart-overlay').classList.add('hidden');
             
             document.getElementById('bill-modal').classList.remove('hidden');
             renderChefDashboard();
         }
 
-        function closeBill() {
-            document.getElementById('bill-modal').classList.add('hidden');
-        }
-
-        // 5. Kitchen Display System Logic
+        // ==========================================
+        // 5. ADMIN / KDS LOGIC
+        // ==========================================
         function renderChefDashboard() {
             const containerNew = document.getElementById('kds-new');
             const containerPrep = document.getElementById('kds-prep');
@@ -623,8 +914,9 @@
             let cNew = 0, cPrep = 0, cReady = 0;
 
             orders.forEach(order => {
-                let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
+                if(order.status === 'done') return; // Hide completed in KDS
                 
+                let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
                 let actionBtn = '';
                 const updateId = order.docId || order.id;
                 
@@ -636,26 +928,22 @@
                     actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
                 } else if(order.status === 'ready') {
                     cReady++;
-                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear Order</button>`;
+                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear (Done)</button>`;
                 }
 
-                if(order.status !== 'done') {
-                    const card = `
-                        <div class="bg-[#1A1A1A] border border-neutral-800 rounded-xl p-5 shadow-lg animate-[fadeIn_0.3s_ease]">
-                            <div class="flex justify-between items-center mb-4 pb-3 border-b border-neutral-800">
-                                <span class="font-display font-bold text-2xl text-white">${order.id}</span>
-                                <span class="text-xs text-neutral-500 font-mono">${order.time}</span>
-                            </div>
-                            <div class="text-sm mb-2">
-                                ${itemsHtml}
-                            </div>
-                            ${actionBtn}
+                const card = `
+                    <div class="bg-[#1A1A1A] border border-neutral-800 rounded-xl p-5 shadow-lg animate-[fadeIn_0.3s_ease]">
+                        <div class="flex justify-between items-center mb-4 pb-3 border-b border-neutral-800">
+                            <span class="font-display font-bold text-2xl text-white">${order.id}</span>
+                            <span class="text-xs text-neutral-500 font-mono">${order.time}</span>
                         </div>
-                    `;
-                    if(order.status === 'new') containerNew.innerHTML += card;
-                    if(order.status === 'prep') containerPrep.innerHTML += card;
-                    if(order.status === 'ready') containerReady.innerHTML += card;
-                }
+                        <div class="text-sm mb-2">${itemsHtml}</div>
+                        ${actionBtn}
+                    </div>
+                `;
+                if(order.status === 'new') containerNew.innerHTML += card;
+                if(order.status === 'prep') containerPrep.innerHTML += card;
+                if(order.status === 'ready') containerReady.innerHTML += card;
             });
 
             document.getElementById('count-new').innerText = cNew;
@@ -663,115 +951,328 @@
             document.getElementById('count-ready').innerText = cReady;
         }
 
-        async function updateOrderStatus(orderId, newStatus) {
-            if (user && db && orderId.length > 10) { // Firestore unique IDs are long strings
-                try {
-                    const orderDoc = doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId);
-                    await updateDoc(orderDoc, { status: newStatus });
-                } catch (e) {
-                    console.error("Error syncing status to cloud: ", e);
-                }
+        window.updateOrderStatus = async (orderId, newStatus) => {
+            if (user && db && orderId.length > 10) {
+                try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId), { status: newStatus }); } catch (e) {}
             } else {
                 const order = orders.find(o => (o.docId || o.id) === orderId);
-                if(order) {
-                    order.status = newStatus;
-                    renderChefDashboard();
-                }
+                if(order) { order.status = newStatus; renderChefDashboard(); }
             }
         }
 
-        // 6. UI Toggles & Utilities
-        function toggleCart() {
+        // ==========================================
+        // 6. ADMIN: MENU MANAGER
+        // ==========================================
+        function renderAdminMenuTable() {
+            const tbody = document.getElementById('admin-menu-list');
+            tbody.innerHTML = '';
+            dynamicMenu.forEach(item => {
+                const id = item.docId || item.id;
+                const thumbHtml = item.image ? `<img src="${item.image}" class="w-8 h-8 rounded-md object-cover inline-block mr-3 border border-neutral-700" onerror="this.style.display='none'">` : '';
+                tbody.innerHTML += `
+                    <tr class="hover:bg-neutral-800/50 transition-colors">
+                        <td class="px-6 py-4 font-bold text-white flex items-center">${thumbHtml}${item.name}</td>
+                        <td class="px-6 py-4 uppercase text-xs tracking-widest">${item.category}</td>
+                        <td class="px-6 py-4 text-[#C5A059]">₹${Number(item.price).toFixed(2)}</td>
+                        <td class="px-6 py-4">
+                            <button onclick="editMenuItem('${id}')" class="text-blue-400 hover:text-blue-300 text-xs font-bold uppercase mr-4">Edit</button>
+                            <button onclick="deleteMenuItem('${id}')" class="text-red-500 hover:text-red-400 text-xs font-bold uppercase">Delete</button>
+                        </td>
+                    </tr>
+                `;
+            });
+        }
+
+        window.openMenuEditorModal = () => {
+            document.getElementById('editor-title').innerText = "Add Menu Item";
+            document.getElementById('editor-id').value = '';
+            document.getElementById('editor-name').value = '';
+            document.getElementById('editor-category').value = '';
+            document.getElementById('editor-price').value = '';
+            document.getElementById('editor-image').value = '';
+            document.getElementById('editor-desc').value = '';
+            document.getElementById('menu-editor-modal').classList.remove('hidden');
+        };
+
+        window.closeMenuEditorModal = () => document.getElementById('menu-editor-modal').classList.add('hidden');
+
+        window.editMenuItem = (id) => {
+            const item = dynamicMenu.find(i => String(i.docId || i.id) === String(id));
+            if(!item) return;
+            document.getElementById('editor-title').innerText = "Edit Menu Item";
+            document.getElementById('editor-id').value = id;
+            document.getElementById('editor-name').value = item.name;
+            document.getElementById('editor-category').value = item.category;
+            document.getElementById('editor-price').value = item.price;
+            document.getElementById('editor-image').value = item.image || '';
+            document.getElementById('editor-desc').value = item.desc || "";
+            document.getElementById('menu-editor-modal').classList.remove('hidden');
+        };
+
+        window.saveMenuItem = async () => {
+            const id = document.getElementById('editor-id').value;
+            const itemObj = {
+                name: document.getElementById('editor-name').value,
+                category: document.getElementById('editor-category').value.toLowerCase().trim(),
+                price: parseFloat(document.getElementById('editor-price').value) || 0,
+                image: document.getElementById('editor-image').value.trim(),
+                desc: document.getElementById('editor-desc').value
+            };
+
+            if(!itemObj.name || !itemObj.category) return alert("Name and Category are required.");
+
+            if (user && db) {
+                if(id) {
+                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menu', id), itemObj);
+                    showToast("Item Updated");
+                } else {
+                    itemObj.id = Date.now().toString();
+                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'menu'), itemObj);
+                    showToast("Item Added");
+                }
+            } else {
+                // LOCAL MODE FALLBACK: Makes editing work even if Firebase isn't connected!
+                if(id) {
+                    const idx = dynamicMenu.findIndex(i => String(i.docId || i.id) === String(id));
+                    if (idx > -1) dynamicMenu[idx] = { ...dynamicMenu[idx], ...itemObj };
+                    showToast("Item Updated (Local)");
+                } else {
+                    itemObj.id = Date.now().toString();
+                    dynamicMenu.push(itemObj);
+                    showToast("Item Added (Local)");
+                }
+                renderMenuUI();
+                renderAdminMenuTable();
+            }
+            closeMenuEditorModal();
+        };
+
+        window.deleteMenuItem = async (id) => {
+            if(!confirm("Are you sure you want to delete this item?")) return;
+            if (user && db) {
+                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menu', id));
+                showToast("Item Deleted");
+            } else {
+                // LOCAL MODE FALLBACK
+                dynamicMenu = dynamicMenu.filter(i => String(i.docId || i.id) !== String(id));
+                renderMenuUI();
+                renderAdminMenuTable();
+                showToast("Item Deleted (Local)");
+            }
+        };
+
+        // ==========================================
+        // 7. ADMIN: ANALYTICS
+        // ==========================================
+        function processAnalytics() {
+            // Aggregate Data
+            let totalRev = 0;
+            let totalDone = 0;
+            let itemCounts = {};
+            let dailyRev = {}; // Format: "MM/DD/YYYY": value
+
+            // Last 7 days prep
+            for(let i=6; i>=0; i--) {
+                const d = new Date(); d.setDate(d.getDate() - i);
+                dailyRev[d.toLocaleDateString()] = 0;
+            }
+
+            orders.forEach(o => {
+                if (o.status === 'done') {
+                    totalDone++;
+                    totalRev += (o.total || 0);
+                    
+                    // Daily Revenue
+                    const dStr = new Date(o.timestamp || Date.now()).toLocaleDateString();
+                    if(dailyRev[dStr] !== undefined) { dailyRev[dStr] += (o.total || 0); }
+                    else { dailyRev[dStr] = (o.total || 0); }
+
+                    // Products
+                    if(o.items) {
+                        o.items.forEach(i => {
+                            if(!itemCounts[i.name]) itemCounts[i.name] = 0;
+                            itemCounts[i.name] += i.qty;
+                        });
+                    }
+                }
+            });
+
+            document.getElementById('stat-revenue').innerText = `₹${totalRev.toFixed(2)}`;
+            document.getElementById('stat-orders').innerText = totalDone;
+            
+            // Top Item
+            let topItem = "N/A"; let topCount = 0;
+            for (const [name, count] of Object.entries(itemCounts)) {
+                if (count > topCount) { topCount = count; topItem = name; }
+            }
+            document.getElementById('stat-top-item').innerText = topItem;
+
+            renderCharts(dailyRev, itemCounts);
+        }
+
+        function renderCharts(dailyRev, itemCounts) {
+            if (typeof Chart === 'undefined') return;
+
+            Chart.defaults.color = '#737373';
+            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+
+            // Chart 1: Line Chart for Revenue
+            const revCtx = document.getElementById('revenueChart');
+            if(chartsInstance.revenue) chartsInstance.revenue.destroy();
+            
+            const revLabels = Object.keys(dailyRev).slice(-7); // Last 7 days
+            const revData = revLabels.map(k => dailyRev[k]);
+
+            chartsInstance.revenue = new Chart(revCtx, {
+                type: 'line',
+                data: {
+                    labels: revLabels,
+                    datasets: [{
+                        label: 'Revenue (₹)',
+                        data: revData,
+                        borderColor: '#C5A059',
+                        backgroundColor: 'rgba(197, 160, 89, 0.1)',
+                        borderWidth: 2,
+                        fill: true,
+                        tension: 0.4
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: {
+                        y: { grid: { color: '#333' } },
+                        x: { grid: { display: false } }
+                    }
+                }
+            });
+
+            // Chart 2: Doughnut for Products
+            const prodCtx = document.getElementById('productChart');
+            if(chartsInstance.product) chartsInstance.product.destroy();
+
+            // Sort and take top 5
+            const sortedItems = Object.entries(itemCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
+            const prodLabels = sortedItems.map(i => i[0]);
+            const prodData = sortedItems.map(i => i[1]);
+
+            chartsInstance.product = new Chart(prodCtx, {
+                type: 'doughnut',
+                data: {
+                    labels: prodLabels,
+                    datasets: [{
+                        data: prodData,
+                        backgroundColor: ['#C5A059', '#00704A', '#3E2723', '#A1804B', '#555'],
+                        borderWidth: 0
+                    }]
+                },
+                options: {
+                    responsive: true, maintainAspectRatio: false,
+                    plugins: { legend: { position: 'right', labels: { color: '#aaa', font: {size: 10} } } },
+                    cutout: '70%'
+                }
+            });
+        }
+
+        // ==========================================
+        // 8. ADMIN: SETTINGS (Brand Name)
+        // ==========================================
+        function applyBrandSettingsToUI() {
+            document.querySelectorAll('.dynamic-brand-name').forEach(el => el.innerText = brandSettings.name);
+            document.querySelectorAll('.dynamic-brand-initials').forEach(el => el.innerText = brandSettings.initials);
+            document.getElementById('setting-brand-name').value = brandSettings.name;
+            document.getElementById('setting-brand-initials').value = brandSettings.initials;
+        }
+
+        window.saveBrandSettings = async () => {
+            const name = document.getElementById('setting-brand-name').value || "VELVET SIP";
+            const initials = document.getElementById('setting-brand-initials').value || "V.S";
+            
+            if(user && db) {
+                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'brand'), { name, initials });
+                showToast("Brand Settings Saved");
+            } else {
+                brandSettings = { name, initials };
+                applyBrandSettingsToUI();
+                showToast("Saved Locally");
+            }
+        }
+
+
+        // ==========================================
+        // 9. UI TOGGLES & UTILS
+        // ==========================================
+        window.toggleCart = () => {
             const sidebar = document.getElementById('cart-sidebar');
             const overlay = document.getElementById('cart-overlay');
-            if(sidebar.classList.contains('cart-open')) {
-                sidebar.classList.remove('cart-open');
-                overlay.classList.add('hidden');
-            } else {
-                sidebar.classList.add('cart-open');
-                overlay.classList.remove('hidden');
-            }
-        }
+            sidebar.classList.toggle('cart-open');
+            overlay.classList.toggle('hidden');
+        };
+        window.closeBill = () => document.getElementById('bill-modal').classList.add('hidden');
 
-        function attemptChefLogin() {
+        // Admin Auth
+        window.attemptChefLogin = () => {
             document.getElementById('password-modal').classList.remove('hidden');
             document.getElementById('chef-password-input').value = '';
             document.getElementById('password-error').classList.add('hidden');
             setTimeout(() => document.getElementById('chef-password-input').focus(), 100);
-        }
-
-        function closePasswordModal() {
-            document.getElementById('password-modal').classList.add('hidden');
-        }
-
-        function verifyChefPassword() {
-            const input = document.getElementById('chef-password-input').value;
-            if(input === 'MGX') {
+        };
+        window.closePasswordModal = () => document.getElementById('password-modal').classList.add('hidden');
+        window.verifyChefPassword = () => {
+            if(document.getElementById('chef-password-input').value === 'MGX') {
                 closePasswordModal();
                 switchToChefView();
-            } else {
-                document.getElementById('password-error').classList.remove('hidden');
-            }
-        }
+            } else document.getElementById('password-error').classList.remove('hidden');
+        };
 
-        function switchToChefView() {
+        window.switchToChefView = () => {
             document.getElementById('customer-view').classList.add('hidden');
             document.getElementById('chef-view').classList.remove('hidden');
             document.body.style.backgroundColor = "#0A0A0A"; 
             renderChefDashboard();
-        }
-
-        function exitChefView() {
+        };
+        window.exitChefView = () => {
             document.getElementById('chef-view').classList.add('hidden');
             document.getElementById('customer-view').classList.remove('hidden');
             document.body.style.backgroundColor = "var(--crema)";
-        }
+        };
 
-        function filterMenu(category) {
-            document.querySelectorAll('.cat-btn').forEach(btn => {
-                if(btn.dataset.cat === category) {
-                    btn.classList.add('bg-neutral-950', 'text-white');
-                    btn.classList.remove('bg-white', 'text-neutral-600');
-                } else {
-                    btn.classList.remove('bg-neutral-950', 'text-white');
-                    btn.classList.add('bg-white', 'text-neutral-600');
-                }
+        window.switchAdminTab = (tabId) => {
+            // Hide all tabs
+            ['kds', 'menu', 'analytics', 'settings'].forEach(id => {
+                document.getElementById(`admin-tab-${id}`).classList.add('hidden');
+                document.getElementById(`tab-btn-${id}`).classList.remove('active', 'border-b-[#C5A059]', 'text-white');
             });
-            renderMenu(category);
-        }
+            // Show target tab
+            document.getElementById(`admin-tab-${tabId}`).classList.remove('hidden');
+            document.getElementById(`tab-btn-${tabId}`).classList.add('active', 'border-b-[#C5A059]', 'text-white');
 
-        function showToast(msg) {
+            if(tabId === 'analytics') processAnalytics();
+        };
+
+        window.showToast = (msg) => {
             const toast = document.getElementById('toast');
-            toast.innerText = msg;
-            toast.classList.add('show');
+            toast.innerText = msg; toast.classList.add('show');
             setTimeout(() => toast.classList.remove('show'), 2000);
-        }
+        };
 
-        // 7. 3D Tilt Initialization
+        // Tilt logic (unchanged)
         function initTilt() {
-            const tiltWrappers = document.querySelectorAll('.tilt-wrapper:not(.tilt-init)');
-            tiltWrappers.forEach(wrapper => {
+            document.querySelectorAll('.tilt-wrapper:not(.tilt-init)').forEach(wrapper => {
                 wrapper.classList.add('tilt-init');
-                
                 const card = wrapper.querySelector('.tilt-card');
                 const glare = wrapper.querySelector('.glare');
                 const intensity = parseFloat(card.getAttribute('data-tilt-intensity')) || 10;
-
                 wrapper.addEventListener('mousemove', (e) => {
-                    const rect = card.getBoundingClientRect();
-                    const x = e.clientX - rect.left; const y = e.clientY - rect.top;
-                    const rotateX = ((y - rect.height / 2) / (rect.height / 2)) * -intensity; 
-                    const rotateY = ((x - rect.width / 2) / (rect.width / 2)) * intensity;
-                    
-                    card.style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
-                    
+                    const r = card.getBoundingClientRect();
+                    const x = e.clientX - r.left; const y = e.clientY - r.top;
+                    card.style.transform = `rotateX(${((y - r.height / 2) / (r.height / 2)) * -intensity}deg) rotateY(${((x - r.width / 2) / (r.width / 2)) * intensity}deg)`;
                     if (glare) {
-                        glare.style.setProperty('--glare-x', `${(x / rect.width) * 100}%`);
-                        glare.style.setProperty('--glare-y', `${(y / rect.height) * 100}%`);
+                        glare.style.setProperty('--glare-x', `${(x / r.width) * 100}%`);
+                        glare.style.setProperty('--glare-y', `${(y / r.height) * 100}%`);
                         glare.style.setProperty('--glare-opacity', '1');
                     }
                 });
-
                 wrapper.addEventListener('mouseleave', () => {
                     card.style.transform = `rotateX(0deg) rotateY(0deg)`;
                     if (glare) glare.style.setProperty('--glare-opacity', '0');
@@ -779,67 +1280,40 @@
             });
         }
 
-        // Expose functions to global scope since we are using a JS Module 
-        // This ensures all the HTML 'onclick' attributes continue working flawlessly
-        window.renderMenu = renderMenu;
-        window.addToCart = addToCart;
-        window.updateCartQty = updateCartQty;
-        window.processCheckout = processCheckout;
-        window.closeBill = closeBill;
-        window.updateOrderStatus = updateOrderStatus;
-        window.toggleCart = toggleCart;
-        window.attemptChefLogin = attemptChefLogin;
-        window.closePasswordModal = closePasswordModal;
-        window.verifyChefPassword = verifyChefPassword;
-        window.switchToChefView = switchToChefView;
-        window.exitChefView = exitChefView;
-        window.filterMenu = filterMenu;
-
+        // Boot
         window.onload = () => {
-            renderMenu('all');
+            // Fallback render if Firebase is offline/empty initially
+            if(dynamicMenu.length === 0) {
+                dynamicMenu = [...defaultMenuItems];
+                renderMenuUI('all');
+            }
+            
+            // IMPORTANT: Render the Admin table so it is never blank in local mode!
+            renderAdminMenuTable();
+            
             updateCartUI();
+            applyBrandSettingsToUI();
 
-            const tl = gsap.timeline({
-                onComplete: () => {
-                    // Unlock scrolling after intro finishes
-                    document.body.classList.remove('overflow-hidden');
-                }
-            });
+            if (window.gsap) {
+                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
+                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
+                  .to('#preloader-text', { opacity: 0, duration: 0.5, delay: 0.6 })
+                  .to('#preloader', { yPercent: -100, duration: 1, ease: 'power3.inOut' })
+                  .set('#preloader', { display: 'none' });
+                tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
+                  .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
 
-            // Preloader Logo Reveal
-            tl.to('#preloader-text', { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
-              .to('#preloader-text', { opacity: 0, duration: 0.5, delay: 0.6 })
-              .to('#preloader', { yPercent: -100, duration: 1, ease: 'power3.inOut' })
-              .set('#preloader', { display: 'none' });
-
-            // Hero Text & Cup container fade in.
-            tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
-              .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
-
-            // Pouring Sequence
-            // 1. Ice drops into cup
-            tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
-            
-            // 2. Liquid stream appears
-            tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
-            
-            // 3. Liquid translates UP (fills cup), and Ice Cubes float UP with the liquid. 
-            // Using attr: y instead of CSS transforms for flawless mobile SVG rendering.
-            tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
-              .to('.ice-cube-wrap', { y: -160, duration: 2.8, ease: 'power1.inOut' }, "<");
-            
-            // 4. Liquid stream cuts off
-            tl.to('#pour-stream', { opacity: 0, duration: 0.2 });
-
-            // 5. Subtle floating effect for ice cubes after filling
-            gsap.to('.ice-cube-wrap', {
-                y: "-=8",
-                duration: 2.5,
-                repeat: -1,
-                yoyo: true,
-                stagger: 0.3,
-                ease: "sine.inOut"
-            });
+                tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
+                tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
+                tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
+                  .to('.ice-cube-wrap', { y: -160, duration: 2.8, ease: 'power1.inOut' }, "<");
+                tl.to('#pour-stream', { opacity: 0, duration: 0.2 });
+                window.gsap.to('.ice-cube-wrap', { y: "-=8", duration: 2.5, repeat: -1, yoyo: true, stagger: 0.3, ease: "sine.inOut" });
+            } else {
+                document.body.classList.remove('overflow-hidden');
+                const preloader = document.getElementById('preloader');
+                if (preloader) preloader.style.display = 'none';
+            }
         };
     </script>
 </body>
