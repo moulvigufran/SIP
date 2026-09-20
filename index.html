@@ -3,24 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velvet Sip - Coffee Orders</title>
-    <!-- Tailwind -->
+    <title>Velvet Sip - Smart POS</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
-    <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Upgraded Ultra-Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --primary: #4E342E; /* Rich Espresso Brown */
-            --primary-dark: #3E2723; /* Dark Roast */
-            --gold: #C5A059;    /* Brushed Gold */
-            --crema: #FAF9F6;   /* Warm Cream / Off-White */
-            --surface: #FFFFFF; /* Pure White */
-            --text-dark: #1C1917; /* Warm Dark Stone */
+            --primary: #1B4332; /* Deep Forest Green */
+            --primary-dark: #143325;
+            --gold: #C5A059;    
+            --crema: #FAF9F6;   
+            --surface: #FFFFFF; 
+            --text-dark: #1C1917; 
         }
 
         html, body { max-width: 100vw; overflow-x: hidden; }
@@ -39,129 +35,139 @@
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* Smooth 3D Tilt Setup */
+        /* 3D Tilt Setup */
         .tilt-wrapper { perspective: 1200px; }
-        .tilt-card {
-            transform-style: preserve-3d; transition: transform 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
-            position: relative; will-change: transform;
-        }
+        .tilt-card { transform-style: preserve-3d; transition: transform 0.3s ease-out; position: relative; will-change: transform; }
         .glare-container { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
         .glare {
             position: absolute; width: 200%; height: 200%; left: -50%; top: -50%;
             background: radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 60%);
             transform: translate(var(--glare-x, 0), var(--glare-y, 0));
-            opacity: var(--glare-opacity, 0); transition: opacity 0.3s; mix-blend-mode: overlay;
+            opacity: var(--glare-opacity, 0); mix-blend-mode: overlay; transition: opacity 0.3s;
         }
 
         .glass-panel {
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
-            border: 1px solid rgba(255, 255, 255, 0.5);
-            box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
         }
 
-        /* Ambient Background Orbs */
-        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+        /* Background Orbs */
+        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
         .orb-1 { width: 500px; height: 500px; background: #C5A059; top: -150px; left: -150px; }
-        .orb-2 { width: 400px; height: 400px; background: #4E342E; bottom: 5%; right: -100px; animation-delay: -6s; }
+        .orb-2 { width: 400px; height: 400px; background: #1B4332; bottom: 5%; right: -100px; animation-delay: -6s; }
         @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 80px); } }
 
-        /* Cart Sidebar Animations */
-        #cart-sidebar { transition: transform 0.5s cubic-bezier(0.4, 0, 0.2, 1); }
+        /* Cart Animations */
+        #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .cart-open { transform: translateX(0) !important; }
-
         ::-webkit-scrollbar { width: 4px; }
         ::-webkit-scrollbar-track { background: transparent; }
         ::-webkit-scrollbar-thumb { background: var(--primary); }
         
-        /* Toast Notification */
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--primary-dark); color: var(--gold); padding: 14px 28px; border-radius: 50px;
+            background: var(--primary); color: var(--gold); padding: 14px 28px; border-radius: 50px;
             font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-            opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100000;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid rgba(197, 160, 89, 0.3);
+            opacity: 0; transition: all 0.4s ease; z-index: 100000; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
         }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
-        /* Receipt Print Animation */
-        @keyframes print { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
-        .receipt-anim { animation: print 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-
-        /* Admin Scrollbar */
+        @keyframes printAnim { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
+        .receipt-anim { animation: printAnim 0.8s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
         .admin-scroll::-webkit-scrollbar-thumb { background: #333; }
         .admin-nav-btn.active { color: #C5A059; border-bottom-color: #C5A059; }
+
+        /* PRINT STYLES - Hides website, shows only receipt */
+        @media print {
+            body { background: white; margin: 0; padding: 0; }
+            body * { visibility: hidden; }
+            #bill-modal, #bill-modal * { visibility: visible; }
+            #bill-modal { position: absolute; left: 0; top: 0; background: transparent; padding: 0; width: 100%; height: auto; display: block; align-items: flex-start; justify-content: center; }
+            .receipt-anim { box-shadow: none !important; animation: none !important; margin: 0 auto; max-width: 300px; border: 1px solid #ccc; }
+            .no-print { display: none !important; }
+            .noise-bg::before { display: none; }
+        }
+
+        /* CUSTOMER LOCK SCREEN OVERLAY */
+        #customer-lock-overlay {
+            position: fixed; inset: 0; background: var(--crema); z-index: 999999;
+            display: flex; flex-col; items-center; justify-center; opacity: 1; transition: opacity 0.5s;
+        }
+        #customer-lock-overlay.unlocked { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="noise-bg overflow-hidden relative">
 
-    <!-- Floating Orbs -->
-    <div class="bg-orb orb-1"></div>
-    <div class="bg-orb orb-2"></div>
+    <div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div>
 
-    <!-- Preloader -->
-    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center">
-        <div class="overflow-hidden text-center">
-            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#4E342E" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#4E342E" stroke="none"/></svg>
-            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#4E342E] translate-y-full opacity-0 dynamic-brand-name">
-                VELVET SIP
-            </div>
+    <!-- Customer Lock Screen (Prevents exiting kiosk mode) -->
+    <div id="customer-lock-overlay" class="flex flex-col items-center justify-center p-6 text-center">
+        <svg width="64" height="64" class="mb-6 text-[#1B4332]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h1 class="font-display text-4xl font-bold text-neutral-900 mb-4 dynamic-brand-name">VELVET SIP</h1>
+        <p class="text-neutral-500 mb-8 max-w-md font-medium">This terminal is locked in Kiosk Mode for customer ordering.</p>
+        <div class="flex gap-4">
+             <button onclick="unlockKiosk()" class="px-8 py-4 bg-[#1B4332] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all shadow-md">
+                 Start Ordering
+             </button>
+             <button onclick="attemptChefLogin()" class="px-6 py-4 bg-white border border-neutral-200 text-neutral-600 rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-neutral-50 transition-all">
+                 Admin Unlock
+             </button>
         </div>
     </div>
 
-    <!-- Toast Notification -->
+    <!-- Preloader -->
+    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center hidden">
+        <div class="overflow-hidden text-center">
+            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
+            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#1B4332] translate-y-full opacity-0 dynamic-brand-name">VELVET SIP</div>
+        </div>
+    </div>
+
     <div id="toast" class="toast">Action Successful</div>
 
     <!-- MAIN CUSTOMER VIEW -->
     <div id="customer-view" class="block">
-        
-        <!-- Navigation -->
         <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
             <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm">
                 <div class="font-display text-xl md:text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#4E342E" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#4E342E" stroke="none"/></svg>
+                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
                     <span class="hidden sm:inline dynamic-brand-name uppercase">VELVET SIP</span>
                     <span class="sm:hidden dynamic-brand-initials">V.S</span>
                 </div>
                 
                 <div class="flex items-center gap-2 md:gap-4">
-                    <!-- NEW: Multi-Store Location Selector -->
+                    <!-- Dynamic Store Selector -->
                     <div class="flex items-center bg-[#FAF9F6] border border-neutral-200 rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-inner">
                         <svg width="12" height="12" class="text-neutral-400 mr-1 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <select id="customer-store-selector" class="bg-transparent text-[#4E342E] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
+                        <select id="customer-store-selector" class="bg-transparent text-[#1B4332] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
                             <option value="Vizianagaram">Vizianagaram</option>
-                            <option value="Palamaner">Palamaner</option>
-                            <option value="Downtown">Downtown</option>
                         </select>
                     </div>
 
-                    <!-- Discreet Chef/Admin Portal -->
-                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#4E342E]" title="Admin Portal">
-                        <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#1B4332]" title="Admin Portal">
+                        <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
-                    <!-- Cart -->
-                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#3E2723] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#2D1A11] transition-colors shadow-[0_8px_20px_rgba(62,39,35,0.25)] flex items-center gap-1 md:gap-2">
+                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#1B4332] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors shadow-[0_8px_20px_rgba(27,67,50,0.25)] flex items-center gap-1 md:gap-2">
                         <svg width="12" height="12" class="md:w-3.5 md:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span class="hidden md:inline">Cart</span>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full text-[9px] md:text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold opacity-0 transition-opacity">0</span>
                     </button>
                 </div>
             </div>
         </nav>
 
-        <!-- Hero Section -->
         <section class="relative pt-32 md:pt-40 pb-16 md:pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen md:min-h-[90vh]">
             <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start z-10">
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#4E342E] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#1B4332] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
                 </div>
-                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-900 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight drop-shadow-sm">
+                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-900 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight">
                     Sip the <br class="hidden md:block">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4E342E] to-[#C5A059] italic drop-shadow-sm">Extraordinary.</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1B4332] to-[#C5A059] italic">Extraordinary.</span>
                 </h1>
                 <p class="text-base md:text-lg text-neutral-600 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
-                    Crafted to perfection. Select your location, pay digitally, and collect at the counter seamlessly.
+                    Crafted to perfection. Select your location, tap to add, and checkout instantly.
                 </p>
-                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#4E342E] to-[#3E2723] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(62,39,35,0.4)] hover:-translate-y-1 transition-all duration-300 border border-[#3E2723]/50">
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50">
                     Start Ordering
                 </button>
             </div>
@@ -169,54 +175,37 @@
             <div class="w-full md:w-1/2 flex justify-center tilt-wrapper mt-8 md:mt-0 z-10">
                 <div class="tilt-card w-full max-w-[260px] md:max-w-[350px]" id="hero-tilt" data-tilt-intensity="15">
                     <div class="glare-container z-20"><div class="glare"></div></div>
-                    
                     <svg viewBox="0 0 400 500" class="w-full h-auto drop-shadow-[0_30px_60px_rgba(0,0,0,0.15)] overflow-visible">
                         <defs>
                             <clipPath id="cup-mask"><path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" /></clipPath>
                             <linearGradient id="coffee-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="#2D1A11" />
-                                <stop offset="50%" stop-color="#4E342E" />
-                                <stop offset="100%" stop-color="#2D1A11" />
+                                <stop offset="0%" stop-color="#2D1A11" /><stop offset="50%" stop-color="#4E342E" /><stop offset="100%" stop-color="#2D1A11" />
                             </linearGradient>
                             <linearGradient id="glass-grad" x1="0%" y1="0%" x2="100%" y2="0%">
-                                <stop offset="0%" stop-color="rgba(255,255,255,0.4)" />
-                                <stop offset="20%" stop-color="rgba(255,255,255,0.05)" />
-                                <stop offset="80%" stop-color="rgba(255,255,255,0.02)" />
+                                <stop offset="0%" stop-color="rgba(255,255,255,0.4)" /><stop offset="20%" stop-color="rgba(255,255,255,0.05)" />
                                 <stop offset="100%" stop-color="rgba(255,255,255,0.3)" />
                             </linearGradient>
                         </defs>
-                        <rect x="186" y="20" width="14" height="400" fill="#3E2723" transform="rotate(8 200 120)" opacity="0.8"/>
+                        <rect x="186" y="20" width="14" height="400" fill="#00704A" transform="rotate(8 200 120)" opacity="0.8"/>
                         <ellipse cx="200" cy="120" rx="100" ry="12" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
-                        
                         <g clip-path="url(#cup-mask)">
                             <rect x="0" y="0" width="400" height="500" fill="url(#glass-grad)" />
                             <g class="ice-cubes">
                                 <g class="ice-cube-wrap"><rect x="140" y="380" width="45" height="45" rx="6" fill="rgba(255,255,255,0.8)" stroke="rgba(255,255,255,0.4)" stroke-width="2" transform="rotate(15 160 400)" /></g>
-                                <g class="ice-cube-wrap"><rect x="210" y="350" width="40" height="40" rx="6" fill="rgba(255,255,255,0.6)" stroke="rgba(255,255,255,0.3)" stroke-width="2" transform="rotate(-12 232 382)" /></g>
                                 <g class="ice-cube-wrap"><rect x="170" y="290" width="50" height="50" rx="6" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.5)" stroke-width="2" transform="rotate(35 189 319)" /></g>
-                                <g class="ice-cube-wrap"><rect x="220" y="260" width="38" height="38" rx="6" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.6)" stroke-width="2" transform="rotate(-25 241 291)" /></g>
                             </g>
                             <rect id="coffee-liquid" x="0" y="470" width="400" height="400" fill="url(#coffee-grad)" />
                         </g>
                         <rect id="pour-stream" x="195" y="-80" width="12" height="480" fill="#3E2723" opacity="0" />
-                        
                         <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
                         <path d="M100 120 Q200 138 300 120" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
                         <path d="M95 120 C 95 30, 305 30, 305 120" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
                         <ellipse cx="200" cy="45" rx="25" ry="6" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
-                        
-                        <g transform="rotate(8 200 120)">
-                            <rect x="186" y="-50" width="14" height="100" fill="#3E2723" />
-                            <path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#2D1A11" />
-                        </g>
-
-                        <!-- Dynamic Emblem -->
-                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#4E342E" stroke-width="3"/>
-                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#4E342E" />
-                        <circle cx="200" cy="270" r="38" fill="none" stroke="#4E342E" stroke-width="1.5" />
-                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#4E342E" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
-
-                        <!-- Reflection -->
+                        <g transform="rotate(8 200 120)"><rect x="186" y="-50" width="14" height="100" fill="#00704A" /><path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#004d33" /></g>
+                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#00704A" stroke-width="3"/>
+                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#00704A" />
+                        <circle cx="200" cy="270" r="38" fill="none" stroke="#00704A" stroke-width="1.5" />
+                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#00704A" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
                         <path d="M120 150 Q135 300 140 440" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
                     </svg>
                 </div>
@@ -226,25 +215,13 @@
         <!-- Menu Section -->
         <section id="menu-section" class="py-24 px-6 max-w-7xl mx-auto border-t border-neutral-200/50">
             <div class="flex flex-col items-center justify-center text-center mb-16 gap-8">
-                <div>
-                    <h2 class="text-4xl md:text-5xl font-display font-semibold text-neutral-950 mb-3">The Menu</h2>
-                    <p class="text-neutral-500 font-medium">Select items to add to your order.</p>
-                </div>
-                <!-- Category Filters (Dynamic) -->
-                <div class="flex flex-wrap justify-center gap-3" id="category-filters">
-                    <!-- Dynamic categories injected here -->
-                </div>
+                <div><h2 class="text-4xl md:text-5xl font-display font-semibold text-neutral-950 mb-3">The Menu</h2></div>
+                <div class="flex flex-wrap justify-center gap-3" id="category-filters"></div>
             </div>
-
-            <!-- Loading Spinner for Menu -->
             <div id="menu-loader" class="flex justify-center py-12">
                 <svg width="40" height="40" class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
             </div>
-
-            <!-- Centered Grid -->
-            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full hidden">
-                <!-- Items injected via JS -->
-            </div>
+            <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full hidden"></div>
         </section>
     </div>
 
@@ -253,7 +230,7 @@
     <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full md:w-[420px] bg-[#FAF9F6]/95 backdrop-blur-2xl z-[70] translate-x-full shadow-2xl flex flex-col border-l border-white/50">
         <div class="p-8 border-b border-neutral-200/50 flex justify-between items-center bg-white/50">
             <h2 class="font-display text-3xl font-semibold text-neutral-900">Your Order</h2>
-            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 hover:rotate-90 transition-all duration-300 text-neutral-500 shadow-sm">
+            <button onclick="toggleCart()" class="w-10 h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-all text-neutral-500 shadow-sm">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
@@ -268,7 +245,7 @@
             <div class="flex justify-between text-neutral-500 mb-5 font-medium text-sm"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
             <div class="flex justify-between text-neutral-900 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
             
-            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#4E342E] to-[#3E2723] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(62,39,35,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-[#4E342E]/50">
+            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50 disabled:opacity-50">
                 Checkout Securely
             </button>
         </div>
@@ -284,26 +261,15 @@
             <p class="text-sm text-neutral-400 mb-6">Select a payment method for your order of <span id="payment-total-display" class="text-[#C5A059] font-bold">₹0.00</span></p>
 
             <div class="space-y-3" id="payment-options">
-                <button onclick="simulatePayment('UPI / Digital Wallet')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                <button onclick="showUPIQRCode()" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
                             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
                         </div>
-                        <span class="font-bold text-white text-sm">UPI / Digital Wallet</span>
+                        <span class="font-bold text-white text-sm">UPI / QR Code</span>
                     </div>
                     <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
-                
-                <button onclick="simulatePayment('Credit / Debit Card')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"></rect><line x1="1" y1="10" x2="23" y2="10"></line></svg>
-                        </div>
-                        <span class="font-bold text-white text-sm">Credit / Debit Card</span>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
-
                 <button onclick="simulatePayment('Pay at Counter')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
                     <div class="flex items-center gap-3">
                         <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
@@ -315,11 +281,23 @@
                 </button>
             </div>
 
+            <!-- REAL UPI QR DISPLAY -->
+            <div id="upi-qr-section" class="hidden flex-col items-center justify-center text-center">
+                <p class="text-white font-bold text-sm mb-4">Scan via GPay, PhonePe, or Paytm</p>
+                <div class="bg-white p-2 rounded-xl mb-4">
+                    <img id="dynamic-qr-image" src="" class="w-48 h-48 object-cover" alt="UPI QR Code">
+                </div>
+                <p class="text-neutral-400 text-xs mb-6 font-mono">Paying: <span class="text-[#C5A059]" id="qr-amount">₹0.00</span></p>
+                <button onclick="simulatePayment('UPI Online')" class="w-full py-4 bg-[#C5A059] text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white transition-colors">
+                    I Have Paid Successfully
+                </button>
+                <button onclick="hideUPIQRCode()" class="mt-4 text-xs text-neutral-500 hover:text-white uppercase tracking-widest font-bold">Go Back</button>
+            </div>
+
             <!-- Processing State -->
             <div id="payment-processing" class="hidden py-8 flex-col items-center justify-center text-center">
                 <svg width="40" height="40" class="animate-spin text-[#C5A059] mb-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
-                <div class="text-white font-bold tracking-widest uppercase text-sm">Processing Payment...</div>
-                <div class="text-neutral-500 text-xs mt-2">Please do not close this window</div>
+                <div class="text-white font-bold tracking-widest uppercase text-sm">Processing...</div>
             </div>
         </div>
     </div>
@@ -327,25 +305,28 @@
     <!-- BILL / RECEIPT MODAL -->
     <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
         <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
-            <div class="p-10 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
+            <div class="p-8 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
                 <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1 dynamic-brand-name uppercase">VELVET SIP</div>
-                <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-5" id="bill-store-name">Reserve Boutique</div>
-                <div class="text-xs text-neutral-400 font-mono mb-6" id="bill-date">Date: ...</div>
+                <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-4" id="bill-store-name">Reserve Boutique</div>
+                <div class="text-xs text-neutral-400 font-mono mb-4" id="bill-date">Date: ...</div>
                 
                 <div class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-widest border-b border-neutral-200 pb-3">Order for <span id="bill-customer-name" class="text-[#C5A059]">GUEST</span> <br><span class="text-xs text-neutral-400">#<span id="bill-order-num">1024</span></span></div>
                 
-                <div id="bill-items" class="text-left space-y-3 mb-8 mt-5 font-mono text-xs text-neutral-600"></div>
+                <div id="bill-items" class="text-left space-y-2 mb-6 mt-4 font-mono text-xs text-neutral-800 font-medium"></div>
                 
-                <div class="border-t border-neutral-300 pt-5 text-left font-mono text-sm">
+                <div class="border-t border-neutral-300 pt-4 text-left font-mono text-sm">
                     <div class="flex justify-between font-bold text-neutral-950 text-xl"><span>TOTAL:</span> <span id="bill-total-amt">₹0.00</span></div>
-                    <div class="text-center text-[10px] text-neutral-400 mt-8 font-sans tracking-wide uppercase">Paid via <span id="bill-payment-method" class="font-bold text-neutral-800">Digital Wallet</span>. <br>Your order is sent to the kitchen!</div>
+                    <div class="text-center text-[10px] text-neutral-400 mt-6 font-sans tracking-wide uppercase">Paid via <span id="bill-payment-method" class="font-bold text-neutral-800">Digital Wallet</span>.<br>Your order is in the kitchen!</div>
                 </div>
             </div>
-            <!-- Jagged edge -->
             <div class="h-4 w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMCI+PHBvbHlnb24gcG9pbnRzPSIwLDAgNiwxMCAxMiwwIiBmaWxsPSIjRkRGQkY3Ii8+PC9zdmc+')] bg-repeat-x"></div>
             
-            <button onclick="closeBill()" class="absolute top-5 right-5 text-neutral-400 hover:text-black transition-colors">
-                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+            <div class="p-4 bg-white text-center no-print">
+                <button onclick="window.print()" class="w-full py-3 bg-[#1B4332] text-white rounded-lg font-bold text-xs uppercase tracking-widest shadow-md hover:bg-[#143325] transition-colors mb-2">Print Receipt</button>
+            </div>
+            
+            <button onclick="closeBill()" class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors no-print bg-white rounded-full p-1 shadow-sm border border-neutral-200">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
     </div>
@@ -355,36 +336,30 @@
         <div class="w-full max-w-sm bg-white rounded-2xl p-8 relative shadow-2xl">
             <h3 class="font-display text-2xl font-bold text-neutral-950 mb-2">Admin Access</h3>
             <p class="text-sm text-neutral-500 mb-6">Enter authorization code to continue.</p>
-            <input type="password" id="chef-password-input" class="w-full p-4 border border-neutral-300 rounded-xl mb-2 outline-none focus:border-neutral-950 font-mono text-center tracking-widest text-lg" placeholder="•••">
+            <input type="password" id="chef-password-input" class="w-full p-4 border border-neutral-300 rounded-xl mb-2 outline-none focus:border-[#1B4332] font-mono text-center tracking-widest text-lg" placeholder="•••">
             <p id="password-error" class="text-red-500 text-xs hidden mb-4 font-bold text-center">Incorrect code. Access denied.</p>
             <div class="flex justify-between gap-4 mt-6">
                 <button onclick="closePasswordModal()" class="w-1/2 py-3 text-neutral-500 hover:text-neutral-800 text-xs font-bold uppercase tracking-wider">Cancel</button>
-                <button onclick="verifyChefPassword()" class="w-1/2 py-3 bg-neutral-950 text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#C5A059] transition-colors">Login</button>
+                <button onclick="verifyChefPassword()" class="w-1/2 py-3 bg-[#1B4332] text-white rounded-xl text-xs font-bold uppercase tracking-wider hover:bg-[#143325] transition-colors">Login</button>
             </div>
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- CHEF / ADMIN MANAGEMENT SYSTEM             -->
-    <!-- ========================================== -->
+    <!-- CHEF / ADMIN DASHBOARD -->
     <div id="chef-view" class="hidden min-h-screen bg-[#0A0A0A] text-white">
-        
         <header class="bg-[#111] border-b border-neutral-800 p-4 md:p-6 sticky top-0 z-20 shadow-lg">
             <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <div class="font-display text-xl font-bold tracking-widest text-[#C5A059] dynamic-brand-name uppercase">VELVET SIP</div>
-                    <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest hidden md:inline-block">ADMIN OS</span>
+                    <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest hidden md:inline-block">ADMIN</span>
                     
-                    <!-- NEW: Admin Store Filter -->
+                    <!-- Admin Store Filter -->
                     <select id="admin-store-selector" onchange="window.handleAdminStoreChange()" class="bg-[#1A1A1A] border border-neutral-700 text-[#C5A059] text-[10px] md:text-xs font-bold uppercase tracking-widest rounded px-2 py-1 outline-none md:ml-4 cursor-pointer hover:border-[#C5A059] transition-colors">
                         <option value="ALL">All Stores</option>
                         <option value="Vizianagaram">Vizianagaram</option>
-                        <option value="Palamaner">Palamaner</option>
-                        <option value="Downtown">Downtown</option>
                     </select>
                 </div>
                 
-                <!-- Admin Navigation -->
                 <div class="flex gap-2 overflow-x-auto w-full md:w-auto pb-2 md:pb-0 hide-scrollbar admin-scroll">
                     <button onclick="switchAdminTab('kds')" id="tab-btn-kds" class="admin-nav-btn active whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Kitchen Display</button>
                     <button onclick="switchAdminTab('menu')" id="tab-btn-menu" class="admin-nav-btn whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Menu Manager</button>
@@ -392,34 +367,26 @@
                     <button onclick="switchAdminTab('settings')" id="tab-btn-settings" class="admin-nav-btn whitespace-nowrap px-4 py-2 border-b-2 border-transparent text-xs font-bold uppercase tracking-widest hover:text-white transition-colors text-neutral-500">Settings</button>
                 </div>
 
-                <button onclick="exitChefView()" class="hidden md:block px-6 py-2 border border-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors shrink-0">
-                    Exit Admin
-                </button>
-                <button onclick="exitChefView()" class="md:hidden absolute top-4 right-4 text-neutral-500 hover:text-white">
-                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
-                </button>
+                <button onclick="exitChefView()" class="hidden md:block px-6 py-2 border border-neutral-700 rounded-full text-[10px] font-bold uppercase tracking-widest hover:bg-neutral-800 transition-colors shrink-0">Exit Admin</button>
             </div>
         </header>
 
         <div class="p-4 md:p-6 max-w-[1600px] mx-auto h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] overflow-hidden relative">
             
-            <!-- TAB: KITCHEN DISPLAY (KDS) -->
+            <!-- KDS TAB -->
             <div id="admin-tab-kds" class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
-                <!-- Column 1: New Orders -->
                 <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
                     <div class="p-4 md:p-5 border-b border-neutral-800 bg-red-950/20 text-red-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
                         NEW ORDERS <span class="bg-red-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-new">0</span>
                     </div>
                     <div class="p-4 md:p-5 overflow-y-auto flex-grow space-y-4 admin-scroll" id="kds-new"></div>
                 </div>
-                <!-- Column 2: Preparing -->
                 <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
                     <div class="p-4 md:p-5 border-b border-neutral-800 bg-[#C5A059]/10 text-[#C5A059] font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
                         PREPARING <span class="bg-[#C5A059]/20 px-2.5 py-1 rounded-full text-[10px]" id="count-prep">0</span>
                     </div>
                     <div class="p-4 md:p-5 overflow-y-auto flex-grow space-y-4 admin-scroll" id="kds-prep"></div>
                 </div>
-                <!-- Column 3: Ready -->
                 <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
                     <div class="p-4 md:p-5 border-b border-neutral-800 bg-emerald-950/20 text-emerald-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
                         READY TO SERVE <span class="bg-emerald-950/80 px-2.5 py-1 rounded-full text-[10px]" id="count-ready">0</span>
@@ -428,13 +395,11 @@
                 </div>
             </div>
 
-            <!-- TAB: MENU MANAGER -->
+            <!-- MENU TAB -->
             <div id="admin-tab-menu" class="hidden h-full flex flex-col">
                 <div class="flex justify-between items-center mb-6 shrink-0">
                     <h2 class="font-display text-2xl text-white">Menu Editor</h2>
-                    <button onclick="openMenuEditorModal()" class="px-5 py-2.5 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors">
-                        + Add New Item
-                    </button>
+                    <button onclick="openMenuEditorModal()" class="px-5 py-2.5 bg-[#1B4332] text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors">+ Add New Item</button>
                 </div>
                 <div class="bg-[#151515] border border-neutral-800 rounded-xl overflow-hidden flex-grow flex flex-col">
                     <div class="overflow-x-auto flex-grow admin-scroll">
@@ -447,19 +412,15 @@
                                     <th class="px-6 py-4">Actions</th>
                                 </tr>
                             </thead>
-                            <tbody id="admin-menu-list" class="divide-y divide-neutral-800">
-                                <!-- Menu Rows Injected Here -->
-                            </tbody>
+                            <tbody id="admin-menu-list" class="divide-y divide-neutral-800"></tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- TAB: ANALYTICS & SALES -->
+            <!-- ANALYTICS TAB -->
             <div id="admin-tab-analytics" class="hidden h-full overflow-y-auto admin-scroll pb-10">
                 <h2 class="font-display text-2xl text-white mb-6">Sales Analytics</h2>
-                
-                <!-- Stat Cards -->
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
                     <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800">
                         <div class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-2">Total Revenue</div>
@@ -474,8 +435,6 @@
                         <div class="text-xl font-display font-bold text-white truncate" id="stat-top-item">N/A</div>
                     </div>
                 </div>
-
-                <!-- Charts Area -->
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <div class="bg-[#151515] p-6 rounded-xl border border-neutral-800 h-[400px] flex flex-col">
                         <h3 class="text-neutral-500 text-xs font-bold uppercase tracking-widest mb-4 shrink-0">Revenue (Last 7 Days)</h3>
@@ -488,21 +447,30 @@
                 </div>
             </div>
 
-            <!-- TAB: SETTINGS -->
+            <!-- SETTINGS TAB -->
             <div id="admin-tab-settings" class="hidden h-full overflow-y-auto admin-scroll">
-                <h2 class="font-display text-2xl text-white mb-6">Brand Settings</h2>
+                <h2 class="font-display text-2xl text-white mb-6">Master Settings</h2>
                 <div class="max-w-xl bg-[#151515] border border-neutral-800 rounded-xl p-6 md:p-8">
                     <div class="mb-6">
-                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Brand / Company Name</label>
-                        <input type="text" id="setting-brand-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-display text-lg" placeholder="e.g. Starbucks, Velvet Sip">
-                        <p class="text-xs text-neutral-600 mt-2">This updates the logo text, KDS header, and printed receipts.</p>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Brand Name</label>
+                        <input type="text" id="setting-brand-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-display text-lg" placeholder="e.g. Velvet Sip">
                     </div>
-                    <div class="mb-8">
-                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Logo Initials (Mobile)</label>
-                        <input type="text" id="setting-brand-initials" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-display text-lg" placeholder="e.g. S.B, V.S" maxlength="4">
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Logo Initials</label>
+                        <input type="text" id="setting-brand-initials" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-display text-lg" placeholder="V.S" maxlength="4">
                     </div>
-                    <button onclick="saveBrandSettings()" class="w-full py-4 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-white transition-colors">
-                        Save Changes
+                    <div class="mb-6">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Store Locations (Comma Separated)</label>
+                        <input type="text" id="setting-locations" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-mono text-sm" placeholder="Vizianagaram, Palamaner, Downtown">
+                        <p class="text-xs text-neutral-600 mt-2">These will automatically appear in the Customer dropdown.</p>
+                    </div>
+                    <div class="mb-8 border-t border-neutral-800 pt-6">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 text-[#C5A059]">UPI Payment ID (For QR Generator)</label>
+                        <input type="text" id="setting-upi-id" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-mono text-sm" placeholder="yourname@okhdfc">
+                        <p class="text-xs text-neutral-600 mt-2">Enter your real UPI ID to allow customers to scan and pay directly.</p>
+                    </div>
+                    <button onclick="saveBrandSettings()" class="w-full py-4 bg-[#1B4332] text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors">
+                        Save Master Settings
                     </button>
                 </div>
             </div>
@@ -510,7 +478,7 @@
         </div>
     </div>
 
-    <!-- ADMIN MENU EDITOR MODAL -->
+    <!-- MENU EDITOR MODAL -->
     <div id="menu-editor-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 md:p-6">
         <div class="w-full max-w-lg bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl">
             <h3 id="editor-title" class="font-display text-2xl font-bold text-white mb-6">Add Menu Item</h3>
@@ -519,31 +487,31 @@
             <div class="space-y-4">
                 <div>
                     <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Item Name</label>
-                    <input type="text" id="editor-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                    <input type="text" id="editor-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Category (ID)</label>
-                        <input type="text" id="editor-category" placeholder="hot, mojito, soda..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                        <input type="text" id="editor-category" placeholder="hot, mojito, soda..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Price (₹)</label>
-                        <input type="number" id="editor-price" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                        <input type="number" id="editor-price" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
                     </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Image URL (Optional)</label>
-                    <input type="text" id="editor-image" placeholder="https://..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                    <input type="text" id="editor-image" placeholder="https://..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Description</label>
-                    <textarea id="editor-desc" rows="3" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059] resize-none"></textarea>
+                    <textarea id="editor-desc" rows="3" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332] resize-none"></textarea>
                 </div>
             </div>
             
             <div class="flex justify-end gap-3 mt-8">
                 <button onclick="closeMenuEditorModal()" class="px-5 py-2.5 text-neutral-500 hover:text-white text-xs font-bold uppercase tracking-wider">Cancel</button>
-                <button onclick="saveMenuItem()" class="px-6 py-2.5 bg-[#C5A059] text-[#111] rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-white">Save Item</button>
+                <button onclick="saveMenuItem()" class="px-6 py-2.5 bg-[#1B4332] text-white rounded-lg text-xs font-bold uppercase tracking-wider hover:bg-[#143325]">Save Item</button>
             </div>
         </div>
     </div>
@@ -556,7 +524,6 @@
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // YOUR EXACT FIREBASE CONFIGURATION
         const firebaseConfig = {
             apiKey: "AIzaSyAU7p0tky12nOFchNelX-Vuch79RMfH_3c",
             authDomain: "mgsip-61185.firebaseapp.com",
@@ -569,32 +536,30 @@
         const app = initializeApp(firebaseConfig);
         const db = getFirestore(app);
 
-        // DEFAULT MENU ITEMS (Will auto-seed if database is empty)
         const defaultMenuItems = [
             { id: "1", name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
             { id: "2", name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
-            { id: "3", name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." },
-            { id: "4", name: "Watermelon Mojito", category: "mojito", price: 49, desc: "Fresh watermelon chunks muddled with mint." },
-            { id: "6", name: "Mohabbat Ka Sharbath", category: "traditional", price: 49, desc: "Iconic Delhi drink: milk, rooh afza, watermelon." },
-            { id: "10", name: "Coca Cola", category: "soda", price: 49, desc: "Classic chilled cola." }
+            { id: "3", name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." }
         ];
 
         let dynamicMenu = [];
         let cart = [];
         let orders = [];
         let orderCounter = 1000;
-        let brandSettings = { name: "VELVET SIP", initials: "V.S" };
+        let brandSettings = { 
+            name: "VELVET SIP", 
+            initials: "V.S", 
+            locations: ["Vizianagaram", "Palamaner", "Downtown"],
+            upiId: "" 
+        };
         let chartsInstance = { revenue: null, product: null };
 
-        // ==========================================
-        // REAL-TIME DATABASE SYNC
-        // ==========================================
+        // FIREBASE LISTENERS
         function setupDatabaseListeners() {
-            // 1. Orders Listener
+            // Orders
             const ordersRef = collection(db, 'orders');
             onSnapshot(ordersRef, (snapshot) => {
-                orders = [];
-                let maxOrderNum = 1000;
+                orders = []; let maxOrderNum = 1000;
                 snapshot.forEach((doc) => {
                     const data = doc.data();
                     orders.push({ ...data, docId: doc.id });
@@ -605,16 +570,13 @@
                 orders.sort((a, b) => (a.timestamp || 0) - (b.timestamp || 0));
                 
                 renderChefDashboard();
-                if(document.getElementById('admin-tab-analytics').classList.contains('hidden') === false) {
-                    processAnalytics();
-                }
-            }, (e) => console.error("Firebase Orders Sync Error:", e));
+                if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) processAnalytics();
+            }, (e) => console.error(e));
 
-            // 2. Menu Listener
+            // Menu
             const menuRef = collection(db, 'menu');
             onSnapshot(menuRef, async (snapshot) => {
                 if (snapshot.empty) {
-                    // Auto-seed database for the first time
                     for(const item of defaultMenuItems) {
                         try { await addDoc(collection(db, 'menu'), item); } catch(e){}
                     }
@@ -622,67 +584,60 @@
                     dynamicMenu = [];
                     snapshot.forEach(doc => dynamicMenu.push({ ...doc.data(), docId: doc.id }));
                     dynamicMenu.sort((a, b) => a.category.localeCompare(b.category));
-                    
-                    renderMenuUI();
-                    renderAdminMenuTable();
+                    renderMenuUI(); renderAdminMenuTable();
                 }
-            }, (e) => console.error("Firebase Menu Sync Error:", e));
+            }, (e) => console.error(e));
 
-            // 3. Settings Listener
+            // Settings
             const settingsDoc = doc(db, 'settings', 'brand');
             onSnapshot(settingsDoc, (docSnap) => {
                 if (docSnap.exists()) {
                     brandSettings = docSnap.data();
+                    if(!brandSettings.locations) brandSettings.locations = ["Vizianagaram", "Palamaner", "Downtown"];
                     applyBrandSettingsToUI();
                 }
             }, (e) => console.error(e));
         }
 
-        // ==========================================
         // CUSTOMER POS LOGIC
-        // ==========================================
-        function renderMenuUI(categoryFilter = 'all') {
+        window.renderMenuUI = (categoryFilter = 'all') => {
             document.getElementById('menu-loader').style.display = 'none';
             const grid = document.getElementById('menu-grid');
-            grid.innerHTML = '';
-            grid.classList.remove('hidden');
+            grid.innerHTML = ''; grid.classList.remove('hidden');
             
-            // Build Category Filters dynamically
             const categories = [...new Set(dynamicMenu.map(item => item.category))];
             const filterContainer = document.getElementById('category-filters');
             
-            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#4E342E] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#4E342E]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="all">All</button>`;
+            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all">All</button>`;
             
             categories.forEach(cat => {
                 const isActive = categoryFilter === cat;
                 const formattedName = cat.charAt(0).toUpperCase() + cat.slice(1);
-                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#4E342E] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#4E342E]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="${cat}">${formattedName}</button>`;
+                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all">${formattedName}</button>`;
             });
             filterContainer.innerHTML = filterHtml;
 
-            // Render Items
             const filteredItems = categoryFilter === 'all' ? dynamicMenu : dynamicMenu.filter(item => item.category === categoryFilter);
             
             if(filteredItems.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-neutral-400">No items available.</div>`;
-                return;
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-neutral-400">No items available.</div>`; return;
             }
 
             filteredItems.forEach(item => {
-                const imgHtml = item.image ? `<div class="w-full h-48 mb-5 rounded-[1rem] overflow-hidden shrink-0 relative"><div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10 pointer-events-none"></div><img src="${item.image}" onerror="this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out" alt="${item.name}"></div>` : '';
+                const imgHtml = item.image ? `<div class="w-full h-48 mb-5 rounded-[1rem] overflow-hidden shrink-0 relative"><div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10 pointer-events-none"></div><img src="${item.image}" onerror="this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"></div>` : '';
                 
                 const cardHtml = `
                     <div class="tilt-wrapper group menu-item-anim w-full" style="opacity: 0; transform: translateY(30px);">
-                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(78,52,46,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
+                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(27,67,50,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
                             <div class="glare-container rounded-[2rem]"><div class="glare"></div></div>
                             ${imgHtml}
                             <div class="flex justify-between items-start mb-2 text-left mt-2">
-                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#4E342E] transition-colors">${item.name}</h3>
+                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#1B4332] transition-colors">${item.name}</h3>
                             </div>
                             <p class="text-[13px] text-neutral-500 font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
                             <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-200/60">
                                 <span class="font-bold text-xl text-[#C5A059] tracking-tight">₹${Number(item.price).toFixed(2)}</span>
-                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#4E342E] text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] hover:scale-110 transition-all duration-300 shadow-[0_4px_15px_rgba(78,52,46,0.2)]">
+                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#1B4332] text-white flex items-center justify-center hover:bg-[#143325] hover:scale-110 transition-all shadow-[0_4px_15px_rgba(27,67,50,0.2)]">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
@@ -693,12 +648,8 @@
             });
 
             initTilt();
-
             if (window.gsap) {
-                window.gsap.fromTo('.menu-item-anim', 
-                    { opacity: 0, y: 30 },
-                    { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", clearProps: "all" }
-                );
+                window.gsap.fromTo('.menu-item-anim', { opacity: 0, y: 30 }, { opacity: 1, y: 0, duration: 0.5, stagger: 0.05, ease: "power2.out", clearProps: "all" });
             }
         }
 
@@ -712,7 +663,14 @@
             else cart.push({ ...item, qty: 1 });
             
             updateCartUI();
-            showToast(`Added ${item.name}`);
+            
+            // AUTO OPEN CART
+            const sidebar = document.getElementById('cart-sidebar');
+            const overlay = document.getElementById('cart-overlay');
+            if(!sidebar.classList.contains('cart-open')) {
+                sidebar.classList.add('cart-open');
+                overlay.classList.remove('hidden');
+            }
         };
 
         window.updateCartQty = (itemId, change) => {
@@ -730,8 +688,7 @@
             const checkoutBtn = document.getElementById('checkout-btn');
             const badge = document.getElementById('cart-count');
             
-            container.innerHTML = '';
-            let subtotal = 0; let totalItems = 0;
+            container.innerHTML = ''; let subtotal = 0; let totalItems = 0;
 
             if (cart.length === 0) {
                 emptyMsg.classList.remove('hidden');
@@ -741,8 +698,7 @@
                 checkoutBtn.disabled = false; badge.style.opacity = '1';
                 
                 cart.forEach(item => {
-                    subtotal += item.price * item.qty;
-                    totalItems += item.qty;
+                    subtotal += item.price * item.qty; totalItems += item.qty;
                     const cId = item.docId || item.id;
                     const imgThumb = item.image ? `<img src="${item.image}" class="w-14 h-14 rounded-[0.85rem] object-cover mr-4 shrink-0 shadow-sm" onerror="this.style.display='none'">` : '';
 
@@ -758,7 +714,7 @@
                             <div class="flex items-center gap-3 bg-[#FAF9F6] rounded-full px-2 py-1.5 border border-neutral-100 shrink-0 shadow-inner">
                                 <button onclick="updateCartQty('${cId}', -1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">-</button>
                                 <span class="text-xs font-bold w-3 text-center text-neutral-800">${item.qty}</span>
-                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#4E342E] hover:bg-[#4E342E]/10 rounded-full transition-colors">+</button>
+                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#1B4332] hover:bg-[#1B4332]/10 rounded-full transition-colors">+</button>
                             </div>
                         </div>
                     `;
@@ -773,7 +729,6 @@
 
         window.openPaymentModal = () => {
             if(cart.length === 0) return;
-            
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             let total = subtotal + (subtotal * 0.08);
             document.getElementById('payment-total-display').innerText = `₹${total.toFixed(2)}`;
@@ -783,34 +738,54 @@
             
             document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-options').classList.remove('hidden');
+            document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.add('hidden');
-            document.getElementById('payment-processing').classList.remove('flex');
             
             if (window.gsap) {
-                window.gsap.fromTo('#payment-modal-content', 
-                    { y: 30, opacity: 0 }, 
-                    { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" }
-                );
+                window.gsap.fromTo('#payment-modal-content', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" });
             }
         };
 
         window.closePaymentModal = () => document.getElementById('payment-modal').classList.add('hidden');
 
+        // REAL UPI QR GENERATOR
+        window.showUPIQRCode = () => {
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let total = (subtotal + (subtotal * 0.08)).toFixed(2);
+            
+            // Generate QR Code using the UPI ID from settings
+            const upiId = brandSettings.upiId || "example@upi";
+            const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(brandSettings.name)}&am=${total}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
+            
+            document.getElementById('dynamic-qr-image').src = qrUrl;
+            document.getElementById('qr-amount').innerText = `₹${total}`;
+            
+            document.getElementById('payment-options').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.remove('hidden');
+            document.getElementById('upi-qr-section').classList.add('flex');
+        };
+
+        window.hideUPIQRCode = () => {
+            document.getElementById('upi-qr-section').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.remove('flex');
+            document.getElementById('payment-options').classList.remove('hidden');
+        };
+
         window.simulatePayment = (method) => {
             document.getElementById('payment-options').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.add('hidden');
+            
             document.getElementById('payment-processing').classList.remove('hidden');
             document.getElementById('payment-processing').classList.add('flex');
             
-            setTimeout(() => {
-                closePaymentModal();
-                processCheckout(method);
-            }, 1500); 
+            setTimeout(() => { closePaymentModal(); processCheckout(method); }, 1500); 
         };
 
         window.processCheckout = async (paymentMethod = "Digital Wallet") => {
             if(cart.length === 0) return;
 
-            let customerName = prompt("Please enter a name for the order ticket:") || "Guest";
+            let customerName = prompt("Please enter a name for your order ticket:") || "Guest";
             const customerStore = document.getElementById('customer-store-selector').value;
 
             orderCounter++;
@@ -832,19 +807,15 @@
                 status: 'new',
                 total: total,
                 paymentMethod: paymentMethod,
-                timestamp: Date.now() // Allows easy sorting
+                timestamp: Date.now() 
             };
             
-            try {
-                await addDoc(collection(db, "orders"), newOrder);
-            } catch(e) {
-                console.error("Error saving to Firebase:", e);
-                orders.push(newOrder); // Fallback for local testing
-            }
+            try { await addDoc(collection(db, "orders"), newOrder); } 
+            catch(e) { console.error(e); orders.push(newOrder); }
 
-            // Show Bill UI
+            // Show Bill
             document.getElementById('bill-customer-name').innerText = customerName.toUpperCase();
-            document.getElementById('bill-store-name').innerText = `VELVET SIP - ${customerStore}`;
+            document.getElementById('bill-store-name').innerText = `${brandSettings.name.toUpperCase()} - ${customerStore}`;
             document.getElementById('bill-order-num').innerText = orderNum.replace('#','');
             document.getElementById('bill-date').innerText = new Date().toLocaleString();
             document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
@@ -854,24 +825,18 @@
             bItems.innerHTML = '';
             orderItems.forEach(i => bItems.innerHTML += `<div class="flex justify-between"><span>${i.qty}x ${i.name.substring(0, 15)}</span><span>₹${(i.price * i.qty).toFixed(2)}</span></div>`);
 
-            cart = []; 
-            updateCartUI(); 
-            
-            document.getElementById('cart-sidebar').classList.remove('cart-open');
-            document.getElementById('cart-overlay').classList.add('hidden');
+            cart = []; updateCartUI(); 
             
             document.getElementById('bill-modal').classList.remove('hidden');
             renderChefDashboard();
         }
 
         // ==========================================
-        // ADMIN / KDS LOGIC (MULTI-STORE FILTERING)
+        // ADMIN KDS (MULTI-STORE FILTERING)
         // ==========================================
         window.handleAdminStoreChange = () => {
             renderChefDashboard();
-            if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) {
-                processAnalytics();
-            }
+            if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) processAnalytics();
         };
 
         function renderChefDashboard() {
@@ -885,7 +850,7 @@
 
             orders.forEach(order => {
                 if(order.status === 'done') return; 
-                // CRITICAL: Filter tickets by the store the KDS is currently viewing
+                // FILTER TICKETS BY STORE
                 if(adminStore !== 'ALL' && order.storeId !== adminStore) return; 
                 
                 let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
@@ -894,7 +859,7 @@
                 
                 if(order.status === 'new') {
                     cNew++;
-                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'prep')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
+                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'prep')" class="w-full mt-4 py-3 bg-[#1B4332] hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
                 } else if(order.status === 'prep') {
                     cPrep++;
                     actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
@@ -903,7 +868,6 @@
                     actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear (Done)</button>`;
                 }
 
-                // If viewing 'ALL', show a badge so the kitchen knows which store the ticket belongs to
                 const storeBadge = adminStore === 'ALL' ? `<span class="bg-neutral-800 border border-neutral-700 text-[#C5A059] px-2 py-0.5 rounded text-[9px] ml-2 tracking-widest uppercase">${order.storeId}</span>` : '';
 
                 const card = `
@@ -930,21 +894,18 @@
         window.updateOrderStatus = async (orderId, newStatus) => {
             if (db && orderId.length > 5) {
                 try { await updateDoc(doc(db, 'orders', orderId), { status: newStatus }); } catch (e) {}
-            } else {
-                const order = orders.find(o => (o.docId || o.id) === orderId);
-                if(order) { order.status = newStatus; renderChefDashboard(); }
             }
         }
 
         // ==========================================
-        // ADMIN: MENU MANAGER
+        // ADMIN MENU & SETTINGS
         // ==========================================
         function renderAdminMenuTable() {
             const tbody = document.getElementById('admin-menu-list');
             tbody.innerHTML = '';
             dynamicMenu.forEach(item => {
                 const id = item.docId || item.id;
-                const thumbHtml = item.image ? `<img src="${item.image}" class="w-8 h-8 rounded-md object-cover inline-block mr-3 border border-neutral-700" onerror="this.style.display='none'">` : '';
+                const thumbHtml = item.image ? `<img src="${item.image}" class="w-8 h-8 rounded-md object-cover inline-block mr-3 border border-neutral-700">` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-neutral-800/50 transition-colors">
                         <td class="px-6 py-4 font-bold text-white flex items-center">${thumbHtml}${item.name}</td>
@@ -994,62 +955,33 @@
                 image: document.getElementById('editor-image').value.trim(),
                 desc: document.getElementById('editor-desc').value
             };
-
-            if(!itemObj.name || !itemObj.category) return alert("Name and Category are required.");
+            if(!itemObj.name || !itemObj.category) return alert("Name and Category required.");
 
             if (db) {
-                if(id) {
-                    await updateDoc(doc(db, 'menu', id), itemObj);
-                    showToast("Item Updated");
-                } else {
-                    await addDoc(collection(db, 'menu'), itemObj);
-                    showToast("Item Added");
-                }
+                if(id) { await updateDoc(doc(db, 'menu', id), itemObj); showToast("Item Updated"); } 
+                else { await addDoc(collection(db, 'menu'), itemObj); showToast("Item Added"); }
             }
             closeMenuEditorModal();
         };
 
         window.deleteMenuItem = async (id) => {
-            if(!confirm("Are you sure you want to delete this item?")) return;
-            if (db) {
-                await deleteDoc(doc(db, 'menu', id));
-                showToast("Item Deleted");
-            }
+            if(!confirm("Are you sure?")) return;
+            if (db) { await deleteDoc(doc(db, 'menu', id)); showToast("Deleted"); }
         };
 
-        // ==========================================
-        // ADMIN: ANALYTICS (MULTI-STORE FILTERING)
-        // ==========================================
         function processAnalytics() {
-            let totalRev = 0;
-            let totalDone = 0;
-            let itemCounts = {};
-            let dailyRev = {}; 
+            let totalRev = 0; let totalDone = 0; let itemCounts = {}; let dailyRev = {}; 
             const adminStore = document.getElementById('admin-store-selector').value;
 
-            for(let i=6; i>=0; i--) {
-                const d = new Date(); d.setDate(d.getDate() - i);
-                dailyRev[d.toLocaleDateString()] = 0;
-            }
+            for(let i=6; i>=0; i--) { const d = new Date(); d.setDate(d.getDate() - i); dailyRev[d.toLocaleDateString()] = 0; }
 
             orders.forEach(o => {
                 if (o.status === 'done') {
-                    // Filter Analytics by the currently selected store
                     if(adminStore !== 'ALL' && o.storeId !== adminStore) return; 
-
-                    totalDone++;
-                    totalRev += (o.total || 0);
-                    
+                    totalDone++; totalRev += (o.total || 0);
                     const dStr = new Date(o.timestamp || Date.now()).toLocaleDateString();
-                    if(dailyRev[dStr] !== undefined) { dailyRev[dStr] += (o.total || 0); }
-                    else { dailyRev[dStr] = (o.total || 0); }
-
-                    if(o.items) {
-                        o.items.forEach(i => {
-                            if(!itemCounts[i.name]) itemCounts[i.name] = 0;
-                            itemCounts[i.name] += i.qty;
-                        });
-                    }
+                    if(dailyRev[dStr] !== undefined) dailyRev[dStr] += (o.total || 0); else dailyRev[dStr] = (o.total || 0);
+                    if(o.items) o.items.forEach(i => { if(!itemCounts[i.name]) itemCounts[i.name] = 0; itemCounts[i.name] += i.qty; });
                 }
             });
 
@@ -1057,9 +989,7 @@
             document.getElementById('stat-orders').innerText = totalDone;
             
             let topItem = "N/A"; let topCount = 0;
-            for (const [name, count] of Object.entries(itemCounts)) {
-                if (count > topCount) { topCount = count; topItem = name; }
-            }
+            for (const [name, count] of Object.entries(itemCounts)) { if (count > topCount) { topCount = count; topItem = name; } }
             document.getElementById('stat-top-item').innerText = topItem;
 
             renderCharts(dailyRev, itemCounts);
@@ -1067,94 +997,82 @@
 
         function renderCharts(dailyRev, itemCounts) {
             if (typeof Chart === 'undefined') return;
-
-            Chart.defaults.color = '#737373';
-            Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
+            Chart.defaults.color = '#737373'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
             const revCtx = document.getElementById('revenueChart');
             if(chartsInstance.revenue) chartsInstance.revenue.destroy();
-            
             const revLabels = Object.keys(dailyRev).slice(-7); 
-            const revData = revLabels.map(k => dailyRev[k]);
-
+            
             chartsInstance.revenue = new Chart(revCtx, {
                 type: 'line',
-                data: {
-                    labels: revLabels,
-                    datasets: [{
-                        label: 'Revenue (₹)',
-                        data: revData,
-                        borderColor: '#C5A059',
-                        backgroundColor: 'rgba(197, 160, 89, 0.1)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.4
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { grid: { color: '#333' } }, x: { grid: { display: false } } }
-                }
+                data: { labels: revLabels, datasets: [{ label: 'Revenue (₹)', data: revLabels.map(k => dailyRev[k]), borderColor: '#C5A059', backgroundColor: 'rgba(197, 160, 89, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#333' } }, x: { grid: { display: false } } } }
             });
 
             const prodCtx = document.getElementById('productChart');
             if(chartsInstance.product) chartsInstance.product.destroy();
-
             const sortedItems = Object.entries(itemCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
-            const prodLabels = sortedItems.map(i => i[0]);
-            const prodData = sortedItems.map(i => i[1]);
 
             chartsInstance.product = new Chart(prodCtx, {
                 type: 'doughnut',
-                data: {
-                    labels: prodLabels,
-                    datasets: [{
-                        data: prodData,
-                        backgroundColor: ['#C5A059', '#00704A', '#3E2723', '#A1804B', '#555'],
-                        borderWidth: 0
-                    }]
-                },
-                options: {
-                    responsive: true, maintainAspectRatio: false,
-                    plugins: { legend: { position: 'right', labels: { color: '#aaa', font: {size: 10} } } },
-                    cutout: '70%'
-                }
+                data: { labels: sortedItems.map(i => i[0]), datasets: [{ data: sortedItems.map(i => i[1]), backgroundColor: ['#C5A059', '#1B4332', '#143325', '#A1804B', '#555'], borderWidth: 0 }] },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#aaa', font: {size: 10} } } }, cutout: '70%' }
             });
         }
 
-        // ==========================================
-        // ADMIN: SETTINGS
-        // ==========================================
         function applyBrandSettingsToUI() {
             document.querySelectorAll('.dynamic-brand-name').forEach(el => el.innerText = brandSettings.name);
             document.querySelectorAll('.dynamic-brand-initials').forEach(el => el.innerText = brandSettings.initials);
             document.getElementById('setting-brand-name').value = brandSettings.name;
             document.getElementById('setting-brand-initials').value = brandSettings.initials;
+            document.getElementById('setting-locations').value = brandSettings.locations.join(', ');
+            document.getElementById('setting-upi-id').value = brandSettings.upiId || "";
+
+            // Populate Location Dropdowns dynamically
+            const locs = brandSettings.locations;
+            const custSel = document.getElementById('customer-store-selector');
+            const adminSel = document.getElementById('admin-store-selector');
+            const currCust = custSel.value; const currAdmin = adminSel.value;
+            
+            custSel.innerHTML = locs.map(l => `<option value="${l}">${l}</option>`).join('');
+            adminSel.innerHTML = `<option value="ALL">All Stores</option>` + locs.map(l => `<option value="${l}">${l}</option>`).join('');
+            
+            if (locs.includes(currCust)) custSel.value = currCust;
+            if (currAdmin === 'ALL' || locs.includes(currAdmin)) adminSel.value = currAdmin;
         }
 
         window.saveBrandSettings = async () => {
             const name = document.getElementById('setting-brand-name').value || "VELVET SIP";
             const initials = document.getElementById('setting-brand-initials').value || "V.S";
+            const upiId = document.getElementById('setting-upi-id').value || "";
+            const locString = document.getElementById('setting-locations').value;
+            const locations = locString.split(',').map(s => s.trim()).filter(s => s.length > 0);
             
+            if(locations.length === 0) locations.push("Store 1");
+
             if(db) {
-                await setDoc(doc(db, 'settings', 'brand'), { name, initials });
-                showToast("Brand Settings Saved");
+                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations, upiId });
+                showToast("Settings Saved");
             }
         }
 
         // ==========================================
-        // UI TOGGLES & UTILS
+        // UI TOGGLES & KIOSK LOCK
         // ==========================================
+        
+        // KIOSK LOCK LOGIC
+        window.unlockKiosk = () => {
+            document.getElementById('customer-lock-overlay').classList.add('unlocked');
+            document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen blocked"));
+        };
+
         window.toggleCart = () => {
             const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
             sidebar.classList.toggle('cart-open');
-            overlay.classList.toggle('hidden');
+            document.getElementById('cart-overlay').classList.toggle('hidden');
         };
         window.closeBill = () => document.getElementById('bill-modal').classList.add('hidden');
 
-        // Admin Auth
         window.attemptChefLogin = () => {
             document.getElementById('password-modal').classList.remove('hidden');
             document.getElementById('chef-password-input').value = '';
@@ -1164,7 +1082,8 @@
         window.closePasswordModal = () => document.getElementById('password-modal').classList.add('hidden');
         window.verifyChefPassword = () => {
             if(document.getElementById('chef-password-input').value === 'MGX') {
-                closePasswordModal();
+                closePasswordModal(); 
+                document.getElementById('customer-lock-overlay').classList.add('unlocked');
                 switchToChefView();
             } else document.getElementById('password-error').classList.remove('hidden');
         };
@@ -1188,7 +1107,6 @@
             });
             document.getElementById(`admin-tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tabId}`).classList.add('active', 'border-b-[#C5A059]', 'text-white');
-
             if(tabId === 'analytics') processAnalytics();
         };
 
@@ -1221,18 +1139,10 @@
             });
         }
 
-        // Boot
         window.onload = () => {
             setupDatabaseListeners();
-            
-            // Fallback render if Firebase is empty initially
-            if(dynamicMenu.length === 0) {
-                dynamicMenu = [...defaultMenuItems];
-                renderMenuUI('all');
-            }
-            renderAdminMenuTable();
-            updateCartUI();
-            applyBrandSettingsToUI();
+            if(dynamicMenu.length === 0) { dynamicMenu = [...defaultMenuItems]; renderMenuUI('all'); }
+            renderAdminMenuTable(); updateCartUI(); applyBrandSettingsToUI();
 
             if (window.gsap) {
                 const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
@@ -1242,7 +1152,6 @@
                   .set('#preloader', { display: 'none' });
                 tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
                   .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
-
                 tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
                 tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
                 tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
