@@ -1315,6 +1315,38 @@
                 if (preloader) preloader.style.display = 'none';
             }
         };
+        <script type="module">
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+  const firebaseConfig = {
+    apiKey: "AIzaSyAU7p0tky12nOFchNelX-Vuch79RMfH_3c",
+    authDomain: "mgsip-61185.firebaseapp.com",
+    projectId: "mgsip-61185",
+    storageBucket: "mgsip-61185.firebasestorage.app",
+    messagingSenderId: "816803431955",
+    appId: "1:816803431955:web:379a19af711bed25b221e6"
+  };
+
+  const app = initializeApp(firebaseConfig);
+  const db = getFirestore(app);
+
+  // Call this function when the customer clicks the checkout button
+  window.submitOrderToCloud = async function(customerName, orderDetails) {
+    try {
+      await addDoc(collection(db, "coffee_orders"), {
+        customer: customerName,
+        items: orderDetails,
+        status: "pending",
+        timestamp: serverTimestamp()
+      });
+      alert("Order sent to the kitchen!");
+    } catch (e) {
+      console.error("Error adding document: ", e);
+      alert("Error sending order. Check the console.");
+    }
+  }
+</script>
     </script>
 </body>
 </html>
