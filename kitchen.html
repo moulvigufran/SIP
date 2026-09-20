@@ -1,0 +1,51 @@
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
+    import { getFirestore, collection, onSnapshot, doc, updateDoc } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAU7p0tky12nOFchNelX-Vuch79RMfH_3c",
+        authDomain: "mgsip-61185.firebaseapp.com",
+        projectId: "mgsip-61185",
+        storageBucket: "mgsip-61185.firebasestorage.app",
+        messagingSenderId: "816803431955",
+        appId: "1:816803431955:web:379a19af711bed25b221e6"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = getFirestore(app);
+    const ticketBoard = document.getElementById('ticketBoard');
+
+    onSnapshot(collection(db, "coffee_orders"), (snapshot) => {
+        ticketBoard.innerHTML = ""; 
+        
+        let orders = [];
+        snapshot.forEach((doc) => {
+            let data = doc.data();
+            if(data.status === "pending") {
+                data.id = doc.id;
+                orders.push(data);
+            }
+        });
+
+        orders.sort((a, b) => (a.timestamp?.seconds || 0) - (b.timestamp?.seconds || 0));
+
+        orders.forEach(order => {
+            const ticket = document.createElement('div');
+            ticket.className = "ticket";
+            ticket.innerHTML = `
+                <h3>Order: ${order.customer}</h3>
+                <div class="time">Just now</div>
+                <div class="items">${order.items.replace(/,/g, '<br>')}</div>
+                <button onclick="markAsDone('${order.id}')">MARK READY</button>
+            `;
+            ticketBoard.appendChild(ticket);
+        });
+    });
+
+    window.markAsDone = async function(orderId) {
+        const orderRef = doc(db, "coffee_orders", orderId);
+        await updateDoc(orderRef, {
+            status: "completed"
+        });
+    }
+</script>
