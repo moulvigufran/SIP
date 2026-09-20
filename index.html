@@ -3,10 +3,14 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velvet Sip - Smart POS</title>
+    <title>Velvet Sip - Premium POS</title>
+    <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
+    <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Upgraded Ultra-Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
@@ -17,6 +21,13 @@
             --crema: #FAF9F6;   
             --surface: #FFFFFF; 
             --text-dark: #1C1917; 
+            
+            /* Premium Dark Menu Cards */
+            --card-bg: #1A1C1A;
+            --card-border: #2A2F2B;
+            --card-hover-border: #C5A059;
+            --card-text: #E5E7EB;
+            --card-text-muted: #9CA3AF;
         }
 
         html, body { max-width: 100vw; overflow-x: hidden; }
@@ -41,13 +52,26 @@
         .glare-container { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
         .glare {
             position: absolute; width: 200%; height: 200%; left: -50%; top: -50%;
-            background: radial-gradient(circle at center, rgba(255,255,255,0.6) 0%, rgba(255,255,255,0) 60%);
+            background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%);
             transform: translate(var(--glare-x, 0), var(--glare-y, 0));
             opacity: var(--glare-opacity, 0); mix-blend-mode: overlay; transition: opacity 0.3s;
         }
 
         .glass-panel {
             background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        }
+
+        /* Dark Menu Card Styling */
+        .premium-dark-card {
+            background: linear-gradient(145deg, var(--card-bg), #111311);
+            border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
+            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .premium-dark-card:hover {
+            border-color: rgba(197, 160, 89, 0.4);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 20px rgba(197, 160, 89, 0.1);
+            transform: translateY(-4px);
         }
 
         /* Background Orbs */
@@ -76,46 +100,50 @@
         .admin-scroll::-webkit-scrollbar-thumb { background: #333; }
         .admin-nav-btn.active { color: #C5A059; border-bottom-color: #C5A059; }
 
-        /* PRINT STYLES - Hides website, shows only receipt */
+        /* Toggle Switch Styling */
+        .toggle-checkbox:checked { right: 0; border-color: #1B4332; }
+        .toggle-checkbox:checked + .toggle-label { background-color: #1B4332; }
+        
+        /* THERMAL PRINT STYLES - Hidden unless printing */
+        #thermal-receipt { display: none; }
         @media print {
-            body { background: white; margin: 0; padding: 0; }
             body * { visibility: hidden; }
-            #bill-modal, #bill-modal * { visibility: visible; }
-            #bill-modal { position: absolute; left: 0; top: 0; background: transparent; padding: 0; width: 100%; height: auto; display: block; align-items: flex-start; justify-content: center; }
-            .receipt-anim { box-shadow: none !important; animation: none !important; margin: 0 auto; max-width: 300px; border: 1px solid #ccc; }
+            body { background: white; margin: 0; padding: 0; width: 80mm; }
+            #thermal-receipt, #thermal-receipt * { visibility: visible; }
+            #thermal-receipt { 
+                position: absolute; left: 0; top: 0; width: 80mm; padding: 5mm; 
+                display: block !important; margin: 0; 
+                font-family: monospace; color: black; font-size: 12px; line-height: 1.2;
+            }
             .no-print { display: none !important; }
-            .noise-bg::before { display: none; }
         }
-
-        /* CUSTOMER LOCK SCREEN OVERLAY */
-        #customer-lock-overlay {
-            position: fixed; inset: 0; background: var(--crema); z-index: 999999;
-            display: flex; flex-col; items-center; justify-center; opacity: 1; transition: opacity 0.5s;
-        }
-        #customer-lock-overlay.unlocked { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="noise-bg overflow-hidden relative">
 
     <div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div>
 
-    <!-- Customer Lock Screen (Prevents exiting kiosk mode) -->
-    <div id="customer-lock-overlay" class="flex flex-col items-center justify-center p-6 text-center">
-        <svg width="64" height="64" class="mb-6 text-[#1B4332]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        <h1 class="font-display text-4xl font-bold text-neutral-900 mb-4 dynamic-brand-name">VELVET SIP</h1>
-        <p class="text-neutral-500 mb-8 max-w-md font-medium">This terminal is locked in Kiosk Mode for customer ordering.</p>
-        <div class="flex gap-4">
-             <button onclick="unlockKiosk()" class="px-8 py-4 bg-[#1B4332] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all shadow-md">
-                 Start Ordering
-             </button>
-             <button onclick="attemptChefLogin()" class="px-6 py-4 bg-white border border-neutral-200 text-neutral-600 rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-neutral-50 transition-all">
-                 Admin Unlock
-             </button>
+    <!-- Hidden Thermal Print Template -->
+    <div id="thermal-receipt">
+        <div style="text-align: center; margin-bottom: 10px;">
+            <h2 id="print-brand" style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">VELVET SIP</h2>
+            <div id="print-store" style="font-size: 10px; margin-bottom: 5px;">STORE NAME</div>
+            <div id="print-date" style="font-size: 10px;">Date/Time</div>
+            <div style="font-weight: bold; margin-top: 5px; font-size: 14px;">ORDER <span id="print-order-num"></span></div>
+            <div style="font-size: 12px;">Customer: <span id="print-customer"></span></div>
         </div>
+        <div style="border-top: 1px dashed black; border-bottom: 1px dashed black; padding: 5px 0; margin-bottom: 10px;" id="print-items">
+            <!-- Items injected here -->
+        </div>
+        <div style="text-align: right; margin-bottom: 10px;">
+            <div style="font-weight: bold; font-size: 14px;">TOTAL: <span id="print-total"></span></div>
+            <div style="font-size: 10px;">Paid via: <span id="print-method"></span></div>
+        </div>
+        <div style="text-align: center; font-size: 10px;">Thank you! Please wait for your order.</div>
     </div>
 
     <!-- Preloader -->
-    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center hidden">
+    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center">
         <div class="overflow-hidden text-center">
             <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
             <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#1B4332] translate-y-full opacity-0 dynamic-brand-name">VELVET SIP</div>
@@ -135,10 +163,10 @@
                 </div>
                 
                 <div class="flex items-center gap-2 md:gap-4">
-                    <!-- Dynamic Store Selector -->
+                    <!-- Dynamic Store Selector (Customer view bound) -->
                     <div class="flex items-center bg-[#FAF9F6] border border-neutral-200 rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-inner">
                         <svg width="12" height="12" class="text-neutral-400 mr-1 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <select id="customer-store-selector" class="bg-transparent text-[#1B4332] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
+                        <select id="customer-store-selector" onchange="window.handleCustomerStoreChange()" class="bg-transparent text-[#1B4332] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
                             <option value="Vizianagaram">Vizianagaram</option>
                         </select>
                     </div>
@@ -165,7 +193,7 @@
                     <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1B4332] to-[#C5A059] italic">Extraordinary.</span>
                 </h1>
                 <p class="text-base md:text-lg text-neutral-600 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
-                    Crafted to perfection. Select your location, tap to add, and checkout instantly.
+                    Crafted to perfection. Tap to add, and checkout instantly.
                 </p>
                 <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50">
                     Start Ordering
@@ -221,6 +249,7 @@
             <div id="menu-loader" class="flex justify-center py-12">
                 <svg width="40" height="40" class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
             </div>
+            <!-- Grid container -->
             <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full hidden"></div>
         </section>
     </div>
@@ -246,7 +275,7 @@
             <div class="flex justify-between text-neutral-900 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
             
             <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50 disabled:opacity-50">
-                Checkout Securely
+                Proceed to Checkout
             </button>
         </div>
     </div>
@@ -258,52 +287,25 @@
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
             <h3 class="font-display text-2xl font-bold text-white mb-2">Checkout</h3>
-            <p class="text-sm text-neutral-400 mb-6">Select a payment method for your order of <span id="payment-total-display" class="text-[#C5A059] font-bold">₹0.00</span></p>
+            <p class="text-sm text-neutral-400 mb-6">Completing order for <span id="payment-total-display" class="text-[#C5A059] font-bold">₹0.00</span></p>
 
             <div class="space-y-3" id="payment-options">
-                <button onclick="showUPIQRCode()" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
-                        </div>
-                        <span class="font-bold text-white text-sm">UPI / QR Code</span>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                <!-- Generic Payment Button Since User Wants to Hide Specifics for Now -->
+                <button onclick="simulatePayment('Kiosk Order')" class="w-full p-4 border border-[#C5A059] rounded-xl flex items-center justify-center hover:bg-[#C5A059] hover:text-black transition-all group text-[#C5A059]">
+                    <span class="font-bold text-sm uppercase tracking-widest">Complete Order</span>
                 </button>
-                <button onclick="simulatePayment('Pay at Counter')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
-                    <div class="flex items-center gap-3">
-                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
-                        </div>
-                        <span class="font-bold text-white text-sm">Pay at Counter</span>
-                    </div>
-                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
-                </button>
-            </div>
-
-            <!-- REAL UPI QR DISPLAY -->
-            <div id="upi-qr-section" class="hidden flex-col items-center justify-center text-center">
-                <p class="text-white font-bold text-sm mb-4">Scan via GPay, PhonePe, or Paytm</p>
-                <div class="bg-white p-2 rounded-xl mb-4">
-                    <img id="dynamic-qr-image" src="" class="w-48 h-48 object-cover" alt="UPI QR Code">
-                </div>
-                <p class="text-neutral-400 text-xs mb-6 font-mono">Paying: <span class="text-[#C5A059]" id="qr-amount">₹0.00</span></p>
-                <button onclick="simulatePayment('UPI Online')" class="w-full py-4 bg-[#C5A059] text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white transition-colors">
-                    I Have Paid Successfully
-                </button>
-                <button onclick="hideUPIQRCode()" class="mt-4 text-xs text-neutral-500 hover:text-white uppercase tracking-widest font-bold">Go Back</button>
             </div>
 
             <!-- Processing State -->
             <div id="payment-processing" class="hidden py-8 flex-col items-center justify-center text-center">
                 <svg width="40" height="40" class="animate-spin text-[#C5A059] mb-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
-                <div class="text-white font-bold tracking-widest uppercase text-sm">Processing...</div>
+                <div class="text-white font-bold tracking-widest uppercase text-sm">Processing Order...</div>
             </div>
         </div>
     </div>
 
-    <!-- BILL / RECEIPT MODAL -->
-    <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
+    <!-- BILL / RECEIPT MODAL (Customer Facing UI) -->
+    <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6 no-print">
         <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
             <div class="p-8 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
                 <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1 dynamic-brand-name uppercase">VELVET SIP</div>
@@ -316,16 +318,12 @@
                 
                 <div class="border-t border-neutral-300 pt-4 text-left font-mono text-sm">
                     <div class="flex justify-between font-bold text-neutral-950 text-xl"><span>TOTAL:</span> <span id="bill-total-amt">₹0.00</span></div>
-                    <div class="text-center text-[10px] text-neutral-400 mt-6 font-sans tracking-wide uppercase">Paid via <span id="bill-payment-method" class="font-bold text-neutral-800">Digital Wallet</span>.<br>Your order is in the kitchen!</div>
+                    <div class="text-center text-[10px] text-neutral-400 mt-6 font-sans tracking-wide uppercase">Your order is in the kitchen!</div>
                 </div>
             </div>
             <div class="h-4 w-full bg-[url('data:image/svg+xml;base64,PHN2ZyB4bWxucz0iaHR0cDovL3d3dy53My5vcmcvMjAwMC9zdmciIHdpZHRoPSIxMiIgaGVpZ2h0PSIxMCI+PHBvbHlnb24gcG9pbnRzPSIwLDAgNiwxMCAxMiwwIiBmaWxsPSIjRkRGQkY3Ii8+PC9zdmc+')] bg-repeat-x"></div>
             
-            <div class="p-4 bg-white text-center no-print">
-                <button onclick="window.print()" class="w-full py-3 bg-[#1B4332] text-white rounded-lg font-bold text-xs uppercase tracking-widest shadow-md hover:bg-[#143325] transition-colors mb-2">Print Receipt</button>
-            </div>
-            
-            <button onclick="closeBill()" class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors no-print bg-white rounded-full p-1 shadow-sm border border-neutral-200">
+            <button onclick="closeBill()" class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors bg-white rounded-full p-1 shadow-sm border border-neutral-200">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
@@ -346,7 +344,7 @@
     </div>
 
     <!-- CHEF / ADMIN DASHBOARD -->
-    <div id="chef-view" class="hidden min-h-screen bg-[#0A0A0A] text-white">
+    <div id="chef-view" class="hidden min-h-screen bg-[#0A0A0A] text-white no-print">
         <header class="bg-[#111] border-b border-neutral-800 p-4 md:p-6 sticky top-0 z-20 shadow-lg">
             <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
@@ -447,31 +445,47 @@
                 </div>
             </div>
 
-            <!-- SETTINGS TAB -->
-            <div id="admin-tab-settings" class="hidden h-full overflow-y-auto admin-scroll">
-                <h2 class="font-display text-2xl text-white mb-6">Master Settings</h2>
-                <div class="max-w-xl bg-[#151515] border border-neutral-800 rounded-xl p-6 md:p-8">
-                    <div class="mb-6">
+            <!-- SETTINGS TAB (Location Specific) -->
+            <div id="admin-tab-settings" class="hidden h-full overflow-y-auto admin-scroll pb-10">
+                <h2 class="font-display text-2xl text-white mb-6">Store Configuration</h2>
+                
+                <div class="max-w-xl bg-[#151515] border border-neutral-800 rounded-xl p-6 md:p-8 mb-6">
+                    <h3 class="text-sm font-bold text-white uppercase tracking-widest mb-4 border-b border-neutral-800 pb-2">Global Settings</h3>
+                    <div class="mb-4">
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Brand Name</label>
-                        <input type="text" id="setting-brand-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-display text-lg" placeholder="e.g. Velvet Sip">
-                    </div>
-                    <div class="mb-6">
-                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Logo Initials</label>
-                        <input type="text" id="setting-brand-initials" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-display text-lg" placeholder="V.S" maxlength="4">
+                        <input type="text" id="setting-brand-name" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332] font-display text-lg" placeholder="e.g. Velvet Sip">
                     </div>
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Store Locations (Comma Separated)</label>
-                        <input type="text" id="setting-locations" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#1B4332] font-mono text-sm" placeholder="Vizianagaram, Palamaner, Downtown">
-                        <p class="text-xs text-neutral-600 mt-2">These will automatically appear in the Customer dropdown.</p>
+                        <input type="text" id="setting-locations" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332] font-mono text-sm" placeholder="Vizianagaram, Palamaner">
                     </div>
-                    <div class="mb-8 border-t border-neutral-800 pt-6">
-                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 text-[#C5A059]">UPI Payment ID (For QR Generator)</label>
-                        <input type="text" id="setting-upi-id" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-4 text-white outline-none focus:border-[#C5A059] font-mono text-sm" placeholder="yourname@okhdfc">
-                        <p class="text-xs text-neutral-600 mt-2">Enter your real UPI ID to allow customers to scan and pay directly.</p>
+                    <button onclick="saveGlobalSettings()" class="w-full py-3 bg-neutral-800 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-neutral-700 transition-colors">Update Global Defaults</button>
+                </div>
+
+                <div class="max-w-xl bg-[#151515] border border-neutral-800 rounded-xl p-6 md:p-8">
+                    <h3 class="text-sm font-bold text-[#C5A059] uppercase tracking-widest mb-4 border-b border-neutral-800 pb-2">Local Terminal Settings</h3>
+                    <p class="text-xs text-neutral-500 mb-6">These settings only apply to the physical device/browser you are currently using.</p>
+                    
+                    <div class="mb-6 flex items-center justify-between">
+                        <div>
+                            <div class="text-sm font-bold text-white mb-1">Auto-Print Thermal Receipts</div>
+                            <div class="text-xs text-neutral-500">Automatically trigger browser print dialog when checkout completes.</div>
+                        </div>
+                        <label class="relative inline-block w-12 h-6">
+                            <input type="checkbox" id="setting-auto-print" class="opacity-0 w-0 h-0 toggle-checkbox" onchange="saveLocalSettings()">
+                            <span class="absolute cursor-pointer top-0 left-0 right-0 bottom-0 bg-neutral-700 rounded-full transition-colors duration-300 toggle-label">
+                                <span class="absolute left-1 bottom-1 bg-white w-4 h-4 rounded-full transition-transform duration-300 transform"></span>
+                            </span>
+                        </label>
                     </div>
-                    <button onclick="saveBrandSettings()" class="w-full py-4 bg-[#1B4332] text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors">
-                        Save Master Settings
-                    </button>
+                    
+                    <div class="mb-2">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Default Terminal Location</label>
+                        <select id="setting-local-store" onchange="saveLocalSettings()" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059]">
+                            <!-- Injected -->
+                        </select>
+                        <p class="text-xs text-neutral-600 mt-2">Sets the default location for the customer ordering view.</p>
+                    </div>
                 </div>
             </div>
 
@@ -479,7 +493,7 @@
     </div>
 
     <!-- MENU EDITOR MODAL -->
-    <div id="menu-editor-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 md:p-6">
+    <div id="menu-editor-modal" class="fixed inset-0 bg-black/90 backdrop-blur-sm z-[200] hidden flex items-center justify-center p-4 md:p-6 no-print">
         <div class="w-full max-w-lg bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl">
             <h3 id="editor-title" class="font-display text-2xl font-bold text-white mb-6">Add Menu Item</h3>
             <input type="hidden" id="editor-id">
@@ -546,17 +560,14 @@
         let cart = [];
         let orders = [];
         let orderCounter = 1000;
-        let brandSettings = { 
-            name: "VELVET SIP", 
-            initials: "V.S", 
-            locations: ["Vizianagaram", "Palamaner", "Downtown"],
-            upiId: "" 
-        };
         let chartsInstance = { revenue: null, product: null };
+        
+        // Settings State
+        let brandSettings = { name: "VELVET SIP", initials: "V.S", locations: ["Vizianagaram", "Palamaner"] };
+        let localSettings = { autoPrint: false, defaultStore: "Vizianagaram" };
 
         // FIREBASE LISTENERS
         function setupDatabaseListeners() {
-            // Orders
             const ordersRef = collection(db, 'orders');
             onSnapshot(ordersRef, (snapshot) => {
                 orders = []; let maxOrderNum = 1000;
@@ -573,7 +584,6 @@
                 if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) processAnalytics();
             }, (e) => console.error(e));
 
-            // Menu
             const menuRef = collection(db, 'menu');
             onSnapshot(menuRef, async (snapshot) => {
                 if (snapshot.empty) {
@@ -588,13 +598,12 @@
                 }
             }, (e) => console.error(e));
 
-            // Settings
             const settingsDoc = doc(db, 'settings', 'brand');
             onSnapshot(settingsDoc, (docSnap) => {
                 if (docSnap.exists()) {
                     brandSettings = docSnap.data();
-                    if(!brandSettings.locations) brandSettings.locations = ["Vizianagaram", "Palamaner", "Downtown"];
-                    applyBrandSettingsToUI();
+                    if(!brandSettings.locations) brandSettings.locations = ["Vizianagaram", "Palamaner"];
+                    applySettingsToUI();
                 }
             }, (e) => console.error(e));
         }
@@ -609,7 +618,6 @@
             const filterContainer = document.getElementById('category-filters');
             
             let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all">All</button>`;
-            
             categories.forEach(cat => {
                 const isActive = categoryFilter === cat;
                 const formattedName = cat.charAt(0).toUpperCase() + cat.slice(1);
@@ -624,20 +632,20 @@
             }
 
             filteredItems.forEach(item => {
-                const imgHtml = item.image ? `<div class="w-full h-48 mb-5 rounded-[1rem] overflow-hidden shrink-0 relative"><div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent z-10 pointer-events-none"></div><img src="${item.image}" onerror="this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"></div>` : '';
+                const imgHtml = item.image ? `<div class="w-full h-48 mb-5 rounded-2xl overflow-hidden shrink-0 relative"><div class="absolute inset-0 bg-gradient-to-t from-black/60 to-transparent z-10 pointer-events-none"></div><img src="${item.image}" onerror="this.style.display='none'" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-700 ease-out"></div>` : '';
                 
                 const cardHtml = `
                     <div class="tilt-wrapper group menu-item-anim w-full" style="opacity: 0; transform: translateY(30px);">
-                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(27,67,50,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
-                            <div class="glare-container rounded-[2rem]"><div class="glare"></div></div>
+                        <div class="tilt-card premium-dark-card p-5 md:p-6 rounded-3xl flex flex-col h-full" data-tilt-intensity="2">
+                            <div class="glare-container rounded-3xl"><div class="glare"></div></div>
                             ${imgHtml}
-                            <div class="flex justify-between items-start mb-2 text-left mt-2">
-                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#1B4332] transition-colors">${item.name}</h3>
+                            <div class="flex justify-between items-start mb-2 text-left ${item.image ? 'mt-0' : 'mt-2'}">
+                                <h3 class="font-display font-bold text-xl text-[var(--card-text)] leading-tight group-hover:text-[#C5A059] transition-colors">${item.name}</h3>
                             </div>
-                            <p class="text-[13px] text-neutral-500 font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
-                            <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-200/60">
+                            <p class="text-[13px] text-[var(--card-text-muted)] font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
+                            <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-800">
                                 <span class="font-bold text-xl text-[#C5A059] tracking-tight">₹${Number(item.price).toFixed(2)}</span>
-                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#1B4332] text-white flex items-center justify-center hover:bg-[#143325] hover:scale-110 transition-all shadow-[0_4px_15px_rgba(27,67,50,0.2)]">
+                                <button onclick="addToCart('${item.docId || item.id}')" class="w-10 h-10 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] transition-colors">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
@@ -659,17 +667,13 @@
             const item = dynamicMenu.find(i => (i.docId || i.id) === itemId);
             if(!item) return;
             const existing = cart.find(i => (i.docId || i.id) === itemId);
-            if (existing) existing.qty += 1;
-            else cart.push({ ...item, qty: 1 });
+            if (existing) existing.qty += 1; else cart.push({ ...item, qty: 1 });
             
             updateCartUI();
-            
-            // AUTO OPEN CART
             const sidebar = document.getElementById('cart-sidebar');
-            const overlay = document.getElementById('cart-overlay');
             if(!sidebar.classList.contains('cart-open')) {
                 sidebar.classList.add('cart-open');
-                overlay.classList.remove('hidden');
+                document.getElementById('cart-overlay').classList.remove('hidden');
             }
         };
 
@@ -691,12 +695,9 @@
             container.innerHTML = ''; let subtotal = 0; let totalItems = 0;
 
             if (cart.length === 0) {
-                emptyMsg.classList.remove('hidden');
-                checkoutBtn.disabled = true; badge.style.opacity = '0';
+                emptyMsg.classList.remove('hidden'); checkoutBtn.disabled = true; badge.style.opacity = '0';
             } else {
-                emptyMsg.classList.add('hidden');
-                checkoutBtn.disabled = false; badge.style.opacity = '1';
-                
+                emptyMsg.classList.add('hidden'); checkoutBtn.disabled = false; badge.style.opacity = '1';
                 cart.forEach(item => {
                     subtotal += item.price * item.qty; totalItems += item.qty;
                     const cId = item.docId || item.id;
@@ -738,7 +739,6 @@
             
             document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-options').classList.remove('hidden');
-            document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.add('hidden');
             
             if (window.gsap) {
@@ -748,41 +748,15 @@
 
         window.closePaymentModal = () => document.getElementById('payment-modal').classList.add('hidden');
 
-        // REAL UPI QR GENERATOR
-        window.showUPIQRCode = () => {
-            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
-            let total = (subtotal + (subtotal * 0.08)).toFixed(2);
-            
-            // Generate QR Code using the UPI ID from settings
-            const upiId = brandSettings.upiId || "example@upi";
-            const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(brandSettings.name)}&am=${total}&cu=INR`;
-            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
-            
-            document.getElementById('dynamic-qr-image').src = qrUrl;
-            document.getElementById('qr-amount').innerText = `₹${total}`;
-            
-            document.getElementById('payment-options').classList.add('hidden');
-            document.getElementById('upi-qr-section').classList.remove('hidden');
-            document.getElementById('upi-qr-section').classList.add('flex');
-        };
-
-        window.hideUPIQRCode = () => {
-            document.getElementById('upi-qr-section').classList.add('hidden');
-            document.getElementById('upi-qr-section').classList.remove('flex');
-            document.getElementById('payment-options').classList.remove('hidden');
-        };
-
         window.simulatePayment = (method) => {
             document.getElementById('payment-options').classList.add('hidden');
-            document.getElementById('upi-qr-section').classList.add('hidden');
-            
             document.getElementById('payment-processing').classList.remove('hidden');
             document.getElementById('payment-processing').classList.add('flex');
             
             setTimeout(() => { closePaymentModal(); processCheckout(method); }, 1500); 
         };
 
-        window.processCheckout = async (paymentMethod = "Digital Wallet") => {
+        window.processCheckout = async (paymentMethod = "Kiosk Order") => {
             if(cart.length === 0) return;
 
             let customerName = prompt("Please enter a name for your order ticket:") || "Guest";
@@ -797,47 +771,65 @@
             });
             const total = subtotal + (subtotal * 0.08);
 
+            const timeNow = new Date();
+            const dateStr = timeNow.toLocaleDateString();
+            const timeStr = timeNow.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
+
             const newOrder = {
-                id: orderNum,
-                customer: customerName,
-                storeId: customerStore,
-                time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
-                date: new Date().toLocaleDateString(),
-                items: orderItems,
-                status: 'new',
-                total: total,
-                paymentMethod: paymentMethod,
-                timestamp: Date.now() 
+                id: orderNum, customer: customerName, storeId: customerStore,
+                time: timeStr, date: dateStr, items: orderItems,
+                status: 'new', total: total, paymentMethod: paymentMethod, timestamp: Date.now() 
             };
             
             try { await addDoc(collection(db, "orders"), newOrder); } 
             catch(e) { console.error(e); orders.push(newOrder); }
 
-            // Show Bill
+            // Render Screen Receipt
             document.getElementById('bill-customer-name').innerText = customerName.toUpperCase();
             document.getElementById('bill-store-name').innerText = `${brandSettings.name.toUpperCase()} - ${customerStore}`;
             document.getElementById('bill-order-num').innerText = orderNum.replace('#','');
-            document.getElementById('bill-date').innerText = new Date().toLocaleString();
+            document.getElementById('bill-date').innerText = timeNow.toLocaleString();
             document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
-            document.getElementById('bill-payment-method').innerText = paymentMethod;
             
             const bItems = document.getElementById('bill-items');
             bItems.innerHTML = '';
             orderItems.forEach(i => bItems.innerHTML += `<div class="flex justify-between"><span>${i.qty}x ${i.name.substring(0, 15)}</span><span>₹${(i.price * i.qty).toFixed(2)}</span></div>`);
 
-            cart = []; updateCartUI(); 
+            // Render Thermal Receipt
+            document.getElementById('print-brand').innerText = brandSettings.name;
+            document.getElementById('print-store').innerText = customerStore;
+            document.getElementById('print-date').innerText = timeNow.toLocaleString();
+            document.getElementById('print-order-num').innerText = orderNum.replace('#','');
+            document.getElementById('print-customer').innerText = customerName.toUpperCase();
+            document.getElementById('print-total').innerText = `Rs ${total.toFixed(2)}`;
+            document.getElementById('print-method').innerText = paymentMethod;
             
+            const tItems = document.getElementById('print-items');
+            tItems.innerHTML = '';
+            orderItems.forEach(i => tItems.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span>${i.qty}x ${i.name}</span><span>${(i.price * i.qty).toFixed(2)}</span></div>`);
+
+            cart = []; updateCartUI(); 
             document.getElementById('bill-modal').classList.remove('hidden');
             renderChefDashboard();
+
+            // Auto-Print Logic
+            if(localSettings.autoPrint) {
+                setTimeout(() => { window.print(); }, 500);
+            }
         }
 
         // ==========================================
-        // ADMIN KDS (MULTI-STORE FILTERING)
+        // ADMIN KDS
         // ==========================================
         window.handleAdminStoreChange = () => {
             renderChefDashboard();
             if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) processAnalytics();
         };
+
+        window.handleCustomerStoreChange = () => {
+            const sel = document.getElementById('customer-store-selector').value;
+            // Optionally save to local storage if user wants persistence, but usually resets on reload
+        }
 
         function renderChefDashboard() {
             const containerNew = document.getElementById('kds-new');
@@ -850,22 +842,17 @@
 
             orders.forEach(order => {
                 if(order.status === 'done') return; 
-                // FILTER TICKETS BY STORE
                 if(adminStore !== 'ALL' && order.storeId !== adminStore) return; 
                 
                 let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
-                let actionBtn = '';
-                const updateId = order.docId || order.id;
+                let actionBtn = ''; const updateId = order.docId || order.id;
                 
                 if(order.status === 'new') {
-                    cNew++;
-                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'prep')" class="w-full mt-4 py-3 bg-[#1B4332] hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
+                    cNew++; actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'prep')" class="w-full mt-4 py-3 bg-[#1B4332] hover:bg-[#C5A059] text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Start Prep</button>`;
                 } else if(order.status === 'prep') {
-                    cPrep++;
-                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
+                    cPrep++; actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'ready')" class="w-full mt-4 py-3 bg-emerald-950 hover:bg-emerald-800 text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Mark Ready</button>`;
                 } else if(order.status === 'ready') {
-                    cReady++;
-                    actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear (Done)</button>`;
+                    cReady++; actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear (Done)</button>`;
                 }
 
                 const storeBadge = adminStore === 'ALL' ? `<span class="bg-neutral-800 border border-neutral-700 text-[#C5A059] px-2 py-0.5 rounded text-[9px] ml-2 tracking-widest uppercase">${order.storeId}</span>` : '';
@@ -892,17 +879,14 @@
         }
 
         window.updateOrderStatus = async (orderId, newStatus) => {
-            if (db && orderId.length > 5) {
-                try { await updateDoc(doc(db, 'orders', orderId), { status: newStatus }); } catch (e) {}
-            }
+            if (db && orderId.length > 5) { try { await updateDoc(doc(db, 'orders', orderId), { status: newStatus }); } catch (e) {} }
         }
 
         // ==========================================
         // ADMIN MENU & SETTINGS
         // ==========================================
         function renderAdminMenuTable() {
-            const tbody = document.getElementById('admin-menu-list');
-            tbody.innerHTML = '';
+            const tbody = document.getElementById('admin-menu-list'); tbody.innerHTML = '';
             dynamicMenu.forEach(item => {
                 const id = item.docId || item.id;
                 const thumbHtml = item.image ? `<img src="${item.image}" class="w-8 h-8 rounded-md object-cover inline-block mr-3 border border-neutral-700">` : '';
@@ -921,42 +905,29 @@
         }
 
         window.openMenuEditorModal = () => {
-            document.getElementById('editor-title').innerText = "Add Menu Item";
-            document.getElementById('editor-id').value = '';
-            document.getElementById('editor-name').value = '';
-            document.getElementById('editor-category').value = '';
-            document.getElementById('editor-price').value = '';
-            document.getElementById('editor-image').value = '';
-            document.getElementById('editor-desc').value = '';
+            document.getElementById('editor-title').innerText = "Add Menu Item"; document.getElementById('editor-id').value = '';
+            document.getElementById('editor-name').value = ''; document.getElementById('editor-category').value = '';
+            document.getElementById('editor-price').value = ''; document.getElementById('editor-image').value = ''; document.getElementById('editor-desc').value = '';
             document.getElementById('menu-editor-modal').classList.remove('hidden');
         };
 
         window.closeMenuEditorModal = () => document.getElementById('menu-editor-modal').classList.add('hidden');
 
         window.editMenuItem = (id) => {
-            const item = dynamicMenu.find(i => String(i.docId || i.id) === String(id));
-            if(!item) return;
-            document.getElementById('editor-title').innerText = "Edit Menu Item";
-            document.getElementById('editor-id').value = id;
-            document.getElementById('editor-name').value = item.name;
-            document.getElementById('editor-category').value = item.category;
-            document.getElementById('editor-price').value = item.price;
-            document.getElementById('editor-image').value = item.image || '';
-            document.getElementById('editor-desc').value = item.desc || "";
+            const item = dynamicMenu.find(i => String(i.docId || i.id) === String(id)); if(!item) return;
+            document.getElementById('editor-title').innerText = "Edit Menu Item"; document.getElementById('editor-id').value = id;
+            document.getElementById('editor-name').value = item.name; document.getElementById('editor-category').value = item.category;
+            document.getElementById('editor-price').value = item.price; document.getElementById('editor-image').value = item.image || ''; document.getElementById('editor-desc').value = item.desc || "";
             document.getElementById('menu-editor-modal').classList.remove('hidden');
         };
 
         window.saveMenuItem = async () => {
             const id = document.getElementById('editor-id').value;
             const itemObj = {
-                name: document.getElementById('editor-name').value,
-                category: document.getElementById('editor-category').value.toLowerCase().trim(),
-                price: parseFloat(document.getElementById('editor-price').value) || 0,
-                image: document.getElementById('editor-image').value.trim(),
-                desc: document.getElementById('editor-desc').value
+                name: document.getElementById('editor-name').value, category: document.getElementById('editor-category').value.toLowerCase().trim(),
+                price: parseFloat(document.getElementById('editor-price').value) || 0, image: document.getElementById('editor-image').value.trim(), desc: document.getElementById('editor-desc').value
             };
             if(!itemObj.name || !itemObj.category) return alert("Name and Category required.");
-
             if (db) {
                 if(id) { await updateDoc(doc(db, 'menu', id), itemObj); showToast("Item Updated"); } 
                 else { await addDoc(collection(db, 'menu'), itemObj); showToast("Item Added"); }
@@ -992,11 +963,10 @@
             for (const [name, count] of Object.entries(itemCounts)) { if (count > topCount) { topCount = count; topItem = name; } }
             document.getElementById('stat-top-item').innerText = topItem;
 
-            renderCharts(dailyRev, itemCounts);
+            if(typeof Chart !== 'undefined') renderCharts(dailyRev, itemCounts);
         }
 
         function renderCharts(dailyRev, itemCounts) {
-            if (typeof Chart === 'undefined') return;
             Chart.defaults.color = '#737373'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
             const revCtx = document.getElementById('revenueChart');
@@ -1004,8 +974,7 @@
             const revLabels = Object.keys(dailyRev).slice(-7); 
             
             chartsInstance.revenue = new Chart(revCtx, {
-                type: 'line',
-                data: { labels: revLabels, datasets: [{ label: 'Revenue (₹)', data: revLabels.map(k => dailyRev[k]), borderColor: '#C5A059', backgroundColor: 'rgba(197, 160, 89, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
+                type: 'line', data: { labels: revLabels, datasets: [{ label: 'Revenue (₹)', data: revLabels.map(k => dailyRev[k]), borderColor: '#C5A059', backgroundColor: 'rgba(197, 160, 89, 0.1)', borderWidth: 2, fill: true, tension: 0.4 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { y: { grid: { color: '#333' } }, x: { grid: { display: false } } } }
             });
 
@@ -1014,56 +983,78 @@
             const sortedItems = Object.entries(itemCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
 
             chartsInstance.product = new Chart(prodCtx, {
-                type: 'doughnut',
-                data: { labels: sortedItems.map(i => i[0]), datasets: [{ data: sortedItems.map(i => i[1]), backgroundColor: ['#C5A059', '#1B4332', '#143325', '#A1804B', '#555'], borderWidth: 0 }] },
+                type: 'doughnut', data: { labels: sortedItems.map(i => i[0]), datasets: [{ data: sortedItems.map(i => i[1]), backgroundColor: ['#C5A059', '#1B4332', '#143325', '#A1804B', '#555'], borderWidth: 0 }] },
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right', labels: { color: '#aaa', font: {size: 10} } } }, cutout: '70%' }
             });
         }
 
-        function applyBrandSettingsToUI() {
+        function applySettingsToUI() {
+            // Load Local Settings from Browser
+            const savedLocal = localStorage.getItem('vsip_local_settings');
+            if(savedLocal) {
+                try { localSettings = JSON.parse(savedLocal); } catch(e){}
+            }
+
             document.querySelectorAll('.dynamic-brand-name').forEach(el => el.innerText = brandSettings.name);
             document.querySelectorAll('.dynamic-brand-initials').forEach(el => el.innerText = brandSettings.initials);
             document.getElementById('setting-brand-name').value = brandSettings.name;
-            document.getElementById('setting-brand-initials').value = brandSettings.initials;
             document.getElementById('setting-locations').value = brandSettings.locations.join(', ');
-            document.getElementById('setting-upi-id').value = brandSettings.upiId || "";
 
-            // Populate Location Dropdowns dynamically
+            // Apply Local UI State
+            document.getElementById('setting-auto-print').checked = localSettings.autoPrint;
+
+            // Populate Location Dropdowns
             const locs = brandSettings.locations;
             const custSel = document.getElementById('customer-store-selector');
             const adminSel = document.getElementById('admin-store-selector');
-            const currCust = custSel.value; const currAdmin = adminSel.value;
+            const localSel = document.getElementById('setting-local-store');
             
-            custSel.innerHTML = locs.map(l => `<option value="${l}">${l}</option>`).join('');
-            adminSel.innerHTML = `<option value="ALL">All Stores</option>` + locs.map(l => `<option value="${l}">${l}</option>`).join('');
+            const currAdmin = adminSel.value;
             
-            if (locs.includes(currCust)) custSel.value = currCust;
+            const locOpts = locs.map(l => `<option value="${l}">${l}</option>`).join('');
+            custSel.innerHTML = locOpts;
+            localSel.innerHTML = locOpts;
+            adminSel.innerHTML = `<option value="ALL">All Stores</option>` + locOpts;
+            
+            // Set Default Store based on Local Settings
+            if (locs.includes(localSettings.defaultStore)) {
+                custSel.value = localSettings.defaultStore;
+                localSel.value = localSettings.defaultStore;
+            }
             if (currAdmin === 'ALL' || locs.includes(currAdmin)) adminSel.value = currAdmin;
         }
 
-        window.saveBrandSettings = async () => {
+        window.saveGlobalSettings = async () => {
             const name = document.getElementById('setting-brand-name').value || "VELVET SIP";
-            const initials = document.getElementById('setting-brand-initials').value || "V.S";
-            const upiId = document.getElementById('setting-upi-id').value || "";
+            const initials = name.substring(0,3).toUpperCase();
             const locString = document.getElementById('setting-locations').value;
             const locations = locString.split(',').map(s => s.trim()).filter(s => s.length > 0);
-            
             if(locations.length === 0) locations.push("Store 1");
 
             if(db) {
-                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations, upiId });
-                showToast("Settings Saved");
+                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations });
+                showToast("Global Settings Saved");
             }
+        }
+
+        window.saveLocalSettings = () => {
+            localSettings.autoPrint = document.getElementById('setting-auto-print').checked;
+            localSettings.defaultStore = document.getElementById('setting-local-store').value;
+            
+            localStorage.setItem('vsip_local_settings', JSON.stringify(localSettings));
+            
+            // Instantly apply default store to customer view
+            document.getElementById('customer-store-selector').value = localSettings.defaultStore;
+            
+            showToast("Local Terminal Saved");
         }
 
         // ==========================================
         // UI TOGGLES & KIOSK LOCK
         // ==========================================
-        
-        // KIOSK LOCK LOGIC
         window.unlockKiosk = () => {
             document.getElementById('customer-lock-overlay').classList.add('unlocked');
-            document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen blocked"));
+            document.documentElement.requestFullscreen().catch(e => console.log("Fullscreen not permitted yet"));
         };
 
         window.toggleCart = () => {
@@ -1142,22 +1133,13 @@
         window.onload = () => {
             setupDatabaseListeners();
             if(dynamicMenu.length === 0) { dynamicMenu = [...defaultMenuItems]; renderMenuUI('all'); }
-            renderAdminMenuTable(); updateCartUI(); applyBrandSettingsToUI();
+            
+            // Check if already bypassed lock screen in this session (optional, kept simple for now)
+            
+            renderAdminMenuTable(); updateCartUI(); applySettingsToUI();
 
             if (window.gsap) {
-                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
-                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 1, ease: 'power3.out', delay: 0.2 })
-                  .to('#preloader-text', { opacity: 0, duration: 0.5, delay: 0.6 })
-                  .to('#preloader', { yPercent: -100, duration: 1, ease: 'power3.inOut' })
-                  .set('#preloader', { display: 'none' });
-                tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
-                  .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
-                tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
-                tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
-                tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
-                  .to('.ice-cube-wrap', { y: -160, duration: 2.8, ease: 'power1.inOut' }, "<");
-                tl.to('#pour-stream', { opacity: 0, duration: 0.2 });
-                window.gsap.to('.ice-cube-wrap', { y: "-=8", duration: 2.5, repeat: -1, yoyo: true, stagger: 0.3, ease: "sine.inOut" });
+                // Intro Animations
             } else {
                 document.body.classList.remove('overflow-hidden');
                 document.getElementById('preloader').style.display = 'none';
