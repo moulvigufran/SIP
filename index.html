@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Premium Reserve POS</title>
+    <title>Velvet Sip - Coffee Orders</title>
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GSAP for Animations -->
@@ -15,8 +15,8 @@
     
     <style>
         :root {
-            --primary: #1B4332; /* Deep Forest Green */
-            --primary-dark: #143325;
+            --primary: #4E342E; /* Rich Espresso Brown */
+            --primary-dark: #3E2723; /* Dark Roast */
             --gold: #C5A059;    /* Brushed Gold */
             --crema: #FAF9F6;   /* Warm Cream / Off-White */
             --surface: #FFFFFF; /* Pure White */
@@ -60,9 +60,9 @@
         }
 
         /* Ambient Background Orbs */
-        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.25; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
         .orb-1 { width: 500px; height: 500px; background: #C5A059; top: -150px; left: -150px; }
-        .orb-2 { width: 400px; height: 400px; background: #1B4332; bottom: 5%; right: -100px; animation-delay: -6s; }
+        .orb-2 { width: 400px; height: 400px; background: #4E342E; bottom: 5%; right: -100px; animation-delay: -6s; }
         @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 80px); } }
 
         /* Cart Sidebar Animations */
@@ -76,7 +76,7 @@
         /* Toast Notification */
         .toast {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--primary); color: var(--gold); padding: 14px 28px; border-radius: 50px;
+            background: var(--primary-dark); color: var(--gold); padding: 14px 28px; border-radius: 50px;
             font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
             opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); z-index: 100000;
             box-shadow: 0 20px 40px rgba(0,0,0,0.2); border: 1px solid rgba(197, 160, 89, 0.3);
@@ -86,7 +86,7 @@
         /* Receipt Print Animation */
         @keyframes print { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
         .receipt-anim { animation: print 1s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
-        
+
         /* Admin Scrollbar */
         .admin-scroll::-webkit-scrollbar-thumb { background: #333; }
         .admin-nav-btn.active { color: #C5A059; border-bottom-color: #C5A059; }
@@ -94,15 +94,15 @@
 </head>
 <body class="noise-bg overflow-hidden relative">
 
-    <!-- Floating Orbs for Premium Background Depth -->
+    <!-- Floating Orbs -->
     <div class="bg-orb orb-1"></div>
     <div class="bg-orb orb-2"></div>
 
-    <!-- Preloader Animation -->
+    <!-- Preloader -->
     <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center">
         <div class="overflow-hidden text-center">
-            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
-            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#1B4332] translate-y-full opacity-0 dynamic-brand-name">
+            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#4E342E" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#4E342E" stroke="none"/></svg>
+            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#4E342E] translate-y-full opacity-0 dynamic-brand-name">
                 VELVET SIP
             </div>
         </div>
@@ -111,27 +111,35 @@
     <!-- Toast Notification -->
     <div id="toast" class="toast">Action Successful</div>
 
-    <!-- ========================================== -->
-    <!-- MAIN CUSTOMER VIEW                         -->
-    <!-- ========================================== -->
+    <!-- MAIN CUSTOMER VIEW -->
     <div id="customer-view" class="block">
         
         <!-- Navigation -->
         <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
             <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm">
                 <div class="font-display text-xl md:text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#00704A" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#00704A" stroke="none"/></svg>
+                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#4E342E" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#4E342E" stroke="none"/></svg>
                     <span class="hidden sm:inline dynamic-brand-name uppercase">VELVET SIP</span>
                     <span class="sm:hidden dynamic-brand-initials">V.S</span>
                 </div>
                 
-                <div class="flex items-center gap-2 md:gap-5">
-                    <!-- Discreet Chef Portal -->
-                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#1B4332]" title="Admin Portal">
+                <div class="flex items-center gap-2 md:gap-4">
+                    <!-- NEW: Multi-Store Location Selector -->
+                    <div class="flex items-center bg-[#FAF9F6] border border-neutral-200 rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-inner">
+                        <svg width="12" height="12" class="text-neutral-400 mr-1 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <select id="customer-store-selector" class="bg-transparent text-[#4E342E] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
+                            <option value="Vizianagaram">Vizianagaram</option>
+                            <option value="Palamaner">Palamaner</option>
+                            <option value="Downtown">Downtown</option>
+                        </select>
+                    </div>
+
+                    <!-- Discreet Chef/Admin Portal -->
+                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#4E342E]" title="Admin Portal">
                         <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
                     <!-- Cart -->
-                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#1B4332] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors shadow-[0_8px_20px_rgba(27,67,50,0.25)] flex items-center gap-1 md:gap-2">
+                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#3E2723] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#2D1A11] transition-colors shadow-[0_8px_20px_rgba(62,39,35,0.25)] flex items-center gap-1 md:gap-2">
                         <svg width="12" height="12" class="md:w-3.5 md:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span class="hidden md:inline">Cart</span>
                         <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 md:w-5 md:h-5 flex items-center justify-center rounded-full text-[9px] md:text-[10px] font-bold shadow-md opacity-0 transition-opacity">0</span>
@@ -143,17 +151,17 @@
         <!-- Hero Section -->
         <section class="relative pt-32 md:pt-40 pb-16 md:pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen md:min-h-[90vh]">
             <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start z-10">
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#1B4332] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#4E342E] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
                     <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
                 </div>
                 <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-900 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight drop-shadow-sm">
                     Sip the <br class="hidden md:block">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1B4332] to-[#C5A059] italic drop-shadow-sm">Extraordinary.</span>
+                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#4E342E] to-[#C5A059] italic drop-shadow-sm">Extraordinary.</span>
                 </h1>
                 <p class="text-base md:text-lg text-neutral-600 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
-                    Crafted to perfection. Select your cravings, pay digitally, and collect at the counter seamlessly.
+                    Crafted to perfection. Select your location, pay digitally, and collect at the counter seamlessly.
                 </p>
-                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] hover:-translate-y-1 transition-all duration-300 border border-[#1B4332]/50">
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#4E342E] to-[#3E2723] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(62,39,35,0.4)] hover:-translate-y-1 transition-all duration-300 border border-[#3E2723]/50">
                     Start Ordering
                 </button>
             </div>
@@ -177,12 +185,9 @@
                                 <stop offset="100%" stop-color="rgba(255,255,255,0.3)" />
                             </linearGradient>
                         </defs>
-                        <!-- Straw (Back) -->
-                        <rect x="186" y="20" width="14" height="400" fill="#00704A" transform="rotate(8 200 120)" opacity="0.8"/>
-                        <!-- Cup Back Rim -->
+                        <rect x="186" y="20" width="14" height="400" fill="#3E2723" transform="rotate(8 200 120)" opacity="0.8"/>
                         <ellipse cx="200" cy="120" rx="100" ry="12" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
                         
-                        <!-- Masked Interior -->
                         <g clip-path="url(#cup-mask)">
                             <rect x="0" y="0" width="400" height="500" fill="url(#glass-grad)" />
                             <g class="ice-cubes">
@@ -191,29 +196,25 @@
                                 <g class="ice-cube-wrap"><rect x="170" y="290" width="50" height="50" rx="6" fill="rgba(255,255,255,0.7)" stroke="rgba(255,255,255,0.5)" stroke-width="2" transform="rotate(35 189 319)" /></g>
                                 <g class="ice-cube-wrap"><rect x="220" y="260" width="38" height="38" rx="6" fill="rgba(255,255,255,0.9)" stroke="rgba(255,255,255,0.6)" stroke-width="2" transform="rotate(-25 241 291)" /></g>
                             </g>
-                            <!-- Coffee Liquid -->
                             <rect id="coffee-liquid" x="0" y="470" width="400" height="400" fill="url(#coffee-grad)" />
                         </g>
-                        <!-- Pouring Stream -->
                         <rect id="pour-stream" x="195" y="-80" width="12" height="480" fill="#3E2723" opacity="0" />
                         
-                        <!-- Cup Front & Dome -->
                         <path d="M100 120 L300 120 L270 450 Q270 470 250 470 L150 470 Q130 470 130 450 Z" fill="none" stroke="rgba(255,255,255,0.7)" stroke-width="3"/>
                         <path d="M100 120 Q200 138 300 120" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
                         <path d="M95 120 C 95 30, 305 30, 305 120" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
                         <ellipse cx="200" cy="45" rx="25" ry="6" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
                         
-                        <!-- Straw Front -->
                         <g transform="rotate(8 200 120)">
-                            <rect x="186" y="-50" width="14" height="100" fill="#00704A" />
-                            <path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#004d33" />
+                            <rect x="186" y="-50" width="14" height="100" fill="#3E2723" />
+                            <path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#2D1A11" />
                         </g>
 
                         <!-- Dynamic Emblem -->
-                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#00704A" stroke-width="3"/>
-                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#00704A" />
-                        <circle cx="200" cy="270" r="38" fill="none" stroke="#00704A" stroke-width="1.5" />
-                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#00704A" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
+                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#4E342E" stroke-width="3"/>
+                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#4E342E" />
+                        <circle cx="200" cy="270" r="38" fill="none" stroke="#4E342E" stroke-width="1.5" />
+                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#4E342E" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
 
                         <!-- Reflection -->
                         <path d="M120 150 Q135 300 140 440" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
@@ -231,7 +232,6 @@
                 </div>
                 <!-- Category Filters (Dynamic) -->
                 <div class="flex flex-wrap justify-center gap-3" id="category-filters">
-                    <button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 bg-neutral-950 text-white rounded-full text-[10px] font-bold uppercase tracking-widest transition-colors" data-cat="all">All</button>
                     <!-- Dynamic categories injected here -->
                 </div>
             </div>
@@ -246,7 +246,6 @@
                 <!-- Items injected via JS -->
             </div>
         </section>
-
     </div>
 
     <!-- CART SIDEBAR -->
@@ -269,7 +268,7 @@
             <div class="flex justify-between text-neutral-500 mb-5 font-medium text-sm"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
             <div class="flex justify-between text-neutral-900 text-2xl font-bold mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
             
-            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(27,67,50,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-[#1B4332]/50">
+            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#4E342E] to-[#3E2723] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(62,39,35,0.4)] hover:-translate-y-0.5 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed border border-[#4E342E]/50">
                 Checkout Securely
             </button>
         </div>
@@ -330,10 +329,10 @@
         <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
             <div class="p-10 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
                 <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1 dynamic-brand-name uppercase">VELVET SIP</div>
-                <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-5">Reserve Boutique</div>
+                <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-5" id="bill-store-name">Reserve Boutique</div>
                 <div class="text-xs text-neutral-400 font-mono mb-6" id="bill-date">Date: ...</div>
                 
-                <div class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-widest border-b border-neutral-200 pb-3">Order <span id="bill-order-num" class="text-[#C5A059]">#1024</span></div>
+                <div class="text-sm font-bold text-neutral-900 mb-3 uppercase tracking-widest border-b border-neutral-200 pb-3">Order for <span id="bill-customer-name" class="text-[#C5A059]">GUEST</span> <br><span class="text-xs text-neutral-400">#<span id="bill-order-num">1024</span></span></div>
                 
                 <div id="bill-items" class="text-left space-y-3 mb-8 mt-5 font-mono text-xs text-neutral-600"></div>
                 
@@ -374,7 +373,15 @@
             <div class="max-w-[1600px] mx-auto flex flex-col md:flex-row justify-between items-center gap-4">
                 <div class="flex items-center gap-3">
                     <div class="font-display text-xl font-bold tracking-widest text-[#C5A059] dynamic-brand-name uppercase">VELVET SIP</div>
-                    <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest">ADMIN OS</span>
+                    <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest hidden md:inline-block">ADMIN OS</span>
+                    
+                    <!-- NEW: Admin Store Filter -->
+                    <select id="admin-store-selector" onchange="window.handleAdminStoreChange()" class="bg-[#1A1A1A] border border-neutral-700 text-[#C5A059] text-[10px] md:text-xs font-bold uppercase tracking-widest rounded px-2 py-1 outline-none md:ml-4 cursor-pointer hover:border-[#C5A059] transition-colors">
+                        <option value="ALL">All Stores</option>
+                        <option value="Vizianagaram">Vizianagaram</option>
+                        <option value="Palamaner">Palamaner</option>
+                        <option value="Downtown">Downtown</option>
+                    </select>
                 </div>
                 
                 <!-- Admin Navigation -->
@@ -543,73 +550,26 @@
 
 
     <!-- ========================================== -->
-    <!-- APPLICATION LOGIC                          -->
+    <!-- APPLICATION LOGIC & FIREBASE SDK           -->
     <!-- ========================================== -->
     <script type="module">
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, onAuthStateChanged, signInWithCustomToken } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
+        import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
 
-        // ==========================================
-        // 1. CONFIGURATION & FIREBASE SETUP
-        // ==========================================
-        const myFirebaseConfig = {
-            apiKey: "AIzaSyCWGgVNelj-3Na42CpMqMbDYaGQNfBPv28",
-            authDomain: "sipx-c2edb.firebaseapp.com",
-            projectId: "sipx-c2edb",
-            storageBucket: "sipx-c2edb.firebasestorage.app",
-            messagingSenderId: "1055121646475",
-            appId: "1:1055121646475:web:815faea2f80a78d75a458e",
-            measurementId: "G-QLHB2CEXBG"
+        // YOUR EXACT FIREBASE CONFIGURATION
+        const firebaseConfig = {
+            apiKey: "AIzaSyAU7p0tky12nOFchNelX-Vuch79RMfH_3c",
+            authDomain: "mgsip-61185.firebaseapp.com",
+            projectId: "mgsip-61185",
+            storageBucket: "mgsip-61185.firebasestorage.app",
+            messagingSenderId: "816803431955",
+            appId: "1:816803431955:web:379a19af711bed25b221e6"
         };
 
-        let firebaseConfig = null;
-        let isUsingInjectedConfig = false;
+        const app = initializeApp(firebaseConfig);
+        const db = getFirestore(app);
 
-        if (Object.keys(myFirebaseConfig).length > 0 && myFirebaseConfig.apiKey !== "YOUR_API_KEY") {
-            firebaseConfig = myFirebaseConfig;
-        } else {
-            try {
-                if (typeof __firebase_config !== 'undefined' && __firebase_config) {
-                    firebaseConfig = JSON.parse(__firebase_config);
-                    isUsingInjectedConfig = true;
-                }
-            } catch (e) { console.warn("No Firebase config found."); }
-        }
-        
-        const appId = typeof __app_id !== 'undefined' ? __app_id : 'velvet-sip-live';
-        let app = null, auth = null, db = null, user = null;
-
-        if (firebaseConfig && Object.keys(firebaseConfig).length > 0) {
-            try {
-                app = initializeApp(firebaseConfig);
-                auth = getAuth(app);
-                db = getFirestore(app);
-
-                const initAuth = async () => {
-                    if (isUsingInjectedConfig && typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                        try { await signInWithCustomToken(auth, __initial_auth_token); } 
-                        catch (err) { try { await signInAnonymously(auth); } catch(e){} }
-                    } else {
-                        try { await signInAnonymously(auth); } catch(e){}
-                    }
-                };
-
-                initAuth();
-
-                onAuthStateChanged(auth, (u) => {
-                    user = u;
-                    if (user) {
-                        setupDatabaseListeners();
-                    }
-                });
-            } catch (err) { console.error("Firebase init error:", err); }
-        }
-
-        // ==========================================
-        // 2. DATA STATE
-        // ==========================================
-        // Default Seed Menu
+        // DEFAULT MENU ITEMS (Will auto-seed if database is empty)
         const defaultMenuItems = [
             { id: "1", name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
             { id: "2", name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
@@ -627,13 +587,11 @@
         let chartsInstance = { revenue: null, product: null };
 
         // ==========================================
-        // 3. LISTENERS & SYNC
+        // REAL-TIME DATABASE SYNC
         // ==========================================
         function setupDatabaseListeners() {
-            if (!db || !user) return;
-            
-            // A. Orders Listener
-            const ordersRef = collection(db, 'artifacts', appId, 'public', 'data', 'orders');
+            // 1. Orders Listener
+            const ordersRef = collection(db, 'orders');
             onSnapshot(ordersRef, (snapshot) => {
                 orders = [];
                 let maxOrderNum = 1000;
@@ -650,15 +608,15 @@
                 if(document.getElementById('admin-tab-analytics').classList.contains('hidden') === false) {
                     processAnalytics();
                 }
-            }, (e) => console.error(e));
+            }, (e) => console.error("Firebase Orders Sync Error:", e));
 
-            // B. Menu Listener
-            const menuRef = collection(db, 'artifacts', appId, 'public', 'data', 'menu');
+            // 2. Menu Listener
+            const menuRef = collection(db, 'menu');
             onSnapshot(menuRef, async (snapshot) => {
                 if (snapshot.empty) {
-                    console.log("Menu empty, auto-seeding defaults...");
+                    // Auto-seed database for the first time
                     for(const item of defaultMenuItems) {
-                        try { await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'menu'), item); } catch(e){}
+                        try { await addDoc(collection(db, 'menu'), item); } catch(e){}
                     }
                 } else {
                     dynamicMenu = [];
@@ -668,10 +626,10 @@
                     renderMenuUI();
                     renderAdminMenuTable();
                 }
-            }, (e) => console.error(e));
+            }, (e) => console.error("Firebase Menu Sync Error:", e));
 
-            // C. Settings Listener
-            const settingsDoc = doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'brand');
+            // 3. Settings Listener
+            const settingsDoc = doc(db, 'settings', 'brand');
             onSnapshot(settingsDoc, (docSnap) => {
                 if (docSnap.exists()) {
                     brandSettings = docSnap.data();
@@ -681,7 +639,7 @@
         }
 
         // ==========================================
-        // 4. CUSTOMER POS LOGIC
+        // CUSTOMER POS LOGIC
         // ==========================================
         function renderMenuUI(categoryFilter = 'all') {
             document.getElementById('menu-loader').style.display = 'none';
@@ -689,16 +647,16 @@
             grid.innerHTML = '';
             grid.classList.remove('hidden');
             
-            // Build Category Filters dynamically based on available menu items
+            // Build Category Filters dynamically
             const categories = [...new Set(dynamicMenu.map(item => item.category))];
             const filterContainer = document.getElementById('category-filters');
             
-            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="all">All</button>`;
+            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#4E342E] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#4E342E]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="all">All</button>`;
             
             categories.forEach(cat => {
                 const isActive = categoryFilter === cat;
                 const formattedName = cat.charAt(0).toUpperCase() + cat.slice(1);
-                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="${cat}">${formattedName}</button>`;
+                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#4E342E] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#4E342E]/30'} rounded-full text-xs font-bold capitalize transition-all" data-cat="${cat}">${formattedName}</button>`;
             });
             filterContainer.innerHTML = filterHtml;
 
@@ -715,16 +673,16 @@
                 
                 const cardHtml = `
                     <div class="tilt-wrapper group menu-item-anim w-full" style="opacity: 0; transform: translateY(30px);">
-                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(27,67,50,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
+                        <div class="tilt-card bg-white/70 backdrop-blur-xl p-5 md:p-6 rounded-[2rem] shadow-[0_10px_40px_rgb(0,0,0,0.03)] border border-white/60 flex flex-col h-full hover:shadow-[0_25px_50px_rgb(78,52,46,0.12)] hover:-translate-y-1.5 transition-all duration-500 ease-out" data-tilt-intensity="2">
                             <div class="glare-container rounded-[2rem]"><div class="glare"></div></div>
                             ${imgHtml}
                             <div class="flex justify-between items-start mb-2 text-left mt-2">
-                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#1B4332] transition-colors">${item.name}</h3>
+                                <h3 class="font-display font-bold text-xl text-neutral-900 leading-tight group-hover:text-[#4E342E] transition-colors">${item.name}</h3>
                             </div>
                             <p class="text-[13px] text-neutral-500 font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
                             <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-200/60">
                                 <span class="font-bold text-xl text-[#C5A059] tracking-tight">₹${Number(item.price).toFixed(2)}</span>
-                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#1B4332] text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] hover:scale-110 transition-all duration-300 shadow-[0_4px_15px_rgba(27,67,50,0.2)]">
+                                <button onclick="addToCart('${item.docId || item.id}')" class="w-11 h-11 rounded-full bg-[#4E342E] text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] hover:scale-110 transition-all duration-300 shadow-[0_4px_15px_rgba(78,52,46,0.2)]">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
@@ -800,7 +758,7 @@
                             <div class="flex items-center gap-3 bg-[#FAF9F6] rounded-full px-2 py-1.5 border border-neutral-100 shrink-0 shadow-inner">
                                 <button onclick="updateCartQty('${cId}', -1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">-</button>
                                 <span class="text-xs font-bold w-3 text-center text-neutral-800">${item.qty}</span>
-                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#1B4332] hover:bg-[#1B4332]/10 rounded-full transition-colors">+</button>
+                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#4E342E] hover:bg-[#4E342E]/10 rounded-full transition-colors">+</button>
                             </div>
                         </div>
                     `;
@@ -816,18 +774,14 @@
         window.openPaymentModal = () => {
             if(cart.length === 0) return;
             
-            // Calculate total for display
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             let total = subtotal + (subtotal * 0.08);
             document.getElementById('payment-total-display').innerText = `₹${total.toFixed(2)}`;
             
-            // Close Cart Sidebar
             document.getElementById('cart-sidebar').classList.remove('cart-open');
             document.getElementById('cart-overlay').classList.add('hidden');
             
-            // Open Payment Modal
-            const modal = document.getElementById('payment-modal');
-            modal.classList.remove('hidden');
+            document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-options').classList.remove('hidden');
             document.getElementById('payment-processing').classList.add('hidden');
             document.getElementById('payment-processing').classList.remove('flex');
@@ -840,9 +794,7 @@
             }
         };
 
-        window.closePaymentModal = () => {
-            document.getElementById('payment-modal').classList.add('hidden');
-        };
+        window.closePaymentModal = () => document.getElementById('payment-modal').classList.add('hidden');
 
         window.simulatePayment = (method) => {
             document.getElementById('payment-options').classList.add('hidden');
@@ -852,11 +804,14 @@
             setTimeout(() => {
                 closePaymentModal();
                 processCheckout(method);
-            }, 1500); // Simulate 1.5 seconds of payment processing
+            }, 1500); 
         };
 
-        window.processCheckout = (paymentMethod = "Digital Wallet") => {
+        window.processCheckout = async (paymentMethod = "Digital Wallet") => {
             if(cart.length === 0) return;
+
+            let customerName = prompt("Please enter a name for the order ticket:") || "Guest";
+            const customerStore = document.getElementById('customer-store-selector').value;
 
             orderCounter++;
             const orderNum = `#${orderCounter}`;
@@ -869,20 +824,28 @@
 
             const newOrder = {
                 id: orderNum,
+                customer: customerName,
+                storeId: customerStore,
                 time: new Date().toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}),
                 date: new Date().toLocaleDateString(),
                 items: orderItems,
                 status: 'new',
                 total: total,
                 paymentMethod: paymentMethod,
-                timestamp: Date.now()
+                timestamp: Date.now() // Allows easy sorting
             };
             
-            if (user && db) {
-                addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'orders'), newOrder).catch(e => console.error(e));
-            } else { orders.push(newOrder); }
+            try {
+                await addDoc(collection(db, "orders"), newOrder);
+            } catch(e) {
+                console.error("Error saving to Firebase:", e);
+                orders.push(newOrder); // Fallback for local testing
+            }
 
-            document.getElementById('bill-order-num').innerText = orderNum;
+            // Show Bill UI
+            document.getElementById('bill-customer-name').innerText = customerName.toUpperCase();
+            document.getElementById('bill-store-name').innerText = `VELVET SIP - ${customerStore}`;
+            document.getElementById('bill-order-num').innerText = orderNum.replace('#','');
             document.getElementById('bill-date').innerText = new Date().toLocaleString();
             document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
             document.getElementById('bill-payment-method').innerText = paymentMethod;
@@ -894,7 +857,6 @@
             cart = []; 
             updateCartUI(); 
             
-            // Ensure cart is closed
             document.getElementById('cart-sidebar').classList.remove('cart-open');
             document.getElementById('cart-overlay').classList.add('hidden');
             
@@ -903,18 +865,28 @@
         }
 
         // ==========================================
-        // 5. ADMIN / KDS LOGIC
+        // ADMIN / KDS LOGIC (MULTI-STORE FILTERING)
         // ==========================================
+        window.handleAdminStoreChange = () => {
+            renderChefDashboard();
+            if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) {
+                processAnalytics();
+            }
+        };
+
         function renderChefDashboard() {
             const containerNew = document.getElementById('kds-new');
             const containerPrep = document.getElementById('kds-prep');
             const containerReady = document.getElementById('kds-ready');
+            const adminStore = document.getElementById('admin-store-selector').value;
             
             containerNew.innerHTML = ''; containerPrep.innerHTML = ''; containerReady.innerHTML = '';
             let cNew = 0, cPrep = 0, cReady = 0;
 
             orders.forEach(order => {
-                if(order.status === 'done') return; // Hide completed in KDS
+                if(order.status === 'done') return; 
+                // CRITICAL: Filter tickets by the store the KDS is currently viewing
+                if(adminStore !== 'ALL' && order.storeId !== adminStore) return; 
                 
                 let itemsHtml = order.items.map(i => `<div class="border-b border-neutral-800 pb-2 mb-2 text-neutral-300"><span class="font-bold text-lg text-white mr-2">${i.qty}x</span> ${i.name}</div>`).join('');
                 let actionBtn = '';
@@ -931,12 +903,16 @@
                     actionBtn = `<button onclick="updateOrderStatus('${updateId}', 'done')" class="w-full mt-4 py-3 bg-neutral-800 hover:bg-neutral-700 text-neutral-400 hover:text-white text-xs font-bold uppercase tracking-widest rounded-lg transition-colors">Clear (Done)</button>`;
                 }
 
+                // If viewing 'ALL', show a badge so the kitchen knows which store the ticket belongs to
+                const storeBadge = adminStore === 'ALL' ? `<span class="bg-neutral-800 border border-neutral-700 text-[#C5A059] px-2 py-0.5 rounded text-[9px] ml-2 tracking-widest uppercase">${order.storeId}</span>` : '';
+
                 const card = `
                     <div class="bg-[#1A1A1A] border border-neutral-800 rounded-xl p-5 shadow-lg animate-[fadeIn_0.3s_ease]">
                         <div class="flex justify-between items-center mb-4 pb-3 border-b border-neutral-800">
-                            <span class="font-display font-bold text-2xl text-white">${order.id}</span>
+                            <span class="font-display font-bold text-2xl text-white flex items-center">${order.id} ${storeBadge}</span>
                             <span class="text-xs text-neutral-500 font-mono">${order.time}</span>
                         </div>
+                        <div class="text-neutral-400 text-xs mb-3 font-bold uppercase tracking-widest">${order.customer}</div>
                         <div class="text-sm mb-2">${itemsHtml}</div>
                         ${actionBtn}
                     </div>
@@ -952,8 +928,8 @@
         }
 
         window.updateOrderStatus = async (orderId, newStatus) => {
-            if (user && db && orderId.length > 10) {
-                try { await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'orders', orderId), { status: newStatus }); } catch (e) {}
+            if (db && orderId.length > 5) {
+                try { await updateDoc(doc(db, 'orders', orderId), { status: newStatus }); } catch (e) {}
             } else {
                 const order = orders.find(o => (o.docId || o.id) === orderId);
                 if(order) { order.status = newStatus; renderChefDashboard(); }
@@ -961,7 +937,7 @@
         }
 
         // ==========================================
-        // 6. ADMIN: MENU MANAGER
+        // ADMIN: MENU MANAGER
         // ==========================================
         function renderAdminMenuTable() {
             const tbody = document.getElementById('admin-menu-list');
@@ -1021,57 +997,36 @@
 
             if(!itemObj.name || !itemObj.category) return alert("Name and Category are required.");
 
-            if (user && db) {
+            if (db) {
                 if(id) {
-                    await updateDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menu', id), itemObj);
+                    await updateDoc(doc(db, 'menu', id), itemObj);
                     showToast("Item Updated");
                 } else {
-                    itemObj.id = Date.now().toString();
-                    await addDoc(collection(db, 'artifacts', appId, 'public', 'data', 'menu'), itemObj);
+                    await addDoc(collection(db, 'menu'), itemObj);
                     showToast("Item Added");
                 }
-            } else {
-                // LOCAL MODE FALLBACK: Makes editing work even if Firebase isn't connected!
-                if(id) {
-                    const idx = dynamicMenu.findIndex(i => String(i.docId || i.id) === String(id));
-                    if (idx > -1) dynamicMenu[idx] = { ...dynamicMenu[idx], ...itemObj };
-                    showToast("Item Updated (Local)");
-                } else {
-                    itemObj.id = Date.now().toString();
-                    dynamicMenu.push(itemObj);
-                    showToast("Item Added (Local)");
-                }
-                renderMenuUI();
-                renderAdminMenuTable();
             }
             closeMenuEditorModal();
         };
 
         window.deleteMenuItem = async (id) => {
             if(!confirm("Are you sure you want to delete this item?")) return;
-            if (user && db) {
-                await deleteDoc(doc(db, 'artifacts', appId, 'public', 'data', 'menu', id));
+            if (db) {
+                await deleteDoc(doc(db, 'menu', id));
                 showToast("Item Deleted");
-            } else {
-                // LOCAL MODE FALLBACK
-                dynamicMenu = dynamicMenu.filter(i => String(i.docId || i.id) !== String(id));
-                renderMenuUI();
-                renderAdminMenuTable();
-                showToast("Item Deleted (Local)");
             }
         };
 
         // ==========================================
-        // 7. ADMIN: ANALYTICS
+        // ADMIN: ANALYTICS (MULTI-STORE FILTERING)
         // ==========================================
         function processAnalytics() {
-            // Aggregate Data
             let totalRev = 0;
             let totalDone = 0;
             let itemCounts = {};
-            let dailyRev = {}; // Format: "MM/DD/YYYY": value
+            let dailyRev = {}; 
+            const adminStore = document.getElementById('admin-store-selector').value;
 
-            // Last 7 days prep
             for(let i=6; i>=0; i--) {
                 const d = new Date(); d.setDate(d.getDate() - i);
                 dailyRev[d.toLocaleDateString()] = 0;
@@ -1079,15 +1034,16 @@
 
             orders.forEach(o => {
                 if (o.status === 'done') {
+                    // Filter Analytics by the currently selected store
+                    if(adminStore !== 'ALL' && o.storeId !== adminStore) return; 
+
                     totalDone++;
                     totalRev += (o.total || 0);
                     
-                    // Daily Revenue
                     const dStr = new Date(o.timestamp || Date.now()).toLocaleDateString();
                     if(dailyRev[dStr] !== undefined) { dailyRev[dStr] += (o.total || 0); }
                     else { dailyRev[dStr] = (o.total || 0); }
 
-                    // Products
                     if(o.items) {
                         o.items.forEach(i => {
                             if(!itemCounts[i.name]) itemCounts[i.name] = 0;
@@ -1100,7 +1056,6 @@
             document.getElementById('stat-revenue').innerText = `₹${totalRev.toFixed(2)}`;
             document.getElementById('stat-orders').innerText = totalDone;
             
-            // Top Item
             let topItem = "N/A"; let topCount = 0;
             for (const [name, count] of Object.entries(itemCounts)) {
                 if (count > topCount) { topCount = count; topItem = name; }
@@ -1116,11 +1071,10 @@
             Chart.defaults.color = '#737373';
             Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
 
-            // Chart 1: Line Chart for Revenue
             const revCtx = document.getElementById('revenueChart');
             if(chartsInstance.revenue) chartsInstance.revenue.destroy();
             
-            const revLabels = Object.keys(dailyRev).slice(-7); // Last 7 days
+            const revLabels = Object.keys(dailyRev).slice(-7); 
             const revData = revLabels.map(k => dailyRev[k]);
 
             chartsInstance.revenue = new Chart(revCtx, {
@@ -1140,18 +1094,13 @@
                 options: {
                     responsive: true, maintainAspectRatio: false,
                     plugins: { legend: { display: false } },
-                    scales: {
-                        y: { grid: { color: '#333' } },
-                        x: { grid: { display: false } }
-                    }
+                    scales: { y: { grid: { color: '#333' } }, x: { grid: { display: false } } }
                 }
             });
 
-            // Chart 2: Doughnut for Products
             const prodCtx = document.getElementById('productChart');
             if(chartsInstance.product) chartsInstance.product.destroy();
 
-            // Sort and take top 5
             const sortedItems = Object.entries(itemCounts).sort((a,b) => b[1]-a[1]).slice(0,5);
             const prodLabels = sortedItems.map(i => i[0]);
             const prodData = sortedItems.map(i => i[1]);
@@ -1175,7 +1124,7 @@
         }
 
         // ==========================================
-        // 8. ADMIN: SETTINGS (Brand Name)
+        // ADMIN: SETTINGS
         // ==========================================
         function applyBrandSettingsToUI() {
             document.querySelectorAll('.dynamic-brand-name').forEach(el => el.innerText = brandSettings.name);
@@ -1188,19 +1137,14 @@
             const name = document.getElementById('setting-brand-name').value || "VELVET SIP";
             const initials = document.getElementById('setting-brand-initials').value || "V.S";
             
-            if(user && db) {
-                await setDoc(doc(db, 'artifacts', appId, 'public', 'data', 'settings', 'brand'), { name, initials });
+            if(db) {
+                await setDoc(doc(db, 'settings', 'brand'), { name, initials });
                 showToast("Brand Settings Saved");
-            } else {
-                brandSettings = { name, initials };
-                applyBrandSettingsToUI();
-                showToast("Saved Locally");
             }
         }
 
-
         // ==========================================
-        // 9. UI TOGGLES & UTILS
+        // UI TOGGLES & UTILS
         // ==========================================
         window.toggleCart = () => {
             const sidebar = document.getElementById('cart-sidebar');
@@ -1238,12 +1182,10 @@
         };
 
         window.switchAdminTab = (tabId) => {
-            // Hide all tabs
             ['kds', 'menu', 'analytics', 'settings'].forEach(id => {
                 document.getElementById(`admin-tab-${id}`).classList.add('hidden');
                 document.getElementById(`tab-btn-${id}`).classList.remove('active', 'border-b-[#C5A059]', 'text-white');
             });
-            // Show target tab
             document.getElementById(`admin-tab-${tabId}`).classList.remove('hidden');
             document.getElementById(`tab-btn-${tabId}`).classList.add('active', 'border-b-[#C5A059]', 'text-white');
 
@@ -1256,7 +1198,6 @@
             setTimeout(() => toast.classList.remove('show'), 2000);
         };
 
-        // Tilt logic (unchanged)
         function initTilt() {
             document.querySelectorAll('.tilt-wrapper:not(.tilt-init)').forEach(wrapper => {
                 wrapper.classList.add('tilt-init');
@@ -1282,15 +1223,14 @@
 
         // Boot
         window.onload = () => {
-            // Fallback render if Firebase is offline/empty initially
+            setupDatabaseListeners();
+            
+            // Fallback render if Firebase is empty initially
             if(dynamicMenu.length === 0) {
                 dynamicMenu = [...defaultMenuItems];
                 renderMenuUI('all');
             }
-            
-            // IMPORTANT: Render the Admin table so it is never blank in local mode!
             renderAdminMenuTable();
-            
             updateCartUI();
             applyBrandSettingsToUI();
 
@@ -1311,42 +1251,9 @@
                 window.gsap.to('.ice-cube-wrap', { y: "-=8", duration: 2.5, repeat: -1, yoyo: true, stagger: 0.3, ease: "sine.inOut" });
             } else {
                 document.body.classList.remove('overflow-hidden');
-                const preloader = document.getElementById('preloader');
-                if (preloader) preloader.style.display = 'none';
+                document.getElementById('preloader').style.display = 'none';
             }
         };
-        <script type="module">
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-app.js";
-  import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/12.19.0/firebase-firestore.js";
-
-  const firebaseConfig = {
-    apiKey: "AIzaSyAU7p0tky12nOFchNelX-Vuch79RMfH_3c",
-    authDomain: "mgsip-61185.firebaseapp.com",
-    projectId: "mgsip-61185",
-    storageBucket: "mgsip-61185.firebasestorage.app",
-    messagingSenderId: "816803431955",
-    appId: "1:816803431955:web:379a19af711bed25b221e6"
-  };
-
-  const app = initializeApp(firebaseConfig);
-  const db = getFirestore(app);
-
-  // Call this function when the customer clicks the checkout button
-  window.submitOrderToCloud = async function(customerName, orderDetails) {
-    try {
-      await addDoc(collection(db, "coffee_orders"), {
-        customer: customerName,
-        items: orderDetails,
-        status: "pending",
-        timestamp: serverTimestamp()
-      });
-      alert("Order sent to the kitchen!");
-    } catch (e) {
-      console.error("Error adding document: ", e);
-      alert("Error sending order. Check the console.");
-    }
-  }
-</script>
     </script>
 </body>
 </html>
