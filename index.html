@@ -104,7 +104,7 @@
         .toggle-checkbox:checked { right: 0; border-color: #1B4332; }
         .toggle-checkbox:checked + .toggle-label { background-color: #1B4332; }
         
-        /* THERMAL PRINT STYLES */
+        /* THERMAL PRINT STYLES - Hidden unless printing */
         #thermal-receipt { display: none; }
         @media print {
             body * { visibility: hidden; }
@@ -117,14 +117,6 @@
             }
             .no-print { display: none !important; }
         }
-
-        /* CUSTOMER LOCK SCREEN OVERLAY */
-        #customer-lock-overlay {
-            position: fixed; inset: 0; background: var(--crema); z-index: 999999;
-            display: flex; flex-direction: column; align-items: center; justify-content: center; 
-            opacity: 1; transition: opacity 0.5s;
-        }
-        #customer-lock-overlay.unlocked { opacity: 0; pointer-events: none; }
     </style>
 </head>
 <body class="noise-bg overflow-hidden relative">
@@ -148,21 +140,6 @@
             <div style="font-size: 10px;">Paid via: <span id="print-method"></span></div>
         </div>
         <div style="text-align: center; font-size: 10px;">Thank you! Please wait for your order.</div>
-    </div>
-
-    <!-- Customer Lock Screen (Prevents exiting kiosk mode) -->
-    <div id="customer-lock-overlay">
-        <svg width="64" height="64" class="mb-6 text-[#1B4332]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
-        <h1 class="font-display text-4xl font-bold text-neutral-900 mb-4 dynamic-brand-name">VELVET SIP</h1>
-        <p class="text-neutral-500 mb-8 max-w-md font-medium text-center">This terminal is locked in Kiosk Mode for customer ordering.</p>
-        <div class="flex gap-4">
-             <button onclick="unlockKiosk()" class="px-8 py-4 bg-[#1B4332] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all shadow-md">
-                 Start Ordering
-             </button>
-             <button onclick="attemptChefLogin()" class="px-6 py-4 bg-white border border-neutral-200 text-neutral-600 rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-neutral-50 transition-all">
-                 Admin
-             </button>
-        </div>
     </div>
 
     <!-- Preloader -->
@@ -313,10 +290,37 @@
             <p class="text-sm text-neutral-400 mb-6">Completing order for <span id="payment-total-display" class="text-[#C5A059] font-bold">₹0.00</span></p>
 
             <div class="space-y-3" id="payment-options">
-                <!-- Generic Payment Button Since User Wants to Hide Specifics for Now -->
-                <button onclick="simulatePayment('Kiosk Order')" class="w-full p-4 border border-[#C5A059] rounded-xl flex items-center justify-center hover:bg-[#C5A059] hover:text-black transition-all group text-[#C5A059]">
-                    <span class="font-bold text-sm uppercase tracking-widest">Complete Order</span>
+                <button onclick="showUPIQRCode()" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="5" width="20" height="14" rx="2"></rect><line x1="2" y1="10" x2="22" y2="10"></line></svg>
+                        </div>
+                        <span class="font-bold text-white text-sm">UPI / QR Code</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
                 </button>
+                <button onclick="simulatePayment('Pay at Counter')" class="w-full p-4 border border-neutral-700 rounded-xl flex items-center justify-between hover:border-[#C5A059] hover:bg-neutral-800/50 transition-all group">
+                    <div class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-full bg-neutral-800 flex items-center justify-center group-hover:bg-[#C5A059] group-hover:text-black transition-colors text-white">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path></svg>
+                        </div>
+                        <span class="font-bold text-white text-sm">Pay at Counter</span>
+                    </div>
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="text-neutral-600 group-hover:text-[#C5A059]"><polyline points="9 18 15 12 9 6"></polyline></svg>
+                </button>
+            </div>
+
+            <!-- REAL UPI QR DISPLAY -->
+            <div id="upi-qr-section" class="hidden flex-col items-center justify-center text-center">
+                <p class="text-white font-bold text-sm mb-4">Scan via GPay, PhonePe, or Paytm</p>
+                <div class="bg-white p-2 rounded-xl mb-4">
+                    <img id="dynamic-qr-image" src="" class="w-48 h-48 object-cover" alt="UPI QR Code">
+                </div>
+                <p class="text-neutral-400 text-xs mb-6 font-mono">Paying: <span class="text-[#C5A059]" id="qr-amount">₹0.00</span></p>
+                <button onclick="simulatePayment('UPI Online')" class="w-full py-4 bg-[#C5A059] text-black font-bold text-xs uppercase tracking-widest rounded-xl hover:bg-white transition-colors">
+                    I Have Paid Successfully
+                </button>
+                <button onclick="hideUPIQRCode()" class="mt-4 text-xs text-neutral-500 hover:text-white uppercase tracking-widest font-bold">Go Back</button>
             </div>
 
             <!-- Processing State -->
@@ -482,6 +486,10 @@
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Store Locations (Comma Separated)</label>
                         <input type="text" id="setting-locations" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332] font-mono text-sm" placeholder="Vizianagaram, Palamaner">
                     </div>
+                    <div class="mb-8 border-t border-neutral-800 pt-6">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 text-[#C5A059]">UPI Payment ID (For QR Generator)</label>
+                        <input type="text" id="setting-upi-id" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#C5A059] font-mono text-sm" placeholder="yourname@okhdfc">
+                    </div>
                     <button onclick="saveGlobalSettings()" class="w-full py-3 bg-neutral-800 text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-neutral-700 transition-colors">Update Global Defaults</button>
                 </div>
 
@@ -586,7 +594,7 @@
         let chartsInstance = { revenue: null, product: null };
         
         // Settings State
-        let brandSettings = { name: "VELVET SIP", initials: "V.S", locations: ["Vizianagaram", "Palamaner"] };
+        let brandSettings = { name: "VELVET SIP", initials: "V.S", locations: ["Vizianagaram", "Palamaner"], upiId: "" };
         let localSettings = { autoPrint: false, defaultStore: "Vizianagaram" };
 
         // FIREBASE LISTENERS
@@ -785,6 +793,7 @@
             
             document.getElementById('payment-modal').classList.remove('hidden');
             document.getElementById('payment-options').classList.remove('hidden');
+            document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.add('hidden');
             
             if (window.gsap) {
@@ -794,15 +803,39 @@
 
         window.closePaymentModal = () => document.getElementById('payment-modal').classList.add('hidden');
 
+        // REAL UPI QR GENERATOR
+        window.showUPIQRCode = () => {
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let total = (subtotal + (subtotal * 0.08)).toFixed(2);
+            
+            const upiId = brandSettings.upiId || "example@upi";
+            const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(brandSettings.name)}&am=${total}&cu=INR`;
+            const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
+            
+            document.getElementById('dynamic-qr-image').src = qrUrl;
+            document.getElementById('qr-amount').innerText = `₹${total}`;
+            
+            document.getElementById('payment-options').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.remove('hidden');
+            document.getElementById('upi-qr-section').classList.add('flex');
+        };
+
+        window.hideUPIQRCode = () => {
+            document.getElementById('upi-qr-section').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.remove('flex');
+            document.getElementById('payment-options').classList.remove('hidden');
+        };
+
         window.simulatePayment = (method) => {
             document.getElementById('payment-options').classList.add('hidden');
+            document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.remove('hidden');
             document.getElementById('payment-processing').classList.add('flex');
             
             setTimeout(() => { closePaymentModal(); processCheckout(method); }, 1500); 
         };
 
-        window.processCheckout = async (paymentMethod = "Kiosk Order") => {
+        window.processCheckout = async (paymentMethod = "Digital Wallet") => {
             if(cart.length === 0) return;
 
             let customerName = prompt("Please enter a name for your order ticket:") || "Guest";
@@ -874,7 +907,6 @@
 
         window.handleCustomerStoreChange = () => {
             const sel = document.getElementById('customer-store-selector').value;
-            // Optionally save to local storage if user wants persistence, but usually resets on reload
         }
 
         function renderChefDashboard() {
@@ -1035,21 +1067,17 @@
         }
 
         function applySettingsToUI() {
-            // Load Local Settings from Browser
             const savedLocal = localStorage.getItem('vsip_local_settings');
-            if(savedLocal) {
-                try { localSettings = JSON.parse(savedLocal); } catch(e){}
-            }
+            if(savedLocal) { try { localSettings = JSON.parse(savedLocal); } catch(e){} }
 
             document.querySelectorAll('.dynamic-brand-name').forEach(el => el.innerText = brandSettings.name);
             document.querySelectorAll('.dynamic-brand-initials').forEach(el => el.innerText = brandSettings.initials);
             document.getElementById('setting-brand-name').value = brandSettings.name;
             document.getElementById('setting-locations').value = brandSettings.locations.join(', ');
+            document.getElementById('setting-upi-id').value = brandSettings.upiId || "";
 
-            // Apply Local UI State
             document.getElementById('setting-auto-print').checked = localSettings.autoPrint;
 
-            // Populate Location Dropdowns
             const locs = brandSettings.locations;
             const custSel = document.getElementById('customer-store-selector');
             const adminSel = document.getElementById('admin-store-selector');
@@ -1062,7 +1090,6 @@
             localSel.innerHTML = locOpts;
             adminSel.innerHTML = `<option value="ALL">All Stores</option>` + locOpts;
             
-            // Set Default Store based on Local Settings
             if (locs.includes(localSettings.defaultStore)) {
                 custSel.value = localSettings.defaultStore;
                 localSel.value = localSettings.defaultStore;
@@ -1073,12 +1100,13 @@
         window.saveGlobalSettings = async () => {
             const name = document.getElementById('setting-brand-name').value || "VELVET SIP";
             const initials = name.substring(0,3).toUpperCase();
+            const upiId = document.getElementById('setting-upi-id').value || "";
             const locString = document.getElementById('setting-locations').value;
             const locations = locString.split(',').map(s => s.trim()).filter(s => s.length > 0);
             if(locations.length === 0) locations.push("Store 1");
 
             if(db) {
-                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations });
+                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations, upiId });
                 showToast("Global Settings Saved");
             }
         }
@@ -1086,37 +1114,14 @@
         window.saveLocalSettings = () => {
             localSettings.autoPrint = document.getElementById('setting-auto-print').checked;
             localSettings.defaultStore = document.getElementById('setting-local-store').value;
-            
             localStorage.setItem('vsip_local_settings', JSON.stringify(localSettings));
-            
-            // Instantly apply default store to customer view
             document.getElementById('customer-store-selector').value = localSettings.defaultStore;
-            
             showToast("Local Terminal Saved");
         }
 
         // ==========================================
-        // UI TOGGLES & KIOSK LOCK
+        // UI TOGGLES
         // ==========================================
-        window.unlockKiosk = () => {
-            document.getElementById('customer-lock-overlay').classList.add('unlocked');
-            setTimeout(() => document.getElementById('customer-lock-overlay').style.display = 'none', 500);
-            
-            // Start intro animations after unlock
-            if (window.gsap) {
-                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
-                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 })
-                  .to('#preloader-text', { opacity: 0, duration: 0.4, delay: 0.6 })
-                  .to('#preloader', { yPercent: -100, duration: 0.8, ease: 'power3.inOut' })
-                  .set('#preloader', { display: 'none' });
-            } else {
-                document.body.classList.remove('overflow-hidden');
-                document.getElementById('preloader').style.display = 'none';
-            }
-
-            try { document.documentElement.requestFullscreen(); } catch(e) {}
-        };
-
         window.toggleCart = () => {
             const sidebar = document.getElementById('cart-sidebar');
             sidebar.classList.toggle('cart-open');
@@ -1131,13 +1136,10 @@
             setTimeout(() => document.getElementById('chef-password-input').focus(), 100);
         };
         window.closePasswordModal = () => document.getElementById('password-modal').classList.add('hidden');
+        
         window.verifyChefPassword = () => {
             if(document.getElementById('chef-password-input').value === 'MGX') {
                 closePasswordModal(); 
-                document.getElementById('customer-lock-overlay').classList.add('unlocked');
-                setTimeout(() => document.getElementById('customer-lock-overlay').style.display = 'none', 500);
-                document.getElementById('preloader').style.display = 'none';
-                document.body.classList.remove('overflow-hidden');
                 switchToChefView();
             } else document.getElementById('password-error').classList.remove('hidden');
         };
@@ -1198,6 +1200,18 @@
             if(dynamicMenu.length === 0) { dynamicMenu = [...defaultMenuItems]; renderMenuUI('all'); }
             
             renderAdminMenuTable(); updateCartUI(); applySettingsToUI();
+
+            // Run normal startup animations directly
+            if (window.gsap) {
+                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
+                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 })
+                  .to('#preloader-text', { opacity: 0, duration: 0.4, delay: 0.6 })
+                  .to('#preloader', { yPercent: -100, duration: 0.8, ease: 'power3.inOut' })
+                  .set('#preloader', { display: 'none' });
+            } else {
+                document.body.classList.remove('overflow-hidden');
+                document.getElementById('preloader').style.display = 'none';
+            }
         };
     </script>
 </body>
