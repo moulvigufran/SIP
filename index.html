@@ -3,40 +3,63 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Velvet Sip - Premium POS</title>
+    <title>Velvet Sip - Smart POS</title>
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- GSAP for Animations -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.2/gsap.min.js"></script>
     <!-- Chart.js for Analytics -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <!-- Upgraded Ultra-Premium Fonts -->
+    <!-- Premium Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
-            --primary: #1B4332; /* Deep Forest Green */
+        /* THEME VARIABLES */
+        body[data-theme="green"] {
+            --bg-color: #FAF9F6;
+            --text-color: #1C1917;
+            --primary: #1B4332;
             --primary-dark: #143325;
-            --gold: #C5A059;    
-            --crema: #FAF9F6;   
-            --surface: #FFFFFF; 
-            --text-dark: #1C1917; 
-            
-            /* Premium Dark Menu Cards */
+            --gold: #C5A059;
+            --card-bg: rgba(255, 255, 255, 0.7);
+            --card-border: rgba(255, 255, 255, 0.5);
+            --card-text: #1C1917;
+            --card-text-muted: #6B7280;
+            --nav-bg: rgba(255, 255, 255, 0.8);
+        }
+
+        body[data-theme="dark"] {
+            --bg-color: #121212;
+            --text-color: #E5E7EB;
+            --primary: #C5A059;
+            --primary-dark: #A1804B;
+            --gold: #FFFFFF;
             --card-bg: #1A1C1A;
             --card-border: #2A2F2B;
-            --card-hover-border: #C5A059;
             --card-text: #E5E7EB;
             --card-text-muted: #9CA3AF;
+            --nav-bg: rgba(26, 28, 26, 0.8);
+        }
+
+        body[data-theme="light"] {
+            --bg-color: #FFFFFF;
+            --text-color: #1F2937;
+            --primary: #4E342E; 
+            --primary-dark: #3E2723;
+            --gold: #C5A059;
+            --card-bg: #F9FAFB;
+            --card-border: #E5E7EB;
+            --card-text: #1F2937;
+            --card-text-muted: #4B5563;
+            --nav-bg: rgba(255, 255, 255, 0.95);
         }
 
         html, body { max-width: 100vw; overflow-x: hidden; }
-
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-            background-color: var(--crema);
-            color: var(--text-dark);
-            -webkit-font-smoothing: antialiased;
+        body { 
+            font-family: 'Plus Jakarta Sans', sans-serif; 
+            background-color: var(--bg-color); 
+            color: var(--text-color); 
+            transition: background-color 0.5s ease, color 0.5s ease;
         }
 
         h1, h2, h3, .font-display { font-family: 'Cinzel', serif; letter-spacing: 0.02em; }
@@ -46,53 +69,34 @@
             background: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noiseFilter'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noiseFilter)'/%3E%3C/svg%3E");
         }
 
-        /* 3D Tilt Setup */
         .tilt-wrapper { perspective: 1200px; }
         .tilt-card { transform-style: preserve-3d; transition: transform 0.3s ease-out; position: relative; will-change: transform; }
         .glare-container { position: absolute; inset: 0; overflow: hidden; border-radius: inherit; pointer-events: none; }
         .glare {
             position: absolute; width: 200%; height: 200%; left: -50%; top: -50%;
             background: radial-gradient(circle at center, rgba(255,255,255,0.15) 0%, rgba(255,255,255,0) 60%);
-            transform: translate(var(--glare-x, 0), var(--glare-y, 0));
-            opacity: var(--glare-opacity, 0); mix-blend-mode: overlay; transition: opacity 0.3s;
+            transform: translate(var(--glare-x, 0), var(--glare-y, 0)); opacity: var(--glare-opacity, 0); mix-blend-mode: overlay; transition: opacity 0.3s;
         }
+        
+        .glass-panel { background: var(--nav-bg); backdrop-filter: blur(24px); border: 1px solid var(--card-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05); transition: all 0.5s ease; }
 
-        .glass-panel {
-            background: rgba(255, 255, 255, 0.7); backdrop-filter: blur(24px); border: 1px solid rgba(255, 255, 255, 0.5); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.05);
+        /* Themed Menu Cards */
+        .menu-card {
+            background: var(--card-bg); border: 1px solid var(--card-border);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
         }
+        .menu-card:hover { border-color: var(--primary); box-shadow: 0 20px 40px rgba(0,0,0,0.1); transform: translateY(-4px); }
 
-        /* Dark Menu Card Styling */
-        .premium-dark-card {
-            background: linear-gradient(145deg, var(--card-bg), #111311);
-            border: 1px solid var(--card-border);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.15), inset 0 1px 0 rgba(255,255,255,0.05);
-            transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .premium-dark-card:hover {
-            border-color: rgba(197, 160, 89, 0.4);
-            box-shadow: 0 20px 40px rgba(0,0,0,0.25), 0 0 20px rgba(197, 160, 89, 0.1);
-            transform: translateY(-4px);
-        }
-
-        /* Background Orbs */
-        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.35; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
-        .orb-1 { width: 500px; height: 500px; background: #C5A059; top: -150px; left: -150px; }
-        .orb-2 { width: 400px; height: 400px; background: #1B4332; bottom: 5%; right: -100px; animation-delay: -6s; }
+        .bg-orb { position: absolute; border-radius: 50%; filter: blur(100px); opacity: 0.30; animation: float 12s infinite alternate ease-in-out; pointer-events: none; z-index: 0; }
+        .orb-1 { width: 500px; height: 500px; background: var(--gold); top: -150px; left: -150px; transition: background 1s; }
+        .orb-2 { width: 400px; height: 400px; background: var(--primary); bottom: 5%; right: -100px; animation-delay: -6s; transition: background 1s;}
         @keyframes float { 0% { transform: translate(0, 0); } 100% { transform: translate(40px, 80px); } }
 
-        /* Cart Animations */
         #cart-sidebar { transition: transform 0.4s cubic-bezier(0.4, 0, 0.2, 1); }
         .cart-open { transform: translateX(0) !important; }
-        ::-webkit-scrollbar { width: 4px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: var(--primary); }
+        ::-webkit-scrollbar { width: 4px; } ::-webkit-scrollbar-track { background: transparent; } ::-webkit-scrollbar-thumb { background: var(--primary); }
         
-        .toast {
-            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: var(--primary); color: var(--gold); padding: 14px 28px; border-radius: 50px;
-            font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em;
-            opacity: 0; transition: all 0.4s ease; z-index: 100000; box-shadow: 0 20px 40px rgba(0,0,0,0.2);
-        }
+        .toast { position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px); background: var(--primary); color: var(--bg-color); padding: 14px 28px; border-radius: 50px; font-size: 12px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.1em; opacity: 0; transition: all 0.4s ease; z-index: 100000; box-shadow: 0 20px 40px rgba(0,0,0,0.2); }
         .toast.show { transform: translateX(-50%) translateY(0); opacity: 1; }
 
         @keyframes printAnim { 0% { transform: translateY(-100%); opacity: 0; } 100% { transform: translateY(0); opacity: 1; } }
@@ -100,30 +104,31 @@
         .admin-scroll::-webkit-scrollbar-thumb { background: #333; }
         .admin-nav-btn.active { color: #C5A059; border-bottom-color: #C5A059; }
 
-        /* Toggle Switch Styling */
         .toggle-checkbox:checked { right: 0; border-color: #1B4332; }
         .toggle-checkbox:checked + .toggle-label { background-color: #1B4332; }
         
-        /* THERMAL PRINT STYLES - Hidden unless printing */
         #thermal-receipt { display: none; }
         @media print {
             body * { visibility: hidden; }
             body { background: white; margin: 0; padding: 0; width: 80mm; }
             #thermal-receipt, #thermal-receipt * { visibility: visible; }
-            #thermal-receipt { 
-                position: absolute; left: 0; top: 0; width: 80mm; padding: 5mm; 
-                display: block !important; margin: 0; 
-                font-family: monospace; color: black; font-size: 12px; line-height: 1.2;
-            }
+            #thermal-receipt { position: absolute; left: 0; top: 0; width: 80mm; padding: 5mm; display: block !important; margin: 0; font-family: monospace; color: black; font-size: 12px; line-height: 1.2; }
             .no-print { display: none !important; }
         }
+
+        #customer-lock-overlay { position: fixed; inset: 0; background: var(--bg-color); z-index: 999999; display: flex; flex-direction: column; align-items: center; justify-content: center; opacity: 1; transition: opacity 0.5s; }
+        #customer-lock-overlay.unlocked { opacity: 0; pointer-events: none; }
+        
+        .dynamic-btn { background: var(--primary); color: var(--bg-color); }
+        .dynamic-btn:hover { background: var(--primary-dark); }
+        .dynamic-text { color: var(--text-color); }
+        .dynamic-icon { stroke: var(--primary); }
     </style>
 </head>
-<body class="noise-bg overflow-hidden relative">
+<body class="noise-bg overflow-hidden relative" data-theme="green">
 
     <div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div>
 
-    <!-- Hidden Thermal Print Template -->
     <div id="thermal-receipt">
         <div style="text-align: center; margin-bottom: 10px;">
             <h2 id="print-brand" style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">VELVET SIP</h2>
@@ -132,9 +137,7 @@
             <div style="font-weight: bold; margin-top: 5px; font-size: 14px;">ORDER <span id="print-order-num"></span></div>
             <div style="font-size: 12px;">Customer: <span id="print-customer"></span></div>
         </div>
-        <div style="border-top: 1px dashed black; border-bottom: 1px dashed black; padding: 5px 0; margin-bottom: 10px;" id="print-items">
-            <!-- Items injected here -->
-        </div>
+        <div style="border-top: 1px dashed black; border-bottom: 1px dashed black; padding: 5px 0; margin-bottom: 10px;" id="print-items"></div>
         <div style="text-align: right; margin-bottom: 10px;">
             <div style="font-weight: bold; font-size: 14px;">TOTAL: <span id="print-total"></span></div>
             <div style="font-size: 10px;">Paid via: <span id="print-method"></span></div>
@@ -142,11 +145,26 @@
         <div style="text-align: center; font-size: 10px;">Thank you! Please wait for your order.</div>
     </div>
 
+    <!-- Customer Lock Screen -->
+    <div id="customer-lock-overlay">
+        <svg width="64" height="64" class="mb-6 dynamic-icon" viewBox="0 0 24 24" fill="none" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
+        <h1 class="font-display text-4xl font-bold dynamic-text mb-4 dynamic-brand-name">VELVET SIP</h1>
+        <p class="mb-8 max-w-md font-medium text-center" style="color: var(--card-text-muted);">Terminal locked for customer ordering.</p>
+        <div class="flex gap-4">
+             <button onclick="unlockKiosk()" class="px-8 py-4 dynamic-btn rounded-full text-xs font-bold tracking-[0.15em] uppercase transition-all shadow-md">
+                 Start Ordering
+             </button>
+             <button onclick="attemptChefLogin()" class="px-6 py-4 bg-transparent border border-neutral-400 dynamic-text rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:bg-neutral-500/10 transition-all">
+                 Admin
+             </button>
+        </div>
+    </div>
+
     <!-- Preloader -->
-    <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[999990] flex items-center justify-center">
+    <div id="preloader" class="fixed inset-0 z-[999990] flex items-center justify-center hidden" style="background: var(--bg-color);">
         <div class="overflow-hidden text-center">
-            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
-            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] text-[#1B4332] translate-y-full opacity-0 dynamic-brand-name">VELVET SIP</div>
+            <svg width="40" height="40" class="mx-auto mb-4 animate-pulse dynamic-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="currentColor" stroke="none"/></svg>
+            <div id="preloader-text" class="font-display text-3xl md:text-5xl tracking-[0.4em] dynamic-text translate-y-full opacity-0 dynamic-brand-name">VELVET SIP</div>
         </div>
     </div>
 
@@ -156,28 +174,33 @@
     <div id="customer-view" class="block">
         <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
             <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm">
-                <div class="font-display text-xl md:text-2xl font-bold tracking-tight text-neutral-950 flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
-                    <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="#1B4332" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="#1B4332" stroke="none"/></svg>
+                <div class="font-display text-xl md:text-2xl font-bold tracking-tight dynamic-text flex items-center gap-2 cursor-pointer" onclick="window.scrollTo(0,0)">
+                    <svg width="20" height="20" class="md:w-6 md:h-6 dynamic-icon" viewBox="0 0 24 24" fill="none" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="currentColor" stroke="none"/></svg>
                     <span class="hidden sm:inline dynamic-brand-name uppercase">VELVET SIP</span>
                     <span class="sm:hidden dynamic-brand-initials">V.S</span>
                 </div>
                 
                 <div class="flex items-center gap-2 md:gap-4">
                     <!-- Dynamic Store Selector -->
-                    <div class="flex items-center bg-[#FAF9F6] border border-neutral-200 rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-inner">
-                        <svg width="12" height="12" class="text-neutral-400 mr-1 hidden md:block" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
-                        <select id="customer-store-selector" onchange="window.handleCustomerStoreChange()" class="bg-transparent text-[#1B4332] text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer">
+                    <div class="flex items-center border rounded-full px-2 py-1 md:px-3 md:py-1.5 shadow-inner" style="background: var(--card-bg); border-color: var(--card-border);">
+                        <svg width="12" height="12" class="mr-1 hidden md:block" style="color: var(--card-text-muted);" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+                        <select id="customer-store-selector" onchange="window.handleCustomerStoreChange()" class="bg-transparent text-[10px] md:text-xs font-bold uppercase tracking-widest outline-none cursor-pointer" style="color: var(--primary);">
                             <option value="Vizianagaram">Vizianagaram</option>
                         </select>
                     </div>
 
-                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border border-neutral-900/10 rounded-full hover:bg-neutral-100 transition-colors text-neutral-600 hover:text-[#1B4332]" title="Admin Portal">
+                    <!-- Theme Toggle -->
+                    <button onclick="cycleTheme()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border rounded-full transition-colors" style="border-color: var(--card-border); color: var(--card-text);" title="Switch Theme">
+                        🌓
+                    </button>
+
+                    <button onclick="attemptChefLogin()" class="w-8 h-8 md:w-10 md:h-10 flex items-center justify-center border rounded-full transition-colors" style="border-color: var(--card-border); color: var(--card-text);" title="Admin Portal">
                         <svg width="14" height="14" class="md:w-4 md:h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect><path d="M7 11V7a5 5 0 0 1 10 0v4"></path></svg>
                     </button>
-                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 bg-[#1B4332] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors shadow-[0_8px_20px_rgba(27,67,50,0.25)] flex items-center gap-1 md:gap-2">
+                    <button onclick="toggleCart()" class="relative px-4 py-2 md:px-7 md:py-3 dynamic-btn rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest transition-colors flex items-center gap-1 md:gap-2">
                         <svg width="12" height="12" class="md:w-3.5 md:h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span class="hidden md:inline">Cart</span>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold opacity-0 transition-opacity">0</span>
+                        <span id="cart-count" class="absolute -top-2 -right-2 bg-red-500 text-white w-4 h-4 flex items-center justify-center rounded-full text-[9px] font-bold opacity-0 transition-opacity">0</span>
                     </button>
                 </div>
             </div>
@@ -185,17 +208,17 @@
 
         <section class="relative pt-32 md:pt-40 pb-16 md:pb-20 px-6 max-w-7xl mx-auto flex flex-col md:flex-row items-center gap-12 min-h-screen md:min-h-[90vh]">
             <div class="w-full md:w-1/2 hero-content text-center md:text-left flex flex-col items-center md:items-start z-10">
-                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full bg-white/60 backdrop-blur-md text-[#1B4332] text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 border border-white/80 shadow-sm">
-                    <span class="w-1.5 h-1.5 rounded-full bg-[#C5A059] animate-pulse"></span> Open for Orders
+                <div class="inline-flex items-center gap-3 px-5 py-2 rounded-full backdrop-blur-md text-[10px] font-bold tracking-[0.2em] uppercase mb-6 md:mb-8 shadow-sm" style="background: var(--card-bg); color: var(--primary); border: 1px solid var(--card-border);">
+                    <span class="w-1.5 h-1.5 rounded-full animate-pulse" style="background: var(--gold);"></span> Open for Orders
                 </div>
-                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium text-neutral-900 leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight">
+                <h1 class="text-5xl sm:text-6xl md:text-[5.5rem] font-display font-medium leading-[1.05] md:leading-[0.95] mb-6 md:mb-8 tracking-tight dynamic-text">
                     Sip the <br class="hidden md:block">
-                    <span class="text-transparent bg-clip-text bg-gradient-to-r from-[#1B4332] to-[#C5A059] italic">Extraordinary.</span>
+                    <span class="italic" style="color: var(--primary);">Extraordinary.</span>
                 </h1>
-                <p class="text-base md:text-lg text-neutral-600 font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed">
+                <p class="text-base md:text-lg font-medium mb-8 md:mb-10 max-w-md mx-auto md:mx-0 leading-relaxed" style="color: var(--card-text-muted);">
                     Crafted to perfection. Select your location, tap to add, and checkout instantly.
                 </p>
-                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-full text-xs font-bold tracking-[0.15em] uppercase hover:shadow-[0_15px_40px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50">
+                <button onclick="document.getElementById('menu-section').scrollIntoView({behavior: 'smooth'})" class="px-8 py-4 dynamic-btn rounded-full text-xs font-bold tracking-[0.15em] uppercase transition-all shadow-lg">
                     Start Ordering
                 </button>
             </div>
@@ -214,7 +237,7 @@
                                 <stop offset="100%" stop-color="rgba(255,255,255,0.3)" />
                             </linearGradient>
                         </defs>
-                        <rect x="186" y="20" width="14" height="400" fill="#00704A" transform="rotate(8 200 120)" opacity="0.8"/>
+                        <rect x="186" y="20" width="14" height="400" fill="currentColor" style="color: var(--primary-dark)" transform="rotate(8 200 120)" opacity="0.8"/>
                         <ellipse cx="200" cy="120" rx="100" ry="12" fill="none" stroke="rgba(255,255,255,0.8)" stroke-width="2"/>
                         <g clip-path="url(#cup-mask)">
                             <rect x="0" y="0" width="400" height="500" fill="url(#glass-grad)" />
@@ -229,60 +252,58 @@
                         <path d="M100 120 Q200 138 300 120" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="4" />
                         <path d="M95 120 C 95 30, 305 30, 305 120" fill="rgba(255,255,255,0.15)" stroke="rgba(255,255,255,0.8)" stroke-width="3"/>
                         <ellipse cx="200" cy="45" rx="25" ry="6" fill="none" stroke="rgba(255,255,255,0.9)" stroke-width="3"/>
-                        <g transform="rotate(8 200 120)"><rect x="186" y="-50" width="14" height="100" fill="#00704A" /><path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="#004d33" /></g>
-                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="#00704A" stroke-width="3"/>
-                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="#00704A" />
-                        <circle cx="200" cy="270" r="38" fill="none" stroke="#00704A" stroke-width="1.5" />
-                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" fill="#00704A" font-weight="800" text-anchor="middle" class="dynamic-brand-initials">V.S</text>
-                        <path d="M120 150 Q135 300 140 440" fill="none" stroke="rgba(255,255,255,0.6)" stroke-width="8" stroke-linecap="round" opacity="0.6"/>
+                        <g transform="rotate(8 200 120)"><rect x="186" y="-50" width="14" height="100" fill="currentColor" style="color: var(--primary)" /><path d="M186 -50 L200 -50 L200 -45 L186 -45 Z" fill="currentColor" style="color: var(--primary-dark)" /></g>
+                        <circle cx="200" cy="270" r="45" fill="rgba(248, 246, 240, 0.95)" stroke="currentColor" style="color: var(--primary)" stroke-width="3"/>
+                        <path d="M200 240 l6.2 13.5 l15.3 2.1 l-11.1 10.4 l2.6 15 l-13 -7 l-13 7 l2.6 -15 l-11.1 -10.4 l15.3 -2.1 z" fill="currentColor" style="color: var(--primary)" />
+                        <circle cx="200" cy="270" r="38" fill="none" stroke="currentColor" style="color: var(--primary)" stroke-width="1.5" />
+                        <text x="200" y="280" font-family="'Plus Jakarta Sans', sans-serif" font-size="14" font-weight="800" text-anchor="middle" fill="currentColor" style="color: var(--primary)" class="dynamic-brand-initials">V.S</text>
                     </svg>
                 </div>
             </div>
         </section>
 
         <!-- Menu Section -->
-        <section id="menu-section" class="py-24 px-6 max-w-7xl mx-auto border-t border-neutral-200/50">
+        <section id="menu-section" class="py-24 px-6 max-w-7xl mx-auto border-t" style="border-color: var(--card-border);">
             <div class="flex flex-col items-center justify-center text-center mb-16 gap-8">
-                <div><h2 class="text-4xl md:text-5xl font-display font-semibold text-neutral-950 mb-3">The Menu</h2></div>
+                <div><h2 class="text-4xl md:text-5xl font-display font-semibold dynamic-text mb-3">The Menu</h2></div>
                 <div class="flex flex-wrap justify-center gap-3" id="category-filters"></div>
             </div>
             <div id="menu-loader" class="flex justify-center py-12">
-                <svg width="40" height="40" class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="#C5A059" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
+                <svg width="40" height="40" class="animate-spin" viewBox="0 0 24 24" fill="none" stroke="currentColor" style="color: var(--primary);" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
             </div>
-            <!-- Grid container -->
             <div id="menu-grid" class="grid grid-cols-1 md:grid-cols-3 gap-6 lg:gap-8 w-full hidden"></div>
         </section>
     </div>
 
     <!-- CART SIDEBAR (Adjusted for mobile) -->
-    <div id="cart-overlay" class="fixed inset-0 bg-neutral-900/40 backdrop-blur-sm z-[60] hidden transition-opacity" onclick="toggleCart()"></div>
-    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-[85vw] sm:w-[400px] bg-[#FAF9F6]/95 backdrop-blur-2xl z-[70] translate-x-full shadow-2xl flex flex-col border-l border-white/50">
-        <div class="p-6 md:p-8 border-b border-neutral-200/50 flex justify-between items-center bg-white/50">
-            <h2 class="font-display text-2xl md:text-3xl font-semibold text-neutral-900">Your Order</h2>
-            <button onclick="toggleCart()" class="w-8 h-8 md:w-10 md:h-10 rounded-full bg-white border border-neutral-200 flex items-center justify-center hover:bg-neutral-100 transition-all text-neutral-500 shadow-sm">
+    <div id="cart-overlay" class="fixed inset-0 bg-neutral-900/60 backdrop-blur-sm z-[60] hidden transition-opacity" onclick="toggleCart()"></div>
+    <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-[85vw] sm:w-[400px] z-[70] translate-x-full shadow-2xl flex flex-col border-l" style="background: var(--bg-color); border-color: var(--card-border);">
+        <div class="p-6 md:p-8 border-b flex justify-between items-center" style="border-color: var(--card-border); background: var(--card-bg);">
+            <h2 class="font-display text-2xl md:text-3xl font-semibold dynamic-text">Your Order</h2>
+            <button onclick="toggleCart()" class="w-8 h-8 md:w-10 md:h-10 rounded-full border flex items-center justify-center transition-all shadow-sm" style="background: var(--bg-color); border-color: var(--card-border); color: var(--card-text);">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
         </div>
         
         <div class="flex-grow overflow-y-auto p-6 md:p-8 relative">
-            <div class="text-center text-neutral-400 mt-12 font-medium hidden" id="empty-cart-msg">Your cart is empty.</div>
+            <div class="text-center mt-12 font-medium hidden" id="empty-cart-msg" style="color: var(--card-text-muted);">Your cart is empty.</div>
             <div id="cart-items" class="space-y-4"></div>
         </div>
 
-        <div class="p-6 md:p-8 border-t border-neutral-200/50 bg-white/80 backdrop-blur-lg">
-            <div class="flex justify-between text-neutral-500 mb-3 font-medium text-sm"><span>Subtotal</span> <span id="cart-subtotal">₹0.00</span></div>
-            <div class="flex justify-between text-neutral-500 mb-5 font-medium text-sm"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
-            <div class="flex justify-between text-neutral-900 text-xl md:text-2xl font-bold mb-6 md:mb-8 font-display"><span>Total</span> <span id="cart-total">₹0.00</span></div>
+        <div class="p-6 md:p-8 border-t" style="border-color: var(--card-border); background: var(--card-bg);">
+            <div class="flex justify-between mb-3 font-medium text-sm" style="color: var(--card-text-muted);"><span>Subtotal</span> <span id="cart-subtotal">₹0.00</span></div>
+            <div class="flex justify-between mb-5 font-medium text-sm" style="color: var(--card-text-muted);"><span>Tax (8%)</span> <span id="cart-tax">₹0.00</span></div>
+            <div class="flex justify-between text-xl md:text-2xl font-bold mb-6 md:mb-8 font-display dynamic-text"><span>Total</span> <span id="cart-total">₹0.00</span></div>
             
-            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 bg-gradient-to-r from-[#1B4332] to-[#143325] text-white rounded-xl text-xs font-bold uppercase tracking-[0.15em] hover:shadow-[0_10px_25px_rgba(27,67,50,0.4)] transition-all border border-[#1B4332]/50 disabled:opacity-50">
+            <button onclick="openPaymentModal()" id="checkout-btn" class="w-full py-4 dynamic-btn rounded-xl text-xs font-bold uppercase tracking-[0.15em] transition-all disabled:opacity-50 shadow-md">
                 Proceed to Checkout
             </button>
         </div>
     </div>
 
     <!-- PAYMENT MODAL -->
-    <div id="payment-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[90] hidden flex items-center justify-center p-4 md:p-6">
-        <div class="w-full max-w-md bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl" id="payment-modal-content">
+    <div id="payment-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[90] hidden flex items-center justify-center p-4 md:p-6" onclick="closePaymentModal()">
+        <div class="w-full max-w-md bg-[#151515] border border-neutral-800 rounded-2xl p-6 md:p-8 relative shadow-2xl" id="payment-modal-content" onclick="event.stopPropagation()">
             <button onclick="closePaymentModal()" class="absolute top-4 right-4 text-neutral-500 hover:text-white">
                 <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
@@ -323,7 +344,6 @@
                 <button onclick="hideUPIQRCode()" class="mt-4 text-xs text-neutral-500 hover:text-white uppercase tracking-widest font-bold">Go Back</button>
             </div>
 
-            <!-- Processing State -->
             <div id="payment-processing" class="hidden py-8 flex-col items-center justify-center text-center">
                 <svg width="40" height="40" class="animate-spin text-[#C5A059] mb-4 mx-auto" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10" stroke-opacity="0.2"/><path d="M12 2a10 10 0 0 1 10 10" stroke-linecap="round"/></svg>
                 <div class="text-white font-bold tracking-widest uppercase text-sm">Processing Order...</div>
@@ -331,9 +351,9 @@
         </div>
     </div>
 
-    <!-- BILL / RECEIPT MODAL (Customer Facing UI) -->
-    <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6 no-print">
-        <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)]">
+    <!-- BILL / RECEIPT MODAL (Tap anywhere to close) -->
+    <div id="bill-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6 no-print cursor-pointer" onclick="closeBill()">
+        <div class="w-full max-w-sm bg-white rounded-t-lg rounded-b-3xl relative overflow-hidden receipt-anim shadow-[0_30px_60px_rgba(0,0,0,0.4)] cursor-default" onclick="event.stopPropagation()">
             <div class="p-8 text-center border-b-2 border-dashed border-neutral-300 bg-[#FDFBF7]">
                 <div class="font-display text-2xl font-bold tracking-widest text-neutral-950 mb-1 dynamic-brand-name uppercase">VELVET SIP</div>
                 <div class="text-[10px] uppercase tracking-widest text-neutral-500 font-bold mb-4" id="bill-store-name">Reserve Boutique</div>
@@ -353,12 +373,13 @@
             <button onclick="closeBill()" class="absolute top-4 right-4 text-neutral-400 hover:text-black transition-colors bg-white rounded-full p-1 shadow-sm border border-neutral-200">
                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
             </button>
+            <div class="text-center pb-4 pt-2 text-[10px] text-neutral-400 font-bold uppercase tracking-widest">Tap anywhere to close</div>
         </div>
     </div>
 
     <!-- ADMIN PASSWORD MODAL -->
-    <div id="password-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6">
-        <div class="w-full max-w-sm bg-white rounded-2xl p-8 relative shadow-2xl">
+    <div id="password-modal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-[100] hidden flex items-center justify-center p-6" onclick="closePasswordModal()">
+        <div class="w-full max-w-sm bg-white rounded-2xl p-8 relative shadow-2xl" onclick="event.stopPropagation()">
             <h3 class="font-display text-2xl font-bold text-neutral-950 mb-2">Admin Access</h3>
             <p class="text-sm text-neutral-500 mb-6">Enter authorization code to continue.</p>
             <input type="password" id="chef-password-input" class="w-full p-4 border border-neutral-300 rounded-xl mb-2 outline-none focus:border-[#1B4332] font-mono text-center tracking-widest text-lg" placeholder="•••">
@@ -378,7 +399,6 @@
                     <div class="font-display text-xl font-bold tracking-widest text-[#C5A059] dynamic-brand-name uppercase">VELVET SIP</div>
                     <span class="text-[10px] bg-neutral-800 px-2 py-1 rounded text-neutral-400 font-mono tracking-widest hidden md:inline-block">ADMIN</span>
                     
-                    <!-- Admin Store Filter -->
                     <select id="admin-store-selector" onchange="window.handleAdminStoreChange()" class="bg-[#1A1A1A] border border-neutral-700 text-[#C5A059] text-[10px] md:text-xs font-bold uppercase tracking-widest rounded px-2 py-1 outline-none md:ml-4 cursor-pointer hover:border-[#C5A059] transition-colors">
                         <option value="ALL">All Stores</option>
                         <option value="Vizianagaram">Vizianagaram</option>
@@ -398,7 +418,6 @@
 
         <div class="p-4 md:p-6 max-w-[1600px] mx-auto h-[calc(100vh-140px)] md:h-[calc(100vh-100px)] overflow-hidden relative">
             
-            <!-- KDS TAB -->
             <div id="admin-tab-kds" class="grid grid-cols-1 lg:grid-cols-3 gap-6 h-full overflow-hidden">
                 <div class="bg-[#151515] rounded-xl border border-neutral-800 flex flex-col h-full overflow-hidden">
                     <div class="p-4 md:p-5 border-b border-neutral-800 bg-red-950/20 text-red-400 font-bold text-xs uppercase tracking-widest flex justify-between items-center shrink-0">
@@ -420,7 +439,6 @@
                 </div>
             </div>
 
-            <!-- MENU TAB -->
             <div id="admin-tab-menu" class="hidden h-full flex flex-col">
                 <div class="flex justify-between items-center mb-6 shrink-0">
                     <h2 class="font-display text-2xl text-white">Menu Editor</h2>
@@ -432,6 +450,7 @@
                             <thead class="text-xs text-neutral-500 uppercase bg-[#111] border-b border-neutral-800 sticky top-0">
                                 <tr>
                                     <th class="px-6 py-4">Item Name</th>
+                                    <th class="px-6 py-4">Store</th>
                                     <th class="px-6 py-4">Category</th>
                                     <th class="px-6 py-4">Price (₹)</th>
                                     <th class="px-6 py-4">Actions</th>
@@ -443,7 +462,6 @@
                 </div>
             </div>
 
-            <!-- ANALYTICS TAB -->
             <div id="admin-tab-analytics" class="hidden h-full overflow-y-auto admin-scroll pb-10">
                 <h2 class="font-display text-2xl text-white mb-6">Sales Analytics</h2>
                 <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
@@ -472,7 +490,6 @@
                 </div>
             </div>
 
-            <!-- SETTINGS TAB (Location Specific) -->
             <div id="admin-tab-settings" class="hidden h-full overflow-y-auto admin-scroll pb-10">
                 <h2 class="font-display text-2xl text-white mb-6">Store Configuration</h2>
                 
@@ -485,6 +502,7 @@
                     <div class="mb-6">
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2">Store Locations (Comma Separated)</label>
                         <input type="text" id="setting-locations" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332] font-mono text-sm" placeholder="Vizianagaram, Palamaner">
+                        <p class="text-xs text-neutral-600 mt-2">These will automatically appear in the Customer dropdown.</p>
                     </div>
                     <div class="mb-8 border-t border-neutral-800 pt-6">
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-2 text-[#C5A059]">UPI Payment ID (For QR Generator)</label>
@@ -536,17 +554,23 @@
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Category (ID)</label>
-                        <input type="text" id="editor-category" placeholder="hot, mojito, soda..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Store Location</label>
+                        <select id="editor-store" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]"></select>
                     </div>
                     <div>
                         <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Price (₹)</label>
                         <input type="number" id="editor-price" class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
                     </div>
                 </div>
-                <div>
-                    <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Image URL (Optional)</label>
-                    <input type="text" id="editor-image" placeholder="https://..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Category (ID)</label>
+                        <input type="text" id="editor-category" placeholder="hot, mojito..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Image URL</label>
+                        <input type="text" id="editor-image" placeholder="https://..." class="w-full bg-[#111] border border-neutral-700 rounded-lg p-3 text-white outline-none focus:border-[#1B4332]">
+                    </div>
                 </div>
                 <div>
                     <label class="block text-xs font-bold text-neutral-500 uppercase tracking-widest mb-1">Description</label>
@@ -562,9 +586,6 @@
     </div>
 
 
-    <!-- ========================================== -->
-    <!-- APPLICATION LOGIC & FIREBASE SDK           -->
-    <!-- ========================================== -->
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -582,22 +603,36 @@
         const db = getFirestore(app);
 
         const defaultMenuItems = [
-            { id: "1", name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom." },
-            { id: "2", name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema." },
-            { id: "3", name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water." }
+            { id: "1", name: "Premium Reserve Tea", category: "hot", price: 49, desc: "Hand-picked Assam tea brewed with cardamom.", storeId: "Vizianagaram" },
+            { id: "2", name: "Signature Espresso", category: "hot", price: 49, desc: "Rich, dark roast espresso with velvety crema.", storeId: "Vizianagaram" },
+            { id: "3", name: "Classic Mint Mojito", category: "mojito", price: 49, desc: "Fresh mint, lime, and sparkling water.", storeId: "Vizianagaram" }
         ];
 
-        let dynamicMenu = [];
-        let cart = [];
-        let orders = [];
-        let orderCounter = 1000;
-        let chartsInstance = { revenue: null, product: null };
-        
-        // Settings State
+        let dynamicMenu = []; let cart = []; let orders = []; let orderCounter = 1000; let chartsInstance = { revenue: null, product: null };
         let brandSettings = { name: "VELVET SIP", initials: "V.S", locations: ["Vizianagaram", "Palamaner"], upiId: "" };
         let localSettings = { autoPrint: false, defaultStore: "Vizianagaram" };
 
-        // FIREBASE LISTENERS
+        // SOUND SYSTEM
+        const sfx = {
+            add: new Audio('https://actions.google.com/sounds/v1/water/water_drop.ogg'),
+            success: new Audio('https://actions.google.com/sounds/v1/ui/beep_short.ogg'),
+            bell: new Audio('https://actions.google.com/sounds/v1/alarms/store_door_chime.ogg')
+        };
+        let lastKdsOrderCount = 0;
+
+        window.playSound = (type) => { try { if(sfx[type]){ sfx[type].currentTime = 0; sfx[type].play().catch(()=>{}); } } catch(e){} };
+
+        // THEME SYSTEM
+        const themes = ['green', 'dark', 'light'];
+        window.cycleTheme = () => {
+            const current = document.body.getAttribute('data-theme') || 'green';
+            const nextIdx = (themes.indexOf(current) + 1) % themes.length;
+            document.body.setAttribute('data-theme', themes[nextIdx]);
+            localStorage.setItem('vsip_theme', themes[nextIdx]);
+            window.playSound('add');
+        };
+
+        // FIREBASE
         function setupDatabaseListeners() {
             const ordersRef = collection(db, 'orders');
             onSnapshot(ordersRef, (snapshot) => {
@@ -618,9 +653,7 @@
             const menuRef = collection(db, 'menu');
             onSnapshot(menuRef, async (snapshot) => {
                 if (snapshot.empty) {
-                    for(const item of defaultMenuItems) {
-                        try { await addDoc(collection(db, 'menu'), item); } catch(e){}
-                    }
+                    for(const item of defaultMenuItems) { try { await addDoc(collection(db, 'menu'), item); } catch(e){} }
                 } else {
                     dynamicMenu = [];
                     snapshot.forEach(doc => dynamicMenu.push({ ...doc.data(), docId: doc.id }));
@@ -639,27 +672,30 @@
             }, (e) => console.error(e));
         }
 
-        // CUSTOMER POS LOGIC
+        // CUSTOMER POS
         window.renderMenuUI = (categoryFilter = 'all') => {
             document.getElementById('menu-loader').style.display = 'none';
             const grid = document.getElementById('menu-grid');
             grid.innerHTML = ''; grid.classList.remove('hidden');
             
-            const categories = [...new Set(dynamicMenu.map(item => item.category))];
+            const currentStore = document.getElementById('customer-store-selector').value;
+            const storeMenu = dynamicMenu.filter(item => item.storeId === currentStore || !item.storeId); 
+
+            const categories = [...new Set(storeMenu.map(item => item.category))];
             const filterContainer = document.getElementById('category-filters');
             
-            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 ${categoryFilter === 'all' ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all">All</button>`;
+            let filterHtml = `<button onclick="filterMenu('all')" class="cat-btn px-6 py-2.5 rounded-full text-xs font-bold capitalize transition-all ${categoryFilter === 'all' ? 'dynamic-btn shadow-md' : 'bg-transparent border dynamic-text hover:bg-neutral-500/10'}" style="border-color: var(--card-border);">All</button>`;
             categories.forEach(cat => {
                 const isActive = categoryFilter === cat;
                 const formattedName = cat.charAt(0).toUpperCase() + cat.slice(1);
-                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 ${isActive ? 'bg-[#1B4332] text-white shadow-md' : 'bg-white border border-neutral-200 text-neutral-600 hover:border-[#1B4332]/30'} rounded-full text-xs font-bold capitalize transition-all">${formattedName}</button>`;
+                filterHtml += `<button onclick="filterMenu('${cat}')" class="cat-btn px-6 py-2.5 rounded-full text-xs font-bold capitalize transition-all ${isActive ? 'dynamic-btn shadow-md' : 'bg-transparent border dynamic-text hover:bg-neutral-500/10'}" style="border-color: var(--card-border);">${formattedName}</button>`;
             });
             filterContainer.innerHTML = filterHtml;
 
-            const filteredItems = categoryFilter === 'all' ? dynamicMenu : dynamicMenu.filter(item => item.category === categoryFilter);
+            const filteredItems = categoryFilter === 'all' ? storeMenu : storeMenu.filter(item => item.category === categoryFilter);
             
             if(filteredItems.length === 0) {
-                grid.innerHTML = `<div class="col-span-full text-center py-10 text-neutral-400">No items available.</div>`; return;
+                grid.innerHTML = `<div class="col-span-full text-center py-10" style="color: var(--card-text-muted);">No items available at this location.</div>`; return;
             }
 
             filteredItems.forEach(item => {
@@ -667,16 +703,16 @@
                 
                 const cardHtml = `
                     <div class="tilt-wrapper group menu-item-anim w-full" style="opacity: 0; transform: translateY(30px);">
-                        <div class="tilt-card premium-dark-card p-5 md:p-6 rounded-3xl flex flex-col h-full" data-tilt-intensity="2">
+                        <div class="tilt-card menu-card p-5 md:p-6 rounded-3xl flex flex-col h-full" data-tilt-intensity="2">
                             <div class="glare-container rounded-3xl"><div class="glare"></div></div>
                             ${imgHtml}
                             <div class="flex justify-between items-start mb-2 text-left ${item.image ? 'mt-0' : 'mt-2'}">
-                                <h3 class="font-display font-bold text-xl text-[var(--card-text)] leading-tight group-hover:text-[#C5A059] transition-colors">${item.name}</h3>
+                                <h3 class="font-display font-bold text-xl leading-tight transition-colors" style="color: var(--card-text);">${item.name}</h3>
                             </div>
-                            <p class="text-[13px] text-[var(--card-text-muted)] font-medium mb-6 flex-grow leading-relaxed text-left">${item.desc}</p>
-                            <div class="mt-auto flex justify-between items-center pt-4 border-t border-neutral-800">
-                                <span class="font-bold text-xl text-[#C5A059] tracking-tight">₹${Number(item.price).toFixed(2)}</span>
-                                <button onclick="addToCart('${item.docId || item.id}')" class="w-10 h-10 rounded-full bg-neutral-800 text-white flex items-center justify-center hover:bg-[#C5A059] hover:text-[#111] transition-colors">
+                            <p class="text-[13px] font-medium mb-6 flex-grow leading-relaxed text-left" style="color: var(--card-text-muted);">${item.desc}</p>
+                            <div class="mt-auto flex justify-between items-center pt-4 border-t" style="border-color: var(--card-border);">
+                                <span class="font-bold text-xl tracking-tight" style="color: var(--gold);">₹${Number(item.price).toFixed(2)}</span>
+                                <button onclick="addToCart('${item.docId || item.id}')" class="w-10 h-10 rounded-full flex items-center justify-center transition-colors dynamic-btn shadow-sm">
                                     <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 5v14M5 12h14"/></svg>
                                 </button>
                             </div>
@@ -692,11 +728,12 @@
             }
         }
 
-        window.filterMenu = (category) => renderMenuUI(category);
+        window.filterMenu = (category) => { window.playSound('add'); renderMenuUI(category); }
 
         window.addToCart = (itemId) => {
             const item = dynamicMenu.find(i => (i.docId || i.id) === itemId);
             if(!item) return;
+            window.playSound('add');
             const existing = cart.find(i => (i.docId || i.id) === itemId);
             if (existing) existing.qty += 1; else cart.push({ ...item, qty: 1 });
             
@@ -711,6 +748,7 @@
         window.updateCartQty = (itemId, change) => {
             const item = cart.find(i => (i.docId || i.id) === itemId);
             if(item) {
+                window.playSound('add');
                 item.qty += change;
                 if(item.qty <= 0) cart = cart.filter(i => (i.docId || i.id) !== itemId);
             }
@@ -735,39 +773,42 @@
                     const imgThumb = item.image ? `<img src="${item.image}" class="w-14 h-14 rounded-[0.85rem] object-cover mr-4 shrink-0 shadow-sm" onerror="this.style.display='none'">` : '';
 
                     container.innerHTML += `
-                        <div class="flex justify-between items-center bg-white/80 backdrop-blur-md p-3.5 rounded-[1.25rem] border border-white shadow-[0_4px_15px_rgba(0,0,0,0.03)] hover:shadow-[0_8px_20px_rgba(0,0,0,0.06)] transition-all">
+                        <div class="flex justify-between items-center p-3.5 rounded-[1.25rem] border shadow-sm hover:shadow-md transition-all" style="background: var(--card-bg); border-color: var(--card-border);">
                             <div class="flex items-center flex-grow">
                                 ${imgThumb}
                                 <div>
-                                    <div class="font-bold text-[14px] text-neutral-900 leading-tight">${item.name}</div>
-                                    <div class="text-[12px] text-[#C5A059] font-semibold mt-0.5">₹${Number(item.price).toFixed(2)}</div>
+                                    <div class="font-bold text-[14px] leading-tight" style="color: var(--card-text);">${item.name}</div>
+                                    <div class="text-[12px] font-semibold mt-0.5" style="color: var(--gold);">₹${Number(item.price).toFixed(2)}</div>
                                 </div>
                             </div>
-                            <div class="flex items-center gap-3 bg-[#FAF9F6] rounded-full px-2 py-1.5 border border-neutral-100 shrink-0 shadow-inner">
-                                <button onclick="updateCartQty('${cId}', -1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-red-500 hover:bg-red-50 rounded-full transition-colors">-</button>
-                                <span class="text-xs font-bold w-3 text-center text-neutral-800">${item.qty}</span>
-                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold text-neutral-400 hover:text-[#1B4332] hover:bg-[#1B4332]/10 rounded-full transition-colors">+</button>
+                            <div class="flex items-center gap-3 rounded-full px-2 py-1.5 border shrink-0 shadow-inner" style="background: var(--bg-color); border-color: var(--card-border);">
+                                <button onclick="updateCartQty('${cId}', -1)" class="w-6 h-6 flex items-center justify-center font-bold rounded-full transition-colors" style="color: var(--card-text-muted);">-</button>
+                                <span class="text-xs font-bold w-3 text-center" style="color: var(--card-text);">${item.qty}</span>
+                                <button onclick="updateCartQty('${cId}', 1)" class="w-6 h-6 flex items-center justify-center font-bold rounded-full transition-colors" style="color: var(--primary);">+</button>
                             </div>
                         </div>
                     `;
                 });
 
-                // SMART SUGGESTIONS LOGIC
-                const availableSuggestions = dynamicMenu.filter(m => !cart.find(c => (c.docId || c.id) === (m.docId || m.id)));
+                // SMART SUGGESTIONS 
+                const currentStore = document.getElementById('customer-store-selector').value;
+                const storeMenu = dynamicMenu.filter(item => item.storeId === currentStore || !item.storeId);
+                const availableSuggestions = storeMenu.filter(m => !cart.find(c => (c.docId || c.id) === (m.docId || m.id)));
+                
                 if(availableSuggestions.length > 0) {
                     const suggestions = availableSuggestions.sort(() => 0.5 - Math.random()).slice(0, 2);
-                    let sugHtml = `<div class="mt-8 pt-5 border-t border-neutral-200/50"><h4 class="text-[10px] font-bold uppercase tracking-widest text-neutral-400 mb-3">Suggested Add-ons</h4><div class="flex flex-col gap-3">`;
+                    let sugHtml = `<div class="mt-8 pt-5 border-t" style="border-color: var(--card-border);"><h4 class="text-[10px] font-bold uppercase tracking-widest mb-3" style="color: var(--card-text-muted);">Suggested Add-ons</h4><div class="flex flex-col gap-3">`;
                     suggestions.forEach(sug => {
                         const sId = sug.docId || sug.id;
-                        const sImg = sug.image ? `<img src="${sug.image}" class="w-12 h-12 rounded-xl object-cover">` : `<div class="w-12 h-12 rounded-xl bg-neutral-100"></div>`;
+                        const sImg = sug.image ? `<img src="${sug.image}" class="w-12 h-12 rounded-xl object-cover">` : `<div class="w-12 h-12 rounded-xl" style="background: var(--bg-color);"></div>`;
                         sugHtml += `
-                            <div class="flex items-center gap-3 bg-white p-2.5 rounded-2xl border border-neutral-100 shadow-sm hover:border-[#C5A059] transition-colors">
+                            <div class="flex items-center gap-3 p-2.5 rounded-2xl border shadow-sm transition-colors" style="background: var(--card-bg); border-color: var(--card-border);">
                                 ${sImg}
                                 <div class="flex-grow">
-                                    <div class="text-xs font-bold text-neutral-900">${sug.name}</div>
-                                    <div class="text-[11px] text-[#C5A059] font-bold">₹${Number(sug.price).toFixed(2)}</div>
+                                    <div class="text-xs font-bold" style="color: var(--card-text);">${sug.name}</div>
+                                    <div class="text-[11px] font-bold" style="color: var(--gold);">₹${Number(sug.price).toFixed(2)}</div>
                                 </div>
-                                <button onclick="addToCart('${sId}')" class="w-8 h-8 bg-[#FAF9F6] border border-neutral-200 hover:bg-[#1B4332] hover:text-white hover:border-[#1B4332] rounded-full flex items-center justify-center transition-all text-neutral-600 font-bold shadow-sm">+</button>
+                                <button onclick="addToCart('${sId}')" class="w-8 h-8 border rounded-full flex items-center justify-center transition-all font-bold shadow-sm" style="background: var(--bg-color); border-color: var(--card-border); color: var(--card-text);">+</button>
                             </div>
                         `;
                     });
@@ -784,6 +825,7 @@
 
         window.openPaymentModal = () => {
             if(cart.length === 0) return;
+            window.playSound('add');
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             let total = subtotal + (subtotal * 0.08);
             document.getElementById('payment-total-display').innerText = `₹${total.toFixed(2)}`;
@@ -796,25 +838,21 @@
             document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.add('hidden');
             
-            if (window.gsap) {
-                window.gsap.fromTo('#payment-modal-content', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" });
-            }
+            if (window.gsap) window.gsap.fromTo('#payment-modal-content', { y: 30, opacity: 0 }, { y: 0, opacity: 1, duration: 0.4, ease: "power3.out" });
         };
 
         window.closePaymentModal = () => document.getElementById('payment-modal').classList.add('hidden');
 
-        // REAL UPI QR GENERATOR
         window.showUPIQRCode = () => {
+            window.playSound('add');
             let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
             let total = (subtotal + (subtotal * 0.08)).toFixed(2);
-            
             const upiId = brandSettings.upiId || "example@upi";
             const upiString = `upi://pay?pa=${upiId}&pn=${encodeURIComponent(brandSettings.name)}&am=${total}&cu=INR`;
             const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(upiString)}`;
             
             document.getElementById('dynamic-qr-image').src = qrUrl;
             document.getElementById('qr-amount').innerText = `₹${total}`;
-            
             document.getElementById('payment-options').classList.add('hidden');
             document.getElementById('upi-qr-section').classList.remove('hidden');
             document.getElementById('upi-qr-section').classList.add('flex');
@@ -827,6 +865,7 @@
         };
 
         window.simulatePayment = (method) => {
+            window.playSound('add');
             document.getElementById('payment-options').classList.add('hidden');
             document.getElementById('upi-qr-section').classList.add('hidden');
             document.getElementById('payment-processing').classList.remove('hidden');
@@ -837,44 +876,38 @@
 
         window.processCheckout = async (paymentMethod = "Digital Wallet") => {
             if(cart.length === 0) return;
+            window.playSound('success');
 
             let customerName = prompt("Please enter a name for your order ticket:") || "Guest";
             const customerStore = document.getElementById('customer-store-selector').value;
 
-            orderCounter++;
-            const orderNum = `#${orderCounter}`;
+            orderCounter++; const orderNum = `#${orderCounter}`;
             let subtotal = 0;
-            const orderItems = cart.map(item => {
-                subtotal += item.price * item.qty;
-                return { name: item.name, qty: item.qty, price: Number(item.price) };
-            });
+            const orderItems = cart.map(item => { subtotal += item.price * item.qty; return { name: item.name, qty: item.qty, price: Number(item.price) }; });
             const total = subtotal + (subtotal * 0.08);
-
             const timeNow = new Date();
-            const dateStr = timeNow.toLocaleDateString();
-            const timeStr = timeNow.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'});
 
             const newOrder = {
                 id: orderNum, customer: customerName, storeId: customerStore,
-                time: timeStr, date: dateStr, items: orderItems,
-                status: 'new', total: total, paymentMethod: paymentMethod, timestamp: Date.now() 
+                time: timeNow.toLocaleTimeString([], {hour: '2-digit', minute:'2-digit'}), date: timeNow.toLocaleDateString(),
+                items: orderItems, status: 'new', total: total, paymentMethod: paymentMethod, timestamp: Date.now() 
             };
             
             try { await addDoc(collection(db, "orders"), newOrder); } 
             catch(e) { console.error(e); orders.push(newOrder); }
 
-            // Render Screen Receipt
+            // Screen Receipt
             document.getElementById('bill-customer-name').innerText = customerName.toUpperCase();
             document.getElementById('bill-store-name').innerText = `${brandSettings.name.toUpperCase()} - ${customerStore}`;
             document.getElementById('bill-order-num').innerText = orderNum.replace('#','');
             document.getElementById('bill-date').innerText = timeNow.toLocaleString();
             document.getElementById('bill-total-amt').innerText = `₹${total.toFixed(2)}`;
+            document.getElementById('bill-payment-method').innerText = paymentMethod;
             
-            const bItems = document.getElementById('bill-items');
-            bItems.innerHTML = '';
+            const bItems = document.getElementById('bill-items'); bItems.innerHTML = '';
             orderItems.forEach(i => bItems.innerHTML += `<div class="flex justify-between"><span>${i.qty}x ${i.name.substring(0, 15)}</span><span>₹${(i.price * i.qty).toFixed(2)}</span></div>`);
 
-            // Render Thermal Receipt
+            // Thermal Receipt
             document.getElementById('print-brand').innerText = brandSettings.name;
             document.getElementById('print-store').innerText = customerStore;
             document.getElementById('print-date').innerText = timeNow.toLocaleString();
@@ -883,18 +916,14 @@
             document.getElementById('print-total').innerText = `Rs ${total.toFixed(2)}`;
             document.getElementById('print-method').innerText = paymentMethod;
             
-            const tItems = document.getElementById('print-items');
-            tItems.innerHTML = '';
+            const tItems = document.getElementById('print-items'); tItems.innerHTML = '';
             orderItems.forEach(i => tItems.innerHTML += `<div style="display:flex; justify-content:space-between; margin-bottom:3px;"><span>${i.qty}x ${i.name}</span><span>${(i.price * i.qty).toFixed(2)}</span></div>`);
 
             cart = []; updateCartUI(); 
             document.getElementById('bill-modal').classList.remove('hidden');
             renderChefDashboard();
 
-            // Auto-Print Logic
-            if(localSettings.autoPrint) {
-                setTimeout(() => { window.print(); }, 500);
-            }
+            if(localSettings.autoPrint) setTimeout(() => { window.print(); }, 500);
         }
 
         // ==========================================
@@ -905,9 +934,7 @@
             if(!document.getElementById('admin-tab-analytics').classList.contains('hidden')) processAnalytics();
         };
 
-        window.handleCustomerStoreChange = () => {
-            const sel = document.getElementById('customer-store-selector').value;
-        }
+        window.handleCustomerStoreChange = () => { cart = []; updateCartUI(); renderMenuUI('all'); }
 
         function renderChefDashboard() {
             const containerNew = document.getElementById('kds-new');
@@ -951,6 +978,12 @@
                 if(order.status === 'ready') containerReady.innerHTML += card;
             });
 
+            // Bell Sound Trigger for new orders
+            if(cNew > lastKdsOrderCount && document.getElementById('chef-view').classList.contains('hidden') === false) {
+                window.playSound('bell');
+            }
+            lastKdsOrderCount = cNew;
+
             document.getElementById('count-new').innerText = cNew;
             document.getElementById('count-prep').innerText = cPrep;
             document.getElementById('count-ready').innerText = cReady;
@@ -967,10 +1000,12 @@
             const tbody = document.getElementById('admin-menu-list'); tbody.innerHTML = '';
             dynamicMenu.forEach(item => {
                 const id = item.docId || item.id;
+                const storeBadge = `<span class="bg-neutral-800 border border-neutral-700 text-[#C5A059] px-2 py-0.5 rounded text-[9px] tracking-widest uppercase">${item.storeId || 'All'}</span>`;
                 const thumbHtml = item.image ? `<img src="${item.image}" class="w-8 h-8 rounded-md object-cover inline-block mr-3 border border-neutral-700">` : '';
                 tbody.innerHTML += `
                     <tr class="hover:bg-neutral-800/50 transition-colors">
                         <td class="px-6 py-4 font-bold text-white flex items-center">${thumbHtml}${item.name}</td>
+                        <td class="px-6 py-4">${storeBadge}</td>
                         <td class="px-6 py-4 uppercase text-xs tracking-widest">${item.category}</td>
                         <td class="px-6 py-4 text-[#C5A059]">₹${Number(item.price).toFixed(2)}</td>
                         <td class="px-6 py-4">
@@ -986,6 +1021,8 @@
             document.getElementById('editor-title').innerText = "Add Menu Item"; document.getElementById('editor-id').value = '';
             document.getElementById('editor-name').value = ''; document.getElementById('editor-category').value = '';
             document.getElementById('editor-price').value = ''; document.getElementById('editor-image').value = ''; document.getElementById('editor-desc').value = '';
+            const currentStore = document.getElementById('admin-store-selector').value;
+            document.getElementById('editor-store').value = currentStore === 'ALL' ? brandSettings.locations[0] : currentStore;
             document.getElementById('menu-editor-modal').classList.remove('hidden');
         };
 
@@ -996,6 +1033,7 @@
             document.getElementById('editor-title').innerText = "Edit Menu Item"; document.getElementById('editor-id').value = id;
             document.getElementById('editor-name').value = item.name; document.getElementById('editor-category').value = item.category;
             document.getElementById('editor-price').value = item.price; document.getElementById('editor-image').value = item.image || ''; document.getElementById('editor-desc').value = item.desc || "";
+            document.getElementById('editor-store').value = item.storeId || brandSettings.locations[0];
             document.getElementById('menu-editor-modal').classList.remove('hidden');
         };
 
@@ -1003,7 +1041,8 @@
             const id = document.getElementById('editor-id').value;
             const itemObj = {
                 name: document.getElementById('editor-name').value, category: document.getElementById('editor-category').value.toLowerCase().trim(),
-                price: parseFloat(document.getElementById('editor-price').value) || 0, image: document.getElementById('editor-image').value.trim(), desc: document.getElementById('editor-desc').value
+                price: parseFloat(document.getElementById('editor-price').value) || 0, image: document.getElementById('editor-image').value.trim(), 
+                desc: document.getElementById('editor-desc').value, storeId: document.getElementById('editor-store').value
             };
             if(!itemObj.name || !itemObj.category) return alert("Name and Category required.");
             if (db) {
@@ -1046,7 +1085,6 @@
 
         function renderCharts(dailyRev, itemCounts) {
             Chart.defaults.color = '#737373'; Chart.defaults.font.family = "'Plus Jakarta Sans', sans-serif";
-
             const revCtx = document.getElementById('revenueChart');
             if(chartsInstance.revenue) chartsInstance.revenue.destroy();
             const revLabels = Object.keys(dailyRev).slice(-7); 
@@ -1082,18 +1120,15 @@
             const custSel = document.getElementById('customer-store-selector');
             const adminSel = document.getElementById('admin-store-selector');
             const localSel = document.getElementById('setting-local-store');
+            const editorSel = document.getElementById('editor-store');
             
             const currAdmin = adminSel.value;
             
             const locOpts = locs.map(l => `<option value="${l}">${l}</option>`).join('');
-            custSel.innerHTML = locOpts;
-            localSel.innerHTML = locOpts;
+            custSel.innerHTML = locOpts; localSel.innerHTML = locOpts; editorSel.innerHTML = locOpts;
             adminSel.innerHTML = `<option value="ALL">All Stores</option>` + locOpts;
             
-            if (locs.includes(localSettings.defaultStore)) {
-                custSel.value = localSettings.defaultStore;
-                localSel.value = localSettings.defaultStore;
-            }
+            if (locs.includes(localSettings.defaultStore)) { custSel.value = localSettings.defaultStore; localSel.value = localSettings.defaultStore; }
             if (currAdmin === 'ALL' || locs.includes(currAdmin)) adminSel.value = currAdmin;
         }
 
@@ -1105,10 +1140,7 @@
             const locations = locString.split(',').map(s => s.trim()).filter(s => s.length > 0);
             if(locations.length === 0) locations.push("Store 1");
 
-            if(db) {
-                await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations, upiId });
-                showToast("Global Settings Saved");
-            }
+            if(db) { await setDoc(doc(db, 'settings', 'brand'), { name, initials, locations, upiId }); showToast("Global Settings Saved"); }
         }
 
         window.saveLocalSettings = () => {
@@ -1116,17 +1148,48 @@
             localSettings.defaultStore = document.getElementById('setting-local-store').value;
             localStorage.setItem('vsip_local_settings', JSON.stringify(localSettings));
             document.getElementById('customer-store-selector').value = localSettings.defaultStore;
-            showToast("Local Terminal Saved");
+            showToast("Local Terminal Saved"); renderMenuUI('all');
         }
 
         // ==========================================
         // UI TOGGLES
         // ==========================================
+        window.unlockKiosk = () => {
+            window.playSound('add');
+            document.getElementById('customer-lock-overlay').classList.add('unlocked');
+            document.getElementById('preloader').classList.remove('hidden');
+
+            // Intro Animations (Fires only AFTER unlock so glass filling is seen!)
+            if (window.gsap) {
+                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
+                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 })
+                  .to('#preloader-text', { opacity: 0, duration: 0.4, delay: 0.6 })
+                  .to('#preloader', { yPercent: -100, duration: 0.8, ease: 'power3.inOut' })
+                  .set('#preloader', { display: 'none' });
+                
+                tl.from('.hero-content > *', { y: 30, opacity: 0, duration: 0.8, stagger: 0.1, ease: 'power3.out' }, "-=0.4")
+                  .from('#hero-tilt', { y: 50, opacity: 0, duration: 0.8, ease: 'power3.out' }, "-=0.6");
+                
+                tl.fromTo('.ice-cube-wrap', { y: -400, opacity: 0 }, { y: 0, opacity: 1, duration: 0.8, stagger: 0.1, ease: 'bounce.out' }, "-=0.2");
+                tl.to('#pour-stream', { opacity: 0.8, duration: 0.2 }, "+=0.2");
+                tl.fromTo('#coffee-liquid', { attr: { y: 470 } }, { attr: { y: 150 }, duration: 2.8, ease: 'power1.inOut' }, "+=0.1")
+                  .to('.ice-cube-wrap', { y: -160, duration: 2.8, ease: 'power1.inOut' }, "<");
+                tl.to('#pour-stream', { opacity: 0, duration: 0.2 });
+                window.gsap.to('.ice-cube-wrap', { y: "-=8", duration: 2.5, repeat: -1, yoyo: true, stagger: 0.3, ease: "sine.inOut" });
+            } else {
+                document.body.classList.remove('overflow-hidden');
+                document.getElementById('preloader').style.display = 'none';
+            }
+
+            try { document.documentElement.requestFullscreen(); } catch(e) {}
+        };
+
         window.toggleCart = () => {
             const sidebar = document.getElementById('cart-sidebar');
             sidebar.classList.toggle('cart-open');
             document.getElementById('cart-overlay').classList.toggle('hidden');
         };
+        
         window.closeBill = () => document.getElementById('bill-modal').classList.add('hidden');
 
         window.attemptChefLogin = () => {
@@ -1135,11 +1198,15 @@
             document.getElementById('password-error').classList.add('hidden');
             setTimeout(() => document.getElementById('chef-password-input').focus(), 100);
         };
+        
         window.closePasswordModal = () => document.getElementById('password-modal').classList.add('hidden');
         
         window.verifyChefPassword = () => {
             if(document.getElementById('chef-password-input').value === 'MGX') {
                 closePasswordModal(); 
+                document.getElementById('customer-lock-overlay').classList.add('unlocked');
+                document.getElementById('preloader').classList.add('hidden');
+                document.body.classList.remove('overflow-hidden');
                 switchToChefView();
             } else document.getElementById('password-error').classList.remove('hidden');
         };
@@ -1150,10 +1217,11 @@
             document.body.style.backgroundColor = "#0A0A0A"; 
             renderChefDashboard();
         };
+        
         window.exitChefView = () => {
             document.getElementById('chef-view').classList.add('hidden');
             document.getElementById('customer-view').classList.remove('hidden');
-            document.body.style.backgroundColor = "var(--crema)";
+            document.body.style.backgroundColor = "var(--bg-color)";
         };
 
         window.switchAdminTab = (tabId) => {
@@ -1196,22 +1264,13 @@
         }
 
         window.onload = () => {
+            const savedTheme = localStorage.getItem('vsip_theme') || 'green';
+            document.body.setAttribute('data-theme', savedTheme);
+            
             setupDatabaseListeners();
             if(dynamicMenu.length === 0) { dynamicMenu = [...defaultMenuItems]; renderMenuUI('all'); }
             
             renderAdminMenuTable(); updateCartUI(); applySettingsToUI();
-
-            // Run normal startup animations directly
-            if (window.gsap) {
-                const tl = window.gsap.timeline({ onComplete: () => document.body.classList.remove('overflow-hidden') });
-                tl.to('#preloader-text', { y: 0, opacity: 1, duration: 0.8, ease: 'power3.out', delay: 0.2 })
-                  .to('#preloader-text', { opacity: 0, duration: 0.4, delay: 0.6 })
-                  .to('#preloader', { yPercent: -100, duration: 0.8, ease: 'power3.inOut' })
-                  .set('#preloader', { display: 'none' });
-            } else {
-                document.body.classList.remove('overflow-hidden');
-                document.getElementById('preloader').style.display = 'none';
-            }
         };
     </script>
 </body>
