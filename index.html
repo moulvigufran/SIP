@@ -10,17 +10,40 @@
     <link href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600;700&family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     
     <style>
-        :root {
+        body[data-theme="green"] {
             --bg-color: #FAF9F6;
             --text-color: #1C1917;
             --primary: #1B4332;
             --primary-dark: #143325;
             --gold: #C5A059;
-            
             --card-bg: #151A17; 
             --card-border: #232B26;
             --card-text: #E5E7EB;
             --card-text-muted: #9CA3AF;
+        }
+
+        body[data-theme="dark"] {
+            --bg-color: #0F0F0F;
+            --text-color: #EDEDED;
+            --primary: #C5A059;
+            --primary-dark: #9F7E3B;
+            --gold: #E5C378;
+            --card-bg: #181818; 
+            --card-border: #2A2A2A;
+            --card-text: #F3F4F6;
+            --card-text-muted: #9CA3AF;
+        }
+
+        body[data-theme="light"] {
+            --bg-color: #F4EFEA;
+            --text-color: #242220;
+            --primary: #5A3E2B;
+            --primary-dark: #3F2A1C;
+            --gold: #8C6239;
+            --card-bg: #2B2119; 
+            --card-border: #3E3025;
+            --card-text: #F9F6F0;
+            --card-text-muted: #D1C7BD;
         }
 
         html, body { max-width: 100vw; overflow-x: hidden; }
@@ -30,6 +53,7 @@
             background-color: var(--bg-color);
             color: var(--text-color);
             -webkit-font-smoothing: antialiased;
+            transition: background-color 0.3s ease, color 0.3s ease;
         }
 
         h1, h2, h3, .font-display { font-family: 'Cinzel', serif; letter-spacing: 0.02em; }
@@ -97,11 +121,10 @@
         }
     </style>
 </head>
-<body class="noise-bg relative">
+<body class="noise-bg relative" data-theme="green">
 
     <div class="bg-orb orb-1"></div><div class="bg-orb orb-2"></div>
 
-    <!-- Thermal Print Container -->
     <div id="thermal-receipt">
         <div style="text-align: center; margin-bottom: 10px;">
             <h2 id="print-brand" style="margin: 0; font-size: 18px; font-weight: bold; text-transform: uppercase;">VELVET SIP</h2>
@@ -120,7 +143,7 @@
         <div style="text-align: center; font-size: 10px;">Thank you! Please wait for your order.</div>
     </div>
 
-    <!-- Preloader with Instant Fallback -->
+    <!-- Preloader -->
     <div id="preloader" class="fixed inset-0 bg-[#FAF9F6] z-[99999] flex items-center justify-center transition-opacity duration-500">
         <div class="overflow-hidden text-center">
             <svg width="40" height="40" class="mx-auto mb-4 animate-pulse text-[#1B4332]" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="currentColor" stroke="none"/></svg>
@@ -132,14 +155,14 @@
 
     <!-- MAIN CUSTOMER VIEW -->
     <div id="customer-view" class="block">
-        <nav class="fixed w-full z-50 top-4 md:top-6 px-4 md:px-6">
-            <div class="max-w-7xl mx-auto glass-panel rounded-full px-4 py-3 md:px-6 md:py-3 flex justify-between items-center shadow-sm relative">
+        <nav class="fixed w-full z-50 top-3 md:top-6 px-3 md:px-6">
+            <div class="max-w-7xl mx-auto glass-panel rounded-full px-3 py-2.5 md:px-6 md:py-3 flex justify-between items-center shadow-sm relative">
                 
                 <div class="relative">
-                    <div class="font-display text-lg md:text-2xl font-bold tracking-tight text-[#1B4332] flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="toggleCustomerDropdown(event)">
-                        <svg width="20" height="20" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="currentColor" stroke="none"/></svg>
-                        <span class="dynamic-brand-name uppercase">VELVET SIP</span>
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    <div class="font-display text-base md:text-2xl font-bold tracking-tight text-[#1B4332] flex items-center gap-1.5 md:gap-2 cursor-pointer hover:opacity-80 transition-opacity" onclick="toggleCustomerDropdown(event)">
+                        <svg width="18" height="18" class="md:w-6 md:h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M12 5.5l2 4.5l4.5.5l-3.5 3l1 4.5l-4-2.5l-4 2.5l1-4.5l-3.5-3l4.5-.5z" fill="currentColor" stroke="none"/></svg>
+                        <span class="dynamic-brand-name uppercase truncate max-w-[140px] sm:max-w-none">VELVET SIP</span>
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"></polyline></svg>
                     </div>
                     
                     <div id="customer-dropdown" class="brand-dropdown flex flex-col gap-1">
@@ -157,11 +180,15 @@
                     </div>
                 </div>
                 
-                <div class="flex items-center gap-2 md:gap-4">
-                    <button onclick="toggleCart()" class="relative px-5 py-2.5 md:px-7 md:py-3 bg-[#1B4332] text-white rounded-full text-[10px] md:text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors shadow-[0_8px_20px_rgba(27,67,50,0.25)] flex items-center gap-2">
-                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
+                <!-- COMPACT CART & THEME SWITCHER -->
+                <div class="flex items-center gap-2">
+                    <button onclick="cycleTheme()" class="w-8 h-8 md:w-9 md:h-9 rounded-full border border-neutral-300 bg-white/80 hover:bg-white flex items-center justify-center text-sm shadow-sm transition-all" title="Toggle Theme">
+                        🌓
+                    </button>
+                    <button onclick="toggleCart()" class="relative px-3 py-1.5 md:px-5 md:py-2 bg-[#1B4332] text-white rounded-full text-[11px] md:text-xs font-bold uppercase tracking-wider hover:bg-[#143325] transition-colors shadow-sm flex items-center gap-1.5">
+                        <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"></path><line x1="3" y1="6" x2="21" y2="6"></line><path d="M16 10a4 4 0 0 1-8 0"></path></svg>
                         <span>Cart</span>
-                        <span id="cart-count" class="absolute -top-2 -right-2 bg-[#C5A059] text-white w-5 h-5 flex items-center justify-center rounded-full text-[10px] font-bold opacity-0 transition-opacity shadow-sm">0</span>
+                        <span id="cart-count" class="bg-[#C5A059] text-white text-[9px] w-4 h-4 rounded-full inline-flex items-center justify-center font-bold">0</span>
                     </button>
                 </div>
             </div>
@@ -461,7 +488,7 @@
             </div>
 
             <!-- MENU EDITOR TAB -->
-            <div id="admin-tab-menu" class="hidden h-full flex flex-col admin-only">
+            <div id="admin-tab-menu" class="hidden h-full flex-col admin-only">
                 <div class="flex justify-between items-center mb-6 shrink-0">
                     <h2 class="font-display text-2xl text-white">Menu Editor</h2>
                     <button onclick="openMenuEditorModal()" class="px-5 py-2.5 bg-[#1B4332] text-white rounded-lg text-xs font-bold uppercase tracking-widest hover:bg-[#143325] transition-colors">+ Add New Item</button>
@@ -631,7 +658,6 @@
         </div>
     </div>
 
-
     <script type="module">
         import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-app.js";
         import { getFirestore, collection, addDoc, onSnapshot, doc, updateDoc, setDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore.js";
@@ -671,6 +697,15 @@
         };
         
         window.playSound = (type) => { try { if(sfx[type]){ sfx[type].currentTime = 0; sfx[type].play().catch(()=>{}); } } catch(e){} };
+
+        window.cycleTheme = () => {
+            const themes = ['green', 'dark', 'light'];
+            const currentTheme = document.body.getAttribute('data-theme') || 'green';
+            const nextTheme = themes[(themes.indexOf(currentTheme) + 1) % themes.length];
+            document.body.setAttribute('data-theme', nextTheme);
+            localStorage.setItem('vsip_theme', nextTheme);
+            showToast(`Theme: ${nextTheme.toUpperCase()}`);
+        };
 
         document.addEventListener('click', (e) => {
             const custDrop = document.getElementById('customer-dropdown');
@@ -1064,12 +1099,15 @@
             document.getElementById('dashboard-role-badge').innerText = role;
             
             document.querySelectorAll('.admin-only').forEach(el => {
-                el.style.display = (role === 'ADMIN') ? 'inline-block' : 'none';
-                if(el.tagName === 'DIV' && role === 'ADMIN') el.style.display = 'flex';
+                if (role === 'ADMIN') {
+                    el.classList.remove('hidden');
+                } else {
+                    el.classList.add('hidden');
+                }
             });
             
             switchToChefView();
-            switchAdminTab(role === 'ADMIN' ? 'analytics' : 'waiter');
+            switchAdminTab(role === 'ADMIN' ? 'analytics' : 'kds');
         }
 
         window.switchToChefView = () => {
@@ -1089,21 +1127,36 @@
         };
 
         window.switchAdminTab = (tabId) => {
+            // Strictly hide all tab sections
             ['kds', 'waiter', 'menu', 'analytics', 'settings'].forEach(id => {
                 const el = document.getElementById(`admin-tab-${id}`);
                 const btn = document.getElementById(`tab-btn-${id}`);
-                if(el) el.classList.add('hidden');
-                if(btn) btn.classList.remove('active', 'border-b-[#C5A059]', 'text-white');
+                if (el) {
+                    el.classList.add('hidden');
+                    el.classList.remove('flex', 'grid');
+                }
+                if (btn) {
+                    btn.classList.remove('active', 'border-b-[#C5A059]', 'text-white');
+                }
             });
             
+            // Show only the selected tab
             const targetEl = document.getElementById(`admin-tab-${tabId}`);
-            if(targetEl) {
+            if (targetEl) {
                 targetEl.classList.remove('hidden');
-                if(tabId === 'menu') targetEl.classList.add('flex');
+                if (tabId === 'kds') {
+                    targetEl.classList.add('grid');
+                } else if (tabId === 'waiter' || tabId === 'menu') {
+                    targetEl.classList.add('flex');
+                }
             }
-            document.getElementById(`tab-btn-${tabId}`).classList.add('active', 'border-b-[#C5A059]', 'text-white');
+
+            const targetBtn = document.getElementById(`tab-btn-${tabId}`);
+            if (targetBtn) {
+                targetBtn.classList.add('active', 'border-b-[#C5A059]', 'text-white');
+            }
             
-            if(tabId === 'analytics') processAnalytics();
+            if (tabId === 'analytics') processAnalytics();
         };
 
         window.handleAdminStoreChange = () => {
@@ -1569,12 +1622,14 @@
         }
 
         window.onload = () => {
+            const savedTheme = localStorage.getItem('vsip_theme') || 'green';
+            document.body.setAttribute('data-theme', savedTheme);
+            
             setupDatabaseListeners();
             if(dynamicMenu.length === 0) { dynamicMenu = [...defaultMenuItems]; renderMenuUI('all'); }
             renderAdminMenuTable(); updateCartUI(); applySettingsToUI();
 
-            // Safety timeout: dismisses the preloader in case GSAP stalls
-            setTimeout(dismissPreloader, 1200);
+            setTimeout(dismissPreloader, 1000);
 
             if (window.gsap) {
                 try {
